@@ -87,7 +87,11 @@ export function drawFlagStripe(page: PDFPage) {
  */
 export function drawIssuerHeader(page: PDFPage, issuer: DocumentIssuer, f: Fonts): number {
   drawFlagStripe(page);
-  let y = PAGE[1] - 52;
+  // Logo Fajma en haut à droite : document délivré via Fajma, vérifiable par son QR code.
+  const logoSize = 22;
+  const logoWidth = logoSize * 1.3 + f.bold.widthOfTextAtSize("Fajma", logoSize * 0.62);
+  drawFajmaLogo(page, f.bold, M + WIDTH - logoWidth, PAGE[1] - 42, logoSize);
+  let y = PAGE[1] - 70;
   textAt(page, drName(issuer.full_name), M, y, 14, f.bold);
   y -= 15;
   for (const [value, color, font] of [
@@ -109,7 +113,7 @@ export function drawIssuerHeader(page: PDFPage, issuer: DocumentIssuer, f: Fonts
     }
   }
 
-  let ry = PAGE[1] - 52;
+  let ry = PAGE[1] - 70;
   const right = [
     [issuer.practice_name, 10.5, f.bold, INK],
     [issuer.address, 9, f.font, MUTED],
@@ -236,7 +240,7 @@ export function drawFajmaLogo(page: PDFPage, bold: PDFFont, x: number, y: number
   return size * 1.3 + bold.widthOfTextAtSize("Fajma", textSize);
 }
 
-/** Pied de page : logo Fajma, mentions et numéro de page. */
+/** Pied de page : mentions et numéro de page. */
 export function drawFooter(page: PDFPage, f: Fonts, text: string, pageLabel?: string) {
   page.drawLine({
     start: { x: M, y: 62 },
@@ -244,10 +248,9 @@ export function drawFooter(page: PDFPage, f: Fonts, text: string, pageLabel?: st
     thickness: 1,
     color: LINE,
   });
-  const logoWidth = drawFajmaLogo(page, f.bold, M, 35, 20) + 16;
   let y = 50;
-  for (const line of wrap(text, f.font, 7.5, WIDTH - logoWidth - (pageLabel ? 40 : 0))) {
-    textAt(page, line, M + logoWidth, y, 7.5, f.font, MUTED);
+  for (const line of wrap(text, f.font, 7.5, WIDTH - (pageLabel ? 40 : 0))) {
+    textAt(page, line, M, y, 7.5, f.font, MUTED);
     y -= 10;
   }
   if (pageLabel) textRight(page, pageLabel, 50, 7.5, f.font, MUTED);

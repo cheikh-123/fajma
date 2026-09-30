@@ -86,6 +86,14 @@ function PrescriptionPage() {
       </header>
       <main className="mx-auto max-w-3xl px-4 py-10 sm:px-6 print:px-0 print:py-0">
         <article className="rounded-xl border border-sunu-line bg-sunu-card p-5 sm:p-8 print:rounded-none print:border-0 print:p-0">
+          <div className="mb-4 flex justify-end">
+            <span className="flex items-center gap-2" aria-label="Fajma">
+              <span className="grid size-8 place-items-center rounded-lg bg-sunu-green text-white">
+                <Heart className="size-4" strokeWidth={2.5} />
+              </span>
+              <span className="text-lg font-bold text-sunu-green">Fajma</span>
+            </span>
+          </div>
           <div className="flex flex-wrap items-start justify-between gap-4 border-b border-sunu-line pb-5">
             <div className="text-xs text-sunu-ink/60">
               <p className="text-base font-bold text-sunu-dark">{drName(issuer.full_name)}</p>
@@ -194,25 +202,29 @@ function PrescriptionPage() {
               </p>
               <p className="mt-1 font-semibold text-sunu-green">Signature et cachet du médecin</p>
               <div
-                className="mt-2 flex h-24 items-center gap-2 rounded-lg px-2"
+                className="mt-2 flex h-24 max-w-full items-center gap-2 overflow-hidden rounded-lg px-2"
                 style={{ background: "#fff" }}
               >
-                {issuer.stamp && <img src={issuer.stamp} alt="Cachet" className="h-20 w-auto" />}
+                {issuer.stamp && (
+                  <img
+                    src={issuer.stamp}
+                    alt="Cachet"
+                    className="h-20 w-auto min-w-0 object-contain"
+                  />
+                )}
                 {issuer.signature ? (
-                  <img src={issuer.signature} alt="Signature" className="h-16 w-auto" />
+                  <img
+                    src={issuer.signature}
+                    alt="Signature"
+                    className="h-16 w-auto min-w-0 max-w-full object-contain object-left"
+                  />
                 ) : (
                   <span className="text-lg italic text-gray-700">{drName(issuer.full_name)}</span>
                 )}
               </div>
             </div>
           </div>
-          <div className="mt-6 flex items-center gap-3 border-t border-sunu-line pt-4">
-            <span className="flex shrink-0 items-center gap-1.5">
-              <span className="grid size-6 place-items-center rounded-md bg-sunu-green text-white">
-                <Heart className="size-3.5" strokeWidth={2.5} />
-              </span>
-              <span className="text-sm font-bold text-sunu-green">Fajma</span>
-            </span>
+          <div className="mt-6 border-t border-sunu-line pt-4">
             <p className="text-[10px] leading-relaxed text-sunu-ink/45">
               Ordonnance électronique délivrée via Fajma. À présenter en pharmacie avec une pièce
               d'identité. Toute modification rend l'ordonnance invalide.
