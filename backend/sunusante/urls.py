@@ -30,6 +30,7 @@ from accounts.security import admin_login
 from care import views as care
 from labs import views as labs
 from support import views as support
+from medical import ai_notes
 
 from . import analytics as core_analytics
 from . import exports
@@ -113,6 +114,7 @@ pro_urls = [
     path("appointments", appointments.doctor_appointments),
     path("appointments/<uuid:appointment_id>/status", appointments.doctor_update_status),
     path("appointments/<uuid:appointment_id>/record", medical.save_consultation_record),
+    path("appointments/<uuid:appointment_id>/ai-draft", ai_notes.draft_record),
     path("appointments/<uuid:appointment_id>/arrived", appointments.doctor_mark_arrived),
     path("appointments/<uuid:appointment_id>/repeat", appointments.doctor_repeat_appointment),
     path("appointments/new", appointments.pro_new_appointment),

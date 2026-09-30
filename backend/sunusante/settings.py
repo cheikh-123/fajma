@@ -258,6 +258,7 @@ REST_FRAMEWORK = {
         "otp": "10/hour",
         "client_errors": "30/min",
         "support": "5/hour",
+        "ai_notes": "60/hour",
     },
 }
 
@@ -305,6 +306,11 @@ AI = {
         "AI_API_URL", "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions"
     ),
 }
+
+# Assistant de prise de notes des médecins : envoie le texte des notes (sans identité du patient) au
+# fournisseur d'IA ci-dessus. À désactiver (false) tant que ce transfert n'est pas autorisé ; une mise en
+# forme locale sans IA reste alors disponible.
+AI_NOTES_ENABLED = env_bool("AI_NOTES_ENABLED", True)
 
 # ── Supervision (facultatif) ─────────────────────────────────────────
 SENTRY_DSN = os.environ.get("SENTRY_DSN", "")

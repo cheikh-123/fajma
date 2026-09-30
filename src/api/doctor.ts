@@ -367,3 +367,10 @@ export type OnboardingStep = {
 
 export const getMyOnboarding = () =>
   api.get<{ steps: OnboardingStep[]; done: number; total: number }>("/pro/onboarding");
+
+/** Brouillon de compte-rendu à partir des notes du médecin (IA, ou mise en forme locale sans IA). */
+export const draftRecordWithAi = (appointmentId: string, notes: string) =>
+  api.post<{ summary: string; diagnosis: string; treatment: string; source: "ia" | "local" }>(
+    `/pro/appointments/${appointmentId}/ai-draft`,
+    { notes },
+  );

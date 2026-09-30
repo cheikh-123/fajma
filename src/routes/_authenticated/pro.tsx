@@ -68,6 +68,7 @@ import { NewAppointmentForm } from "@/components/pro/NewAppointmentForm";
 import { ExportsPanel } from "@/components/pro/ExportsPanel";
 import { MissingMentions } from "@/components/pro/MissingMentions";
 import { SchedulePanel } from "@/components/pro/SchedulePanel";
+import { AiNotesAssistant } from "@/components/pro/AiNotesAssistant";
 import { OnboardingChecklist } from "@/components/pro/OnboardingChecklist";
 import { PrescriptionPreview } from "@/components/pro/PrescriptionPreview";
 import { LabOrderAction } from "@/components/pro/LabOrderAction";
@@ -414,6 +415,16 @@ function DoctorDashboard({ profile }: { profile: Profile }) {
     },
     onError: (e) => toast.error(e.message),
   });
+  const moveFromCalendar = useMutation({
+    mutationFn: (v: { id: string; scheduled_at: string; duration_minutes: number }) =>
+      moveAppointment(v.id, { scheduled_at: v.scheduled_at, duration_minutes: v.duration_minutes }),
+    onSuccess: () => {
+      toast.success("Rendez-vous déplacé : le patient est prévenu.");
+      qc.invalidateQueries({ queryKey: ["doctor-appointments"] });
+      qc.invalidateQueries({ queryKey: ["doctor-slots"] });
+    },
+    onError: (e) => toast.error(e.message),
+  });
   const cancelWithReason = (a: Appt) => {
     // Séance d'une série : proposer d'annuler aussi les suivantes.
     const scope =
@@ -548,7 +559,22 @@ function DoctorDashboard({ profile }: { profile: Profile }) {
             </div>
             {showNew && <NewAppointmentForm profile={profile} onDone={() => setShowNew(false)} />}
             {view === "week" ? (
-              <WeekCalendar appts={appts} />
+              <WeekCalendar
+                appts={appts}
+                onSelect={(a) => {
+                  setView("list");
+                  setTimeout(
+                    () =>
+                      document
+                        .getElementById(`rdv-${a.id}`)
+                        ?.scrollIntoView({ behavior: "smooth", block: "center" }),
+                    120,
+                  );
+                }}
+                onMove={(a, scheduled_at, duration_minutes) =>
+                  moveFromCalendar.mutate({ id: a.id, scheduled_at, duration_minutes })
+                }
+              />
             ) : upcoming.length === 0 ? (
               <div className="rounded-2xl border border-dashed border-sunu-line bg-sunu-card p-10 text-center">
                 <Calendar className="mx-auto size-10 text-sunu-ink/30" />
@@ -773,7 +799,10 @@ function DoctorApptCard({
     cls: "bg-sunu-green-soft text-sunu-green",
   };
   return (
-    <div className="flex flex-col gap-3 rounded-2xl border border-sunu-line bg-sunu-card p-5 md:flex-row md:flex-wrap md:items-center">
+    <div
+      id={`rdv-${appt.id}`}
+      className="flex scroll-mt-24 flex-col gap-3 rounded-2xl border border-sunu-line bg-sunu-card p-5 md:flex-row md:flex-wrap md:items-center"
+    >
       <div className="grid size-14 shrink-0 place-items-center rounded-xl bg-sunu-green-soft text-sunu-green">
         <div className="text-center">
           <div className="text-[10px] font-semibold uppercase">
@@ -1047,26 +1076,36 @@ function DoctorApptCard({
       {openRepeat && <RepeatForm appt={appt} onDone={() => setOpenRepeat(false)} />}
       {openRecord && (
         <div className="w-full border-t border-sunu-line pt-4 md:basis-full">
+          <AiNotesAssistant appointmentId={appt.id} current={record} onDraft={setRecord} />
           <div className="grid gap-3 sm:grid-cols-2">
-            <textarea
-              required
-              value={record.summary}
-              onChange={(e) => setRecord({ ...record, summary: e.target.value })}
-              placeholder="Résumé de la consultation *"
-              className="min-h-24 rounded-lg border border-sunu-line p-3 text-sm"
-            />
-            <textarea
-              value={record.diagnosis}
-              onChange={(e) => setRecord({ ...record, diagnosis: e.target.value })}
-              placeholder="Conclusion / diagnostic"
-              className="min-h-24 rounded-lg border border-sunu-line p-3 text-sm"
-            />
-            <textarea
-              value={record.treatment}
-              onChange={(e) => setRecord({ ...record, treatment: e.target.value })}
-              placeholder="Traitement conseillé"
-              className="min-h-24 rounded-lg border border-sunu-line p-3 text-sm"
-            />
+            <label className="grid gap-1 text-xs font-semibold text-sunu-ink/60">
+              Résumé de la consultation *
+              <textarea
+                required
+                value={record.summary}
+                onChange={(e) => setRecord({ ...record, summary: e.target.value })}
+                placeholder="Résumé de la consultation *"
+                className="min-h-24 rounded-lg border border-sunu-line p-3 text-sm"
+              />
+            </label>
+            <label className="grid gap-1 text-xs font-semibold text-sunu-ink/60">
+              Conclusion / diagnostic
+              <textarea
+                value={record.diagnosis}
+                onChange={(e) => setRecord({ ...record, diagnosis: e.target.value })}
+                placeholder="Conclusion / diagnostic"
+                className="min-h-24 rounded-lg border border-sunu-line p-3 text-sm"
+              />
+            </label>
+            <label className="grid gap-1 text-xs font-semibold text-sunu-ink/60">
+              Traitement conseillé
+              <textarea
+                value={record.treatment}
+                onChange={(e) => setRecord({ ...record, treatment: e.target.value })}
+                placeholder="Traitement conseillé"
+                className="min-h-24 rounded-lg border border-sunu-line p-3 text-sm"
+              />
+            </label>
           </div>
           <div className="mt-3">
             <MissingMentions compact />

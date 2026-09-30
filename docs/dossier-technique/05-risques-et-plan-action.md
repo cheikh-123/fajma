@@ -24,6 +24,7 @@ Gravité : 🔴 bloquant pour la commercialisation · 🟠 à traiter avant la m
 | R-16 | 🟡 | Calcul des prochains créneaux à chaque recherche | Mise en cache au-delà de quelques centaines de médecins |
 | R-17 | 🟡 | Autres langues nationales (pulaar, sérère, diola…) | Ajouter un fichier de traduction par langue, avec des traducteurs natifs |
 | R-18 | 🟡 | Données de l'ancien prototype (Supabase / Lovable Cloud) | Décider de leur reprise (script d'import) ou de leur suppression, puis fermer les anciens comptes |
+| R-19 | 🟠 ⚖️ | Assistant IA de prise de notes : texte de consultation envoyé à un fournisseur d'IA hors Sénégal | Autorisation CDP et contrat avec le fournisseur (ou IA hébergée au Sénégal) avant d'activer en production ; sinon `AI_NOTES_ENABLED=false` (mise en forme locale sans IA) |
 
 ## 5.2 Plan d'action proposé
 

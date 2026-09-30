@@ -19,6 +19,7 @@ class AuditEvent(BaseModel):
         ("document_viewed", "Document consulté"),
         ("prescription_viewed", "Ordonnance consultée"),
         ("record_written", "Compte-rendu rédigé"),
+        ("ai_draft", "Brouillon de compte-rendu demandé à l'assistant"),
         ("data_exported", "Export des données"),
         ("account_deleted", "Compte supprimé"),
         ("admin_verification", "Validation (administration)"),

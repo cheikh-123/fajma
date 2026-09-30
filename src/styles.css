@@ -79,6 +79,13 @@
   /* Courbes à deux séries (validées daltonisme, voir components/care) */
   --chart-1: #00853f;
   --chart-2: #2563eb;
+  /* Motifs de consultation dans l'agenda (5 teintes validées daltonisme, ordre fixe ; au-delà : gris) */
+  --motif-1: #2563eb;
+  --motif-2: #ea580c;
+  --motif-3: #c026d3;
+  --motif-4: #00853f;
+  --motif-5: #854d0e;
+  --motif-other: #6b7280;
   --sunu-surface: #f6f9f7; /* sections */
   --sunu-line: #e2e9e4; /* bordures */
   --sunu-night: #0b2415; /* panneaux sombres (restent sombres dans les deux modes) */
@@ -112,6 +119,12 @@
 
   --chart-1: #22a06b;
   --chart-2: #5b8ff5;
+  --motif-1: #4f86f0;
+  --motif-2: #d9702a;
+  --motif-3: #c95bdc;
+  --motif-4: #23a262;
+  --motif-5: #b5812a;
+  --motif-other: #8a948d;
 
   --sunu-green: #17964f; /* un peu plus clair : lisible sur fond sombre, texte blanc encore lisible dessus */
   --sunu-green-soft: #12291c;
