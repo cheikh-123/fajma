@@ -70,6 +70,7 @@ import { MissingMentions } from "@/components/pro/MissingMentions";
 import { SchedulePanel } from "@/components/pro/SchedulePanel";
 import { AiNotesAssistant } from "@/components/pro/AiNotesAssistant";
 import { OnboardingChecklist } from "@/components/pro/OnboardingChecklist";
+import { RenewalsPanel } from "@/components/pro/RenewalsPanel";
 import { PrescriptionPreview } from "@/components/pro/PrescriptionPreview";
 import { LabOrderAction } from "@/components/pro/LabOrderAction";
 import { MoveAppointmentForm } from "@/components/MoveAppointmentForm";
@@ -524,6 +525,7 @@ function DoctorDashboard({ profile }: { profile: Profile }) {
       {tab === "rdv" && (
         <div className="mt-6">
           <OnboardingChecklist onGo={goTo} />
+          <RenewalsPanel />
           <StatsStrip />
           <section className="mt-6">
             <div className="mb-3 flex items-center justify-between">

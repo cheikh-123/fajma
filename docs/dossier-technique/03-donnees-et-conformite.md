@@ -29,6 +29,7 @@
 | **Santé** | Profil (groupe sanguin, allergies, antécédents, traitements), comptes-rendus, ordonnances, certificats, arrêts de travail, documents déposés, messages, vaccins, suivi de grossesse | Patients, enfants | Suivi médical |
 | **Santé** | Symptômes décrits à l'assistant IA | Visiteurs | Orientation — **non conservés** |
 | **Santé** | Mesures à domicile (tension, glycémie, poids), rappels de médicaments, prescriptions et résultats d'analyses | Patients, proches | Suivi médical |
+| **Santé** | Fiche d'urgence (réglages : informations choisies, lien), demandes de renouvellement d'ordonnance et réponses du médecin | Patients | Secours, suivi des traitements longs |
 | Demandes aux pharmacies | Nom du médicament, précision, réponses (sans identité transmise à la pharmacie) | Patients | Éviter les déplacements inutiles |
 | Assurance | Organisme, numéro d'adhérent, taux de prise en charge | Patients | Tiers payant, feuille de soins |
 | Paiement | Montant, moyen, références de transaction et de virement | Patients, médecins | Encaissement, reversement |

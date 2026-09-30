@@ -13,6 +13,7 @@ import {
 import { listMyRelatives } from "@/api/patient";
 import { formatDateTime } from "@/lib/datetime";
 import { formatMeasurement } from "@/lib/measurements";
+import { getEmergencySettings, updateEmergencySettings } from "@/api/followup";
 import { MeasurementsChart } from "./MeasurementsChart";
 
 const TABS: { kind: MeasurementKind; label: string }[] = [
@@ -92,6 +93,7 @@ export function MeasurementsSection() {
           suivent voient la courbe. Les repères affichés sont indicatifs et ne remplacent pas leur
           avis.
         </p>
+        <AlertDoctorsToggle />
         <div className="mt-3 flex flex-wrap items-center gap-2">
           <div className="inline-flex rounded-lg border border-sunu-line p-0.5" role="tablist">
             {TABS.map((t) => (
@@ -254,5 +256,32 @@ export function MeasurementsSection() {
         </ul>
       </div>
     </section>
+  );
+}
+
+/** Alerte des médecins qui suivent le patient si une mesure est dangereuse (activée par défaut). */
+function AlertDoctorsToggle() {
+  const qc = useQueryClient();
+  const { data } = useQuery({ queryKey: ["emergency-card"], queryFn: getEmergencySettings });
+  const save = useMutation({
+    mutationFn: (alert_doctors: boolean) => updateEmergencySettings({ alert_doctors }),
+    onSuccess: (res) => qc.setQueryData(["emergency-card"], res),
+    onError: (e) => toast.error(e.message),
+  });
+  if (!data) return null;
+  return (
+    <label className="mt-2 flex items-start gap-2 text-xs text-sunu-ink/70">
+      <input
+        type="checkbox"
+        checked={data.alert_doctors}
+        disabled={save.isPending}
+        onChange={(e) => save.mutate(e.target.checked)}
+        className="mt-0.5 size-4 accent-sunu-green"
+      />
+      <span>
+        Prévenir mes médecins si une mesure est dangereuse (tension très élevée, hypoglycémie…) ou
+        reste élevée plusieurs fois dans la semaine.
+      </span>
+    </label>
   );
 }

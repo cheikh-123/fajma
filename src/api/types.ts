@@ -349,7 +349,7 @@ export type HealthData = {
     instructions: string | null;
     valid_until: string | null;
     created_at: string;
-    doctor: { full_name: string } | null;
+    doctor: { id?: string; full_name: string } | null;
     for_relative?: string | null;
   }[];
   reviews: {

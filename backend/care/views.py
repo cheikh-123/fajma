@@ -83,6 +83,10 @@ def my_measurements(request):
             if m.measured_at > timezone.now() + timedelta(minutes=5) or m.measured_at < timezone.now() - timedelta(days=365):
                 raise ApiError("Date de mesure invalide")
         m.save()
+        # Valeur dangereuse ou élevée à répétition : les médecins qui suivent le patient sont prévenus.
+        from .alerts import check_measurement
+
+        check_measurement(m)
         return Response(measurement_dict(m))
     qs = Measurement.objects.filter(patient=user).select_related("relative")
     if kind := request.query_params.get("kind"):

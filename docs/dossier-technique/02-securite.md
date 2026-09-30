@@ -52,6 +52,8 @@ Tous les rôles autres que « patient » exigent la double authentification (§ 
 | Carnet de vaccination | Le sien et celui de ses enfants | Inscription d'une dose lors d'un RDV confirmé | — | — | — |
 | RDV | Les siens | Son agenda | Agenda de ses médecins | — | — |
 | Justificatifs du médecin | — | Les siens | — | — | — (administration seulement) |
+| Fiche d'urgence (QR code) | Activation et choix des informations | — | — | — | Toute personne qui scanne le QR code : nom, âge et seulement les informations choisies ; consultation journalisée, patient prévenu |
+| Demande de renouvellement | Les siennes | Celles adressées à lui (médecin prescripteur) | — | — | — |
 
 **Médecin remplaçant** : pendant la période du remplacement (de la veille jusqu'à 30 jours après la fin), il
 voit les RDV qu'il assure, les comptes-rendus et ordonnances du titulaire pour les patients qu'il reçoit, et
@@ -64,6 +66,7 @@ prescriptions que le patient lui a adressées ; dépose les résultats (type ré
 dossier ; consultation journalisée. **Pharmacie (disponibilité d'un médicament)** : nom du médicament seulement,
 jamais l'identité du patient. **Mesures à domicile** : mêmes règles que le profil de santé (médecin avec RDV
 confirmé ou terminé).
+**Alertes de mesures** : une mesure dangereuse (ou élevée 3 fois en 7 jours) est signalée aux médecins qui ont déjà accès aux mesures (RDV confirmé ou terminé depuis moins d'un an), 3 au plus, une fois par 24 h ; le patient peut les désactiver.
 
 **Secrétariat** (clinique ou cabinet) : agenda, prise de RDV, fichier patients (noms, téléphones) ; aucun accès
 aux dossiers médicaux, comptes-rendus, ordonnances ni documents.
@@ -85,6 +88,8 @@ Chaque règle ci-dessus est couverte par au moins un test automatisé qui tente 
 | Formulaire de contact détourné (spam, saturation) | Limite de 5 demandes par heure et par adresse, champ piège anti-robots, contrôle du format du contact ; message d'avertissement contre la saisie d'informations médicales détaillées |
 | Données de santé envoyées à l'IA / « hallucinations » | Assistant de notes : seul le texte des notes part (jamais l'identité du patient), uniquement sur demande du médecin, journalisé ; consigne de ne rien inventer (ni diagnostic, ni médicament, ni dose) ; brouillon toujours relu et validé par le médecin avant enregistrement ; désactivable (`AI_NOTES_ENABLED`) |
 | Déplacement de RDV par glisser-déposer | Même contrôle serveur qu'un déplacement classique (créneau libre, pas dans le passé), confirmation avant envoi, patient prévenu |
+| Fiche d'urgence consultée par un tiers | Désactivée par défaut ; lien à jeton aléatoire de 256 bits, révocable (« nouveau lien ») ; informations choisies par le patient ; page non indexée, sans référent ; limite de débit ; chaque consultation journalisée et signalée au patient (une fois par jour) |
+| Renouvellement d'ordonnance abusif | Uniquement par le médecin prescripteur, ordonnance de moins d'un an, une demande en cours à la fois ; refus motivé obligatoire ; nouvelle ordonnance avec en-tête et signature à jour (mentions obligatoires vérifiées), journalisée |
 | Faille connue dans une bibliothèque | Contrôle automatique à chaque modification : `npm audit` (interface) et `pip-audit` (serveur) dans l'intégration continue |
 | Script injecté (XSS) | React échappe les contenus ; CSP stricte sans `unsafe-inline` pour les scripts (empreintes calculées au build) ; cookie de session inaccessible au JavaScript |
 | Clic détourné (clickjacking) | `frame-ancestors 'none'` et `X-Frame-Options: DENY`, sauf le module de réservation intégrable, qui ne contient ni connexion ni paiement |
@@ -123,7 +128,7 @@ exécuté par l'intégration continue.
 
 ## 2.8 Tests de sécurité réalisés
 
-- **240 tests automatisés de l'API**, dont les tentatives d'accès interdites de la matrice § 2.4 (y compris
+- **247 tests automatisés de l'API**, dont les tentatives d'accès interdites de la matrice § 2.4 (y compris
   pour un remplaçant, une secrétaire, un médecin sans lien avec le patient), les manipulations de prix et de
   parts, les fichiers piégés, les doubles réservations, les webhooks non signés, les secrets USSD invalides, la
   réutilisation de session USSD par un autre numéro, les doubles notifications de paiement, le blocage des

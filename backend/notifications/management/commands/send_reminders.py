@@ -35,9 +35,13 @@ class Command(BaseCommand):
         from care.views import send_medication_reminders
 
         medications = send_medication_reminders(now)
+        from medical.renewals import send_renewal_reminders
+
+        renewals = send_renewal_reminders(now)
         self.stdout.write(
             f"rappels : {queued} planifiés, {sent} envoyés, {failed} en échec ; {recalls} rappels patients ; "
-            f"{vaccines} rappels vaccins ; {prenatal} rappels prénataux ; {medications} rappels de médicaments"
+            f"{vaccines} rappels vaccins ; {prenatal} rappels prénataux ; {medications} rappels de médicaments ; "
+            f"{renewals} rappels de renouvellement"
         )
 
     def send_recalls(self, now) -> int:

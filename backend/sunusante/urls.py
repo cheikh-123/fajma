@@ -31,6 +31,7 @@ from care import views as care
 from labs import views as labs
 from support import views as support
 from medical import ai_notes
+from medical import emergency, renewals
 
 from . import analytics as core_analytics
 from . import exports
@@ -86,6 +87,9 @@ patient_urls = [
     path("relatives/<uuid:relative_id>/delete", accounts.delete_relative),
     path("reviews", directory.create_review),
     path("health-profile", medical.my_health_profile),
+    path("emergency-card", emergency.my_emergency_settings),
+    path("renewals", renewals.my_renewals),
+    path("renewals/<uuid:renewal_id>/cancel", renewals.cancel_renewal),
     path("access-log", audit.my_access_log),
     path("notifications", notifications.my_notifications),
     path("notifications/read", notifications.mark_notifications_read),
@@ -158,6 +162,8 @@ pro_urls = [
     path("patients/<uuid:patient_id>/recalls", medical.add_recall),
     path("recalls/<uuid:recall_id>/delete", medical.delete_recall),
     path("onboarding", pro.my_onboarding),
+    path("renewals", renewals.pro_renewals),
+    path("renewals/<uuid:renewal_id>", renewals.pro_decide_renewal),
     path("availability", pro.my_availability),
     path("availability/<uuid:availability_id>", pro.update_availability),
     path("availability/<uuid:availability_id>/delete", pro.delete_availability),
@@ -295,6 +301,7 @@ urlpatterns = [
     path("api/notifications/push/unsubscribe", push.push_unsubscribe),
     path("api/health", core.health),
     path("api/support", support.create_request),
+    path("api/emergency/<str:token>", emergency.public_card),
     path("api/events", stream.event_stream),
     path("api/calendar/<str:token>.ics", calendar_sync.calendar_feed),
     path("api/client-errors", core.client_error),

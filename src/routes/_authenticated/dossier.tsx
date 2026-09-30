@@ -56,6 +56,8 @@ import { CarnetSection } from "@/components/CarnetSection";
 import { IssuedDocumentsSection } from "@/components/IssuedDocumentsSection";
 import { AccessLogSection, PhoneVerification } from "@/components/AccountTrust";
 import { usePrescriptionPdf } from "@/hooks/use-prescription-pdf";
+import { RenewalBox } from "@/components/care/RenewalBox";
+import { EmergencyCardSection } from "@/components/care/EmergencyCardSection";
 import { formatDate } from "@/lib/datetime";
 
 const healthQO = queryOptions({ queryKey: ["my-health-data"], queryFn: () => getMyHealthData() });
@@ -319,6 +321,11 @@ function DossierPage() {
                         </div>
                       </div>
                       <PharmacyOrderBox prescriptionId={p.id} />
+                      <RenewalBox
+                        prescriptionId={p.id}
+                        createdAt={p.created_at}
+                        doctorId={p.doctor?.id}
+                      />
                     </article>
                   ))}
                 </div>
@@ -330,6 +337,7 @@ function DossierPage() {
             <IssuedDocumentsSection />
             <DocumentsSection />
             <HealthProfileSection />
+            <EmergencyCardSection />
             <CoverageSection />
             <CarnetSection />
             <PushToggle />

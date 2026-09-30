@@ -47,6 +47,7 @@ class Prescription(BaseModel):
     reference = models.CharField(max_length=20, unique=True, default=new_prescription_reference)
     patient_info = models.JSONField(default=dict, blank=True)  # {name, birth_date, sex, weight_kg}
     issuer = models.JSONField(default=dict, blank=True)  # voir medical.issuer.issuer_snapshot
+    renewal_reminded_at = models.DateTimeField(null=True, blank=True)  # rappel « demandez le renouvellement »
 
     class Meta:
         ordering = ["-created_at"]
@@ -82,6 +83,13 @@ class HealthProfile(BaseModel):
     treatments = models.TextField(blank=True, max_length=2000, help_text="Traitements en cours")
     vaccinations = models.TextField(blank=True, max_length=2000)
     emergency_contact = models.CharField(max_length=160, blank=True)
+    # Fiche d'urgence publique (QR code) : activée par le patient, qui choisit les informations visibles.
+    EMERGENCY_FIELDS = ["blood_group", "allergies", "treatments", "conditions", "emergency_contact"]
+    emergency_enabled = models.BooleanField(default=False)
+    emergency_token = models.CharField(max_length=64, null=True, blank=True, unique=True)
+    emergency_fields = models.JSONField(default=list, blank=True)
+    # Mesure à domicile dangereuse : les médecins qui suivent le patient sont prévenus (désactivable).
+    alert_doctors = models.BooleanField(default=True)
 
 
 class PatientNote(BaseModel):
@@ -150,3 +158,24 @@ class IssuedDocument(BaseModel):
     @property
     def subject_name(self) -> str:
         return self.relative.full_name if self.relative else self.patient.full_name
+
+
+class PrescriptionRenewal(BaseModel):
+    """Demande de renouvellement d'une ordonnance par le patient, acceptée ou refusée par le médecin."""
+
+    STATUSES = [("pending", "En attente"), ("accepted", "Renouvelée"), ("refused", "Refusée"), ("cancelled", "Annulée")]
+
+    prescription = models.ForeignKey(Prescription, on_delete=models.CASCADE, related_name="renewal_requests")
+    patient = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="renewal_requests")
+    doctor = models.ForeignKey("directory.Doctor", on_delete=models.CASCADE, related_name="renewal_requests")
+    status = models.CharField(max_length=10, choices=STATUSES, default="pending")
+    patient_note = models.CharField(max_length=500, blank=True)
+    doctor_reply = models.CharField(max_length=500, blank=True)
+    new_prescription = models.ForeignKey(Prescription, null=True, blank=True, on_delete=models.SET_NULL, related_name="+")
+    decided_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        constraints = [
+            models.UniqueConstraint(fields=["prescription"], condition=models.Q(status="pending"), name="one_pending_renewal"),
+        ]

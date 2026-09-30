@@ -35,6 +35,7 @@ import { Route as MedecinsIndexRouteImport } from './routes/medecins/index'
 import { Route as MedecinsIdRouteImport } from './routes/medecins/$id'
 import { Route as SpecialitesIndexRouteImport } from './routes/specialites.index'
 import { Route as SpecialitesSlugRouteImport } from './routes/specialites.$slug'
+import { Route as UrgenceTokenRouteImport } from './routes/urgence.$token'
 import { Route as VerifierReferenceRouteImport } from './routes/verifier.$reference'
 import { Route as WidgetDoctorIdRouteImport } from './routes/widget.$doctorId'
 import { Route as AuthenticatedOrdonnanceIdRouteImport } from './routes/_authenticated/ordonnance.$id'
@@ -172,6 +173,11 @@ const SpecialitesSlugRoute = SpecialitesSlugRouteImport.update({
   path: '/specialites/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const UrgenceTokenRoute = UrgenceTokenRouteImport.update({
+  id: '/urgence/$token',
+  path: '/urgence/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const VerifierReferenceRoute = VerifierReferenceRouteImport.update({
   id: '/verifier/$reference',
   path: '/verifier/$reference',
@@ -229,6 +235,7 @@ export interface FileRoutesByFullPath {
   '/cliniques/$id': typeof CliniquesIdRoute
   '/medecins/$id': typeof MedecinsIdRoute
   '/specialites/$slug': typeof SpecialitesSlugRoute
+  '/urgence/$token': typeof UrgenceTokenRoute
   '/verifier/$reference': typeof VerifierReferenceRoute
   '/widget/$doctorId': typeof WidgetDoctorIdRoute
   '/cliniques/': typeof CliniquesIndexRoute
@@ -262,6 +269,7 @@ export interface FileRoutesByTo {
   '/cliniques/$id': typeof CliniquesIdRoute
   '/medecins/$id': typeof MedecinsIdRoute
   '/specialites/$slug': typeof SpecialitesSlugRoute
+  '/urgence/$token': typeof UrgenceTokenRoute
   '/verifier/$reference': typeof VerifierReferenceRoute
   '/widget/$doctorId': typeof WidgetDoctorIdRoute
   '/cliniques': typeof CliniquesIndexRoute
@@ -297,6 +305,7 @@ export interface FileRoutesById {
   '/cliniques/$id': typeof CliniquesIdRoute
   '/medecins/$id': typeof MedecinsIdRoute
   '/specialites/$slug': typeof SpecialitesSlugRoute
+  '/urgence/$token': typeof UrgenceTokenRoute
   '/verifier/$reference': typeof VerifierReferenceRoute
   '/widget/$doctorId': typeof WidgetDoctorIdRoute
   '/cliniques/': typeof CliniquesIndexRoute
@@ -332,6 +341,7 @@ export interface FileRouteTypes {
     | '/cliniques/$id'
     | '/medecins/$id'
     | '/specialites/$slug'
+    | '/urgence/$token'
     | '/verifier/$reference'
     | '/widget/$doctorId'
     | '/cliniques/'
@@ -365,6 +375,7 @@ export interface FileRouteTypes {
     | '/cliniques/$id'
     | '/medecins/$id'
     | '/specialites/$slug'
+    | '/urgence/$token'
     | '/verifier/$reference'
     | '/widget/$doctorId'
     | '/cliniques'
@@ -399,6 +410,7 @@ export interface FileRouteTypes {
     | '/cliniques/$id'
     | '/medecins/$id'
     | '/specialites/$slug'
+    | '/urgence/$token'
     | '/verifier/$reference'
     | '/widget/$doctorId'
     | '/cliniques/'
@@ -424,6 +436,7 @@ export interface RootRouteChildren {
   CliniquesIdRoute: typeof CliniquesIdRoute
   MedecinsIdRoute: typeof MedecinsIdRoute
   SpecialitesSlugRoute: typeof SpecialitesSlugRoute
+  UrgenceTokenRoute: typeof UrgenceTokenRoute
   VerifierReferenceRoute: typeof VerifierReferenceRoute
   WidgetDoctorIdRoute: typeof WidgetDoctorIdRoute
   CliniquesIndexRoute: typeof CliniquesIndexRoute
@@ -615,6 +628,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SpecialitesSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/urgence/$token': {
+      id: '/urgence/$token'
+      path: '/urgence/$token'
+      fullPath: '/urgence/$token'
+      preLoaderRoute: typeof UrgenceTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/verifier/$reference': {
       id: '/verifier/$reference'
       path: '/verifier/$reference'
@@ -711,6 +731,7 @@ const rootRouteChildren: RootRouteChildren = {
   CliniquesIdRoute: CliniquesIdRoute,
   MedecinsIdRoute: MedecinsIdRoute,
   SpecialitesSlugRoute: SpecialitesSlugRoute,
+  UrgenceTokenRoute: UrgenceTokenRoute,
   VerifierReferenceRoute: VerifierReferenceRoute,
   WidgetDoctorIdRoute: WidgetDoctorIdRoute,
   CliniquesIndexRoute: CliniquesIndexRoute,

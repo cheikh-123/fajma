@@ -321,7 +321,7 @@ def my_health_data(request):
                     "instructions": p.instructions or None,
                     "valid_until": p.valid_until.isoformat() if p.valid_until else None,
                     "created_at": iso(p.created_at),
-                    "doctor": {"full_name": p.doctor.full_name},
+                    "doctor": {"id": str(p.doctor_id), "full_name": p.doctor.full_name},
                     # Ordonnance d'un proche (enfant…) : son nom, pour ne pas la confondre avec les siennes.
                     "for_relative": p.relative.full_name if p.relative else None,
                 }
