@@ -1,6 +1,7 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { getMe, meQueryKey } from "@/api/auth";
 import { useLiveEvents } from "@/hooks/use-live-events";
+import { redirectBeforeHydration } from "@/lib/first-load";
 
 // Pages réservées aux utilisateurs connectés. Confort d'interface seulement :
 // la vraie protection est assurée par l'API Django sur chaque requête.
@@ -13,10 +14,16 @@ export const Route = createFileRoute("/_authenticated")({
       staleTime: 60_000,
     });
     // Après connexion, retour à la page demandée (lien d'ordonnance ou de téléconsultation reçu par SMS…).
-    if (!user) throw redirect({ to: "/auth", search: { redirect: location.href } });
+    if (!user) {
+      if (redirectBeforeHydration(`/auth?redirect=${encodeURIComponent(location.href)}`))
+        return new Promise<never>(() => {});
+      throw redirect({ to: "/auth", search: { redirect: location.href } });
+    }
     // Compte professionnel sans double authentification : activation obligatoire avant tout le reste.
-    if (user.mfa_setup_required && location.pathname !== "/securite")
+    if (user.mfa_setup_required && location.pathname !== "/securite") {
+      if (redirectBeforeHydration("/securite")) return new Promise<never>(() => {});
       throw redirect({ to: "/securite" });
+    }
     return { user };
   },
   component: AuthenticatedLayout,

@@ -1,5 +1,6 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { ThemeToggle } from "@/lib/theme";
+import { redirectBeforeHydration } from "@/lib/first-load";
 import { LogoutButton } from "@/components/LogoutButton";
 import { NotificationBell } from "@/components/NotificationBell";
 import {
@@ -45,6 +46,12 @@ const adminQO = queryOptions({ queryKey: ["admin-overview"], queryFn: () => getA
 const smsQO = queryOptions({ queryKey: ["admin-sms"], queryFn: () => listSmsReminders() });
 
 export const Route = createFileRoute("/_authenticated/admin")({
+  // Réservé à l'équipe Fajma (l'API le vérifie aussi) : les autres comptes retournent à leur espace.
+  beforeLoad: ({ context }) => {
+    if (context.user.is_admin) return;
+    if (redirectBeforeHydration("/mon-espace")) return new Promise<never>(() => {});
+    throw redirect({ to: "/mon-espace" });
+  },
   loader: ({ context }) => context.queryClient.ensureQueryData(adminQO),
   head: () => ({
     meta: [

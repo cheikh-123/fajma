@@ -19,6 +19,7 @@ export type User = {
   preferred_language?: "fr" | "wo" | "en";
   /** Compte rattaché à un laboratoire d'analyses. */
   is_lab?: boolean;
+  is_clinic_staff?: boolean;
   /** Médecin, pharmacien, clinique ou administrateur : double authentification obligatoire. */
   is_professional?: boolean;
   /** Compte professionnel sans double authentification : il doit l'activer avant d'aller plus loin. */

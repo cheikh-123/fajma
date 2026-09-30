@@ -8,6 +8,7 @@ import {
   Scripts,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
+import { markHydrated } from "@/lib/first-load";
 import { Toaster } from "@/components/ui/sonner";
 import { OfflineBanner } from "@/components/OfflineBanner";
 import { LanguageProvider } from "@/lib/i18n";
@@ -125,6 +126,8 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+
+  useEffect(() => markHydrated(), []);
 
   useEffect(() => {
     // Application installable (PWA) : uniquement en production pour ne pas gêner le rechargement à chaud.

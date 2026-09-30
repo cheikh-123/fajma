@@ -123,7 +123,9 @@ function AuthPage() {
               ? "/pharmacie"
               : user.is_lab
                 ? "/laboratoire"
-                : "/mon-espace",
+                : user.is_clinic_staff
+                  ? "/clinique"
+                  : "/mon-espace",
       });
   }
 

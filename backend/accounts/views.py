@@ -57,6 +57,8 @@ def user_dict(user: User, session=None) -> dict:
         "is_doctor": Doctor.objects.filter(user=user).exists(),
         "is_pharmacist": user.pharmacy_memberships.exists(),
         "is_lab": user.lab_memberships.exists(),
+        # Responsable ou secrétariat d'un établissement : arrive sur l'agenda de la clinique.
+        "is_clinic_staff": Clinic.objects.filter(owner=user).exists() or user.clinic_roles.exists(),
         "mfa_enabled": TwoFactor.objects.filter(user=user, enabled=True).exists(),
         "phone_verified": user.phone_verified,
         "preferred_language": user.preferred_language,
