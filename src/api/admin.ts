@@ -27,7 +27,9 @@ export type AdminUser = {
   email: string | null;
   phone: string | null;
   city: string | null;
-  roles: ("patient" | "doctor" | "pharmacist" | "clinic_owner" | "clinic_staff" | "admin")[];
+  roles: (
+    "patient" | "doctor" | "pharmacist" | "lab" | "clinic_owner" | "clinic_staff" | "admin"
+  )[];
   is_active: boolean;
   mfa_enabled: boolean;
   date_joined: string;

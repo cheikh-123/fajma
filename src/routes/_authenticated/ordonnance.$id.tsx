@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { ThemeToggle } from "@/lib/theme";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
-import { ArrowLeft, FileDown, Printer } from "lucide-react";
+import { ArrowLeft, FileDown, Heart, Printer } from "lucide-react";
 import { getMyPrescription } from "@/api/documents";
 import { usePrescriptionPdf } from "@/hooks/use-prescription-pdf";
 import { formatDate } from "@/lib/datetime";
@@ -104,7 +104,7 @@ function PrescriptionPage() {
                 </p>
               )}
             </div>
-            <div className="text-right text-xs text-sunu-ink/60">
+            <div className="text-xs text-sunu-ink/60 sm:text-right">
               {issuer.practice_name && (
                 <p className="text-sm font-bold text-sunu-dark">{issuer.practice_name}</p>
               )}
@@ -116,7 +116,7 @@ function PrescriptionPage() {
 
           <div className="mt-5 flex flex-wrap items-baseline justify-between gap-2">
             <h1 className="text-xl font-bold tracking-wide text-sunu-green">ORDONNANCE</h1>
-            <p className="text-right text-xs text-sunu-ink/60">
+            <p className="text-xs text-sunu-ink/60 sm:text-right">
               <span className="font-semibold text-sunu-dark">Réf. {data.reference ?? ""}</span>
               <br />
               Délivrée le {date}
@@ -206,10 +206,18 @@ function PrescriptionPage() {
               </div>
             </div>
           </div>
-          <p className="mt-6 text-[10px] leading-relaxed text-sunu-ink/45">
-            Ordonnance électronique délivrée via Fajma. À présenter en pharmacie avec une pièce
-            d'identité. Toute modification rend l'ordonnance invalide.
-          </p>
+          <div className="mt-6 flex items-center gap-3 border-t border-sunu-line pt-4">
+            <span className="flex shrink-0 items-center gap-1.5">
+              <span className="grid size-6 place-items-center rounded-md bg-sunu-green text-white">
+                <Heart className="size-3.5" strokeWidth={2.5} />
+              </span>
+              <span className="text-sm font-bold text-sunu-green">Fajma</span>
+            </span>
+            <p className="text-[10px] leading-relaxed text-sunu-ink/45">
+              Ordonnance électronique délivrée via Fajma. À présenter en pharmacie avec une pièce
+              d'identité. Toute modification rend l'ordonnance invalide.
+            </p>
+          </div>
         </article>
       </main>
     </div>

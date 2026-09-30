@@ -5,6 +5,7 @@ import { FlaskConical, Loader2, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { getLabDashboard, labReceive, labUploadResult, type LabOrder } from "@/api/labs";
 import { NotificationBell } from "@/components/NotificationBell";
+import { LogoutButton } from "@/components/LogoutButton";
 import { SecuritySection } from "@/components/SecuritySection";
 import { ThemeToggle } from "@/lib/theme";
 import { formatDate, formatDateTime } from "@/lib/datetime";
@@ -69,6 +70,7 @@ function LabPage() {
           </Link>
           <ThemeToggle className="ml-auto mr-3" />
           <NotificationBell />
+          <LogoutButton />
         </div>
       </header>
       <main className="mx-auto max-w-7xl px-6 py-8">

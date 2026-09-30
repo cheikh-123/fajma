@@ -1,5 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ThemeToggle } from "@/lib/theme";
+import { LogoutButton } from "@/components/LogoutButton";
+import { NotificationBell } from "@/components/NotificationBell";
 import {
   queryOptions,
   useMutation,
@@ -87,15 +89,19 @@ function AdminPage() {
       <header className="border-b border-sunu-line bg-sunu-card">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
           <Link to="/" className="flex items-center gap-2">
-            <span className="grid size-8 place-items-center rounded-lg bg-sunu-night text-white">
+            <span className="grid size-8 place-items-center rounded-lg bg-sunu-green text-white">
               <ShieldCheck className="size-4" />
             </span>
             <span className="font-bold text-sunu-dark">Fajma · Administration</span>
           </Link>
           <ThemeToggle className="ml-auto mr-3" />
-          <Link to="/" className="text-sm font-semibold text-sunu-green">
-            Voir le site
-          </Link>
+          <div className="flex items-center gap-4">
+            <Link to="/" className="hidden text-sm font-semibold text-sunu-green sm:inline">
+              Voir le site
+            </Link>
+            <NotificationBell />
+            <LogoutButton />
+          </div>
         </div>
       </header>
       <main className="mx-auto max-w-7xl px-6 py-10">

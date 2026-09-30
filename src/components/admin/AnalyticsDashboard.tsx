@@ -93,6 +93,7 @@ export function AnalyticsDashboard() {
                 <Legend wrapperStyle={{ fontSize: 11 }} />
                 <Line
                   type="monotone"
+                  isAnimationActive={false}
                   dataKey="booked"
                   name="Réservés"
                   stroke={GREEN}
@@ -101,6 +102,7 @@ export function AnalyticsDashboard() {
                 />
                 <Line
                   type="monotone"
+                  isAnimationActive={false}
                   dataKey="completed"
                   name="Honorés"
                   stroke={TEAL}
@@ -109,6 +111,7 @@ export function AnalyticsDashboard() {
                 />
                 <Line
                   type="monotone"
+                  isAnimationActive={false}
                   dataKey="no_show"
                   name="Absences"
                   stroke={AMBER}
@@ -131,8 +134,8 @@ export function AnalyticsDashboard() {
                 <YAxis fontSize={11} width={52} />
                 <Tooltip formatter={(v: number) => `${v.toLocaleString("fr-FR")} F`} />
                 <Legend wrapperStyle={{ fontSize: 11 }} />
-                <Bar dataKey="online_volume" name="Volume" fill={GREEN} />
-                <Bar dataKey="commission" name="Commission" fill={TEAL} />
+                <Bar dataKey="online_volume" name="Volume" fill={GREEN} isAnimationActive={false} />
+                <Bar dataKey="commission" name="Commission" fill={TEAL} isAnimationActive={false} />
               </BarChart>
             </ResponsiveContainer>
           </div>

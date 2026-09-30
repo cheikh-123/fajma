@@ -565,6 +565,8 @@ def _roles(user: User) -> list[str]:
         roles.append("doctor")
     if PharmacyMember.objects.filter(user=user).exists():
         roles.append("pharmacist")
+    if user.lab_memberships.exists():
+        roles.append("lab")
     if Clinic.objects.filter(owner=user).exists():
         roles.append("clinic_owner")
     if ClinicStaff.objects.filter(user=user).exists():

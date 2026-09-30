@@ -830,8 +830,9 @@ function RelativesPanel() {
           placeholder="Prénom et nom"
           className="rounded-lg border border-sunu-line px-3 py-2 text-sm outline-none focus:border-sunu-green"
         />
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-2 gap-2">
           <select
+            aria-label="Lien"
             value={form.relationship}
             onChange={(e) =>
               setForm({ ...form, relationship: e.target.value as typeof form.relationship })
@@ -850,7 +851,7 @@ function RelativesPanel() {
             value={form.birth_date}
             max={new Date().toISOString().slice(0, 10)}
             onChange={(e) => setForm({ ...form, birth_date: e.target.value })}
-            className="rounded-lg border border-sunu-line bg-sunu-card px-3 py-2 text-sm outline-none focus:border-sunu-green"
+            className="col-span-2 row-start-2 rounded-lg border border-sunu-line bg-sunu-card px-3 py-2 text-sm outline-none focus:border-sunu-green"
           />
           <select
             aria-label="Sexe"

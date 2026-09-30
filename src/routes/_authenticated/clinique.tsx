@@ -1,5 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ThemeToggle } from "@/lib/theme";
+import { LogoutButton } from "@/components/LogoutButton";
+import { NotificationBell } from "@/components/NotificationBell";
+import { useMe } from "@/api/auth";
 import {
   queryOptions,
   useMutation,
@@ -81,6 +84,7 @@ type Clinic = NonNullable<Awaited<ReturnType<typeof getMyClinic>>>;
 
 function ClinicPage() {
   const { data: clinic } = useSuspenseQuery(clinicQO);
+  const { data: me } = useMe();
   return (
     <div className="min-h-screen bg-sunu-surface">
       <header className="border-b border-sunu-line bg-sunu-card">
@@ -92,12 +96,19 @@ function ClinicPage() {
             <span className="font-bold text-sunu-green">Fajma · Clinique</span>
           </Link>
           <ThemeToggle className="ml-auto mr-3" />
-          <Link
-            to="/pro"
-            className="flex items-center gap-1 text-sm font-semibold text-sunu-ink/60"
-          >
-            <ArrowLeft className="size-4" /> Espace pro
-          </Link>
+          <div className="flex items-center gap-4">
+            {me?.is_doctor && (
+              <Link
+                to="/pro"
+                className="flex items-center gap-1 text-sm font-semibold text-sunu-ink/60"
+              >
+                <ArrowLeft className="size-4" />{" "}
+                <span className="hidden sm:inline">Espace pro</span>
+              </Link>
+            )}
+            <NotificationBell />
+            <LogoutButton />
+          </div>
         </div>
       </header>
       <main className="mx-auto max-w-6xl px-4 py-10 sm:px-6">

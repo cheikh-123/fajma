@@ -10,6 +10,7 @@ const ROLE_LABELS: Record<AdminUser["roles"][number], string> = {
   patient: "Patient",
   doctor: "Médecin",
   pharmacist: "Pharmacien",
+  lab: "Laboratoire",
   clinic_owner: "Responsable de clinique",
   clinic_staff: "Secrétariat",
   admin: "Administrateur",

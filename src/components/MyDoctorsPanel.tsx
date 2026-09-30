@@ -15,7 +15,10 @@ export function MyDoctorsPanel() {
       </h2>
       <ul className="mt-3 grid grid-cols-1 gap-2">
         {data.map((d) => (
-          <li key={d.id} className="flex min-w-0 items-center gap-3 rounded-lg bg-sunu-surface px-3 py-2">
+          <li
+            key={d.id}
+            className="flex min-w-0 items-center gap-3 rounded-lg bg-sunu-surface px-3 py-2"
+          >
             {d.avatar_url ? (
               <img
                 src={d.avatar_url}
