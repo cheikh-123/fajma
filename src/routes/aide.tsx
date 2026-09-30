@@ -318,7 +318,7 @@ function HelpPage() {
           {sections.map((s) => (
             <section key={s.id} id={s.id} className="scroll-mt-6">
               <h2 className="text-lg font-bold text-sunu-dark">{s.title}</h2>
-              <div className="mt-3 divide-y divide-sunu-line overflow-hidden rounded-2xl border border-sunu-line bg-sunu-card">
+              <div className="stagger mt-3 divide-y divide-sunu-line overflow-hidden rounded-2xl border border-sunu-line bg-sunu-card">
                 {s.items.map((f) => (
                   <details key={f.q} className="group" open={Boolean(q)}>
                     <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-4 text-sm font-semibold text-sunu-dark hover:text-sunu-green">

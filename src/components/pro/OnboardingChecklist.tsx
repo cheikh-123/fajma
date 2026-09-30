@@ -81,10 +81,13 @@ export function OnboardingChecklist({
         aria-valuemax={100}
         aria-label="Progression"
       >
-        <div className="h-full rounded-full bg-sunu-green" style={{ width: `${pct}%` }} />
+        <div
+          className="h-full rounded-full bg-sunu-green transition-[width] duration-700 ease-out"
+          style={{ width: `${pct}%` }}
+        />
       </div>
       {!collapsed && (
-        <ol className="mt-4 grid gap-2">
+        <ol className="stagger mt-4 grid gap-2">
           {data.steps.map((s) => (
             <li
               key={s.id}

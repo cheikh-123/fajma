@@ -272,3 +272,140 @@ body::before {
     --muted-foreground: #56645b;
   }
 }
+
+/* ── Mouvement ─────────────────────────────────────────────────────────
+   Animations courtes et sobres (150–350 ms, courbes « ease-out »), en CSS natif : fluides même sur un
+   téléphone d'entrée de gamme. Toutes désactivées si l'appareil demande de réduire les animations. */
+
+:root {
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  /* Permet d'animer la hauteur « auto » (questions dépliables). */
+  interpolate-size: allow-keywords;
+}
+
+@keyframes fajma-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes fajma-fade-out {
+  to {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+@keyframes fajma-pop {
+  0% {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+  70% {
+    transform: scale(1.15);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+@keyframes fajma-reveal-circle {
+  from {
+    clip-path: circle(0 at var(--vt-x, 50%) var(--vt-y, 0%));
+  }
+  to {
+    clip-path: circle(150vmax at var(--vt-x, 50%) var(--vt-y, 0%));
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Changement de page : l'ancienne s'efface vers le haut, la nouvelle apparaît en fondu. */
+  ::view-transition-old(root) {
+    animation: fajma-fade-out 160ms var(--ease-in-out) both;
+  }
+  ::view-transition-new(root) {
+    animation: fajma-fade-up 280ms var(--ease-out) both;
+  }
+  /* Passage clair / sombre : le nouveau thème s'étend en cercle depuis le bouton. */
+  html[data-vt="theme"]::view-transition-old(root) {
+    animation: none;
+  }
+  html[data-vt="theme"]::view-transition-new(root) {
+    animation: fajma-reveal-circle 480ms var(--ease-in-out) both;
+  }
+
+  /* Boutons et liens-boutons : transitions de couleur et retour tactile à l'appui. */
+  button,
+  a[class*="rounded"],
+  summary {
+    transition-property: color, background-color, border-color, box-shadow, opacity, scale;
+    transition-duration: 150ms;
+    transition-timing-function: var(--ease-out);
+  }
+  button:not(:disabled):active,
+  a[class*="rounded"]:active {
+    scale: 0.97;
+  }
+
+  /* Questions dépliables (aide, « comment ça marche ») : ouverture en douceur. */
+  details::details-content {
+    block-size: 0;
+    overflow-y: clip;
+    transition:
+      block-size 260ms var(--ease-out),
+      content-visibility 260ms allow-discrete;
+  }
+  details[open]::details-content {
+    block-size: auto;
+  }
+
+  /* Apparition en cascade des éléments d'une liste (cartes, questions…). */
+  .stagger > * {
+    animation: fajma-fade-up 360ms var(--ease-out) both;
+  }
+  .stagger > *:nth-child(2) {
+    animation-delay: 40ms;
+  }
+  .stagger > *:nth-child(3) {
+    animation-delay: 80ms;
+  }
+  .stagger > *:nth-child(4) {
+    animation-delay: 120ms;
+  }
+  .stagger > *:nth-child(5) {
+    animation-delay: 160ms;
+  }
+  .stagger > *:nth-child(n + 6) {
+    animation-delay: 200ms;
+  }
+
+  /* Sections de l'accueil : apparition au défilement (navigateurs récents ; ailleurs, affichage direct). */
+  @supports (animation-timeline: view()) {
+    .reveal {
+      animation: fajma-fade-up linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 22%;
+    }
+  }
+
+  /* Pastille de nombre (notifications) et menus déroulants. */
+  .pop {
+    animation: fajma-pop 320ms var(--ease-out) both;
+  }
+  .dropdown {
+    animation: fajma-fade-up 180ms var(--ease-out) both;
+    transform-origin: top right;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}

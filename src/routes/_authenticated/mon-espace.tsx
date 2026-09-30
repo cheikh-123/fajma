@@ -272,7 +272,7 @@ function MyAreaPage() {
                   </Link>
                 </div>
               ) : (
-                <div className="grid gap-3">
+                <div className="stagger grid gap-3">
                   {upcoming.map((a) => (
                     <ApptCard
                       key={a.id}
@@ -292,7 +292,7 @@ function MyAreaPage() {
                 <h2 className="mb-3 text-sm font-bold uppercase tracking-wider text-sunu-ink/50">
                   {t("space.past")}
                 </h2>
-                <div className="grid gap-3">
+                <div className="stagger grid gap-3">
                   {past.map((a) => (
                     <ApptCard
                       key={a.id}

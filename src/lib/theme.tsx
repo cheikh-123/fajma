@@ -39,9 +39,22 @@ export function ThemeToggle({ className = "" }: { className?: string }) {
     return () => media.removeEventListener("change", onChange);
   }, []);
 
-  const toggle = () => {
+  const toggle = (e: React.MouseEvent<HTMLButtonElement>) => {
     const next = !dark;
-    apply(next);
+    const root = document.documentElement;
+    // Le nouveau thème s'étend en cercle depuis le bouton (navigateurs récents, animations autorisées).
+    const doc = document as Document & {
+      startViewTransition?: (cb: () => void) => { finished: Promise<void> };
+    };
+    if (doc.startViewTransition && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      const r = e.currentTarget.getBoundingClientRect();
+      root.style.setProperty("--vt-x", `${r.left + r.width / 2}px`);
+      root.style.setProperty("--vt-y", `${r.top + r.height / 2}px`);
+      root.dataset.vt = "theme";
+      doc.startViewTransition(() => apply(next)).finished.finally(() => delete root.dataset.vt);
+    } else {
+      apply(next);
+    }
     setDark(next);
     try {
       localStorage.setItem(STORAGE_KEY, next ? "dark" : "light");

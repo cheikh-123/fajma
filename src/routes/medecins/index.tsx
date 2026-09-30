@@ -355,7 +355,7 @@ function MedecinsPage() {
             </div>
           )}
 
-          <div className="grid gap-4">
+          <div className="stagger grid gap-4">
             {onlyFarAway && (
               <p className="rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-900">
                 {search.city ? t("search.nearest", { city: search.city }) : t("search.aroundMe")}

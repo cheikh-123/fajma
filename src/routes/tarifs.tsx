@@ -83,7 +83,7 @@ function PricingPage() {
           ))}
         </div>
 
-        <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-3">
+        <div className="stagger mt-6 grid grid-cols-1 gap-6 md:grid-cols-3">
           {data.plans.map((p) => {
             const price = p.prices[String(months)] ?? p.monthly_price * months;
             const featured = p.id === "pro";

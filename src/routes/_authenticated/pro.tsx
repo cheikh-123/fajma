@@ -581,7 +581,7 @@ function DoctorDashboard({ profile }: { profile: Profile }) {
                 <p className="mt-3 text-sm text-sunu-ink/60">Aucun rendez-vous à venir.</p>
               </div>
             ) : (
-              <div className="grid gap-3">
+              <div className="stagger grid gap-3">
                 {upcoming.map((a) => (
                   <DoctorApptCard
                     key={a.id}
@@ -601,7 +601,7 @@ function DoctorDashboard({ profile }: { profile: Profile }) {
                 <h2 className="mt-8 mb-3 text-sm font-bold uppercase tracking-wider text-sunu-ink/50">
                   Historique
                 </h2>
-                <div className="grid gap-3">
+                <div className="stagger grid gap-3">
                   {past.slice(0, 15).map((a) => (
                     <DoctorApptCard key={a.id} appt={a} myDoctorId={profile.id} />
                   ))}

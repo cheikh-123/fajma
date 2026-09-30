@@ -45,13 +45,16 @@ export function NotificationBell() {
       >
         <Bell className="size-5" />
         {unread > 0 && (
-          <span className="absolute -right-0.5 -top-0.5 grid min-w-4 place-items-center rounded-full bg-red-600 px-1 text-[10px] font-bold text-white">
+          <span
+            key={unread}
+            className="pop absolute -right-0.5 -top-0.5 grid min-w-4 place-items-center rounded-full bg-red-600 px-1 text-[10px] font-bold text-white"
+          >
             {unread > 9 ? "9+" : unread}
           </span>
         )}
       </button>
       {open && (
-        <div className="absolute right-0 z-50 mt-2 w-80 max-w-[calc(100vw-2rem)] overflow-hidden rounded-2xl border border-sunu-line bg-sunu-card shadow-sunu-card">
+        <div className="dropdown absolute right-0 z-50 mt-2 w-80 max-w-[calc(100vw-2rem)] overflow-hidden rounded-2xl border border-sunu-line bg-sunu-card shadow-sunu-card">
           <p className="border-b border-sunu-line px-4 py-3 text-sm font-bold text-sunu-dark">
             Notifications
           </p>

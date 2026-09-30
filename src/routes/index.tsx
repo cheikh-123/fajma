@@ -241,7 +241,7 @@ function Landing() {
       </section>
 
       {/* SPECIALTIES */}
-      <section className="mx-auto max-w-7xl px-6 py-20">
+      <section className="reveal mx-auto max-w-7xl px-6 py-20">
         <div className="mb-10 flex items-end justify-between">
           <div>
             <p className="text-xs font-bold uppercase tracking-widest text-sunu-green">
@@ -258,7 +258,7 @@ function Landing() {
             Voir toutes les spécialités <ArrowRight className="size-4" />
           </Link>
         </div>
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
+        <div className="stagger grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
           {specialties.map((s) => {
             const Icon = s.icon;
             return (
@@ -285,7 +285,7 @@ function Landing() {
       </section>
 
       {/* FEATURES */}
-      <section className="bg-sunu-surface py-24">
+      <section className="reveal bg-sunu-surface py-24">
         <div className="mx-auto max-w-7xl px-6">
           <div className="mx-auto max-w-2xl text-center">
             <p className="text-xs font-bold uppercase tracking-widest text-sunu-green">
@@ -326,7 +326,7 @@ function Landing() {
       </section>
 
       {/* DOCTORS DISPO */}
-      <section id="rdv" className="mx-auto max-w-7xl px-6 py-24">
+      <section id="rdv" className="reveal mx-auto max-w-7xl px-6 py-24">
         <div className="mb-10 flex flex-col items-start justify-between gap-4 md:flex-row md:items-end">
           <div>
             <p className="text-xs font-bold uppercase tracking-widest text-sunu-green">
@@ -348,7 +348,7 @@ function Landing() {
       </section>
 
       {/* TELECONSULT */}
-      <section id="teleconsult" className="mx-auto max-w-7xl px-6 pb-24">
+      <section id="teleconsult" className="reveal mx-auto max-w-7xl px-6 pb-24">
         <div className="grid items-center gap-10 rounded-[2rem] border border-sunu-line bg-gradient-to-br from-sunu-green-soft via-sunu-card to-sunu-card p-8 md:grid-cols-2 md:p-14">
           <div>
             <p className="inline-flex items-center gap-2 rounded-full bg-sunu-card px-3 py-1 text-xs font-bold uppercase tracking-widest text-sunu-teal ring-1 ring-sunu-line">
@@ -430,7 +430,7 @@ function Landing() {
       </section>
 
       {/* MAP / COUVERTURE */}
-      <section className="bg-sunu-surface py-24">
+      <section className="reveal bg-sunu-surface py-24">
         <div className="mx-auto max-w-7xl px-6">
           <div className="grid items-center gap-12 md:grid-cols-2">
             <div>
@@ -495,7 +495,7 @@ function Landing() {
       </section>
 
       {/* PROS */}
-      <section id="pros" className="mx-auto max-w-7xl px-6 py-24">
+      <section id="pros" className="reveal mx-auto max-w-7xl px-6 py-24">
         <div className="overflow-hidden rounded-[2rem] bg-sunu-night p-8 text-white md:p-14">
           <div className="grid items-center gap-14 md:grid-cols-2">
             <div>
@@ -558,7 +558,7 @@ function Landing() {
       </section>
 
       {/* CTA FINAL */}
-      <section className="mx-auto max-w-4xl px-6 pb-24 text-center">
+      <section className="reveal mx-auto max-w-4xl px-6 pb-24 text-center">
         <h2 className="text-3xl font-bold tracking-tight text-sunu-dark md:text-4xl">
           Prêt à prendre soin de vous ?
         </h2>
@@ -738,7 +738,7 @@ function AvailableDoctors() {
       </p>
     );
   return (
-    <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+    <div className="stagger grid grid-cols-1 gap-6 md:grid-cols-3">
       {doctors.map((d) => (
         <HomeDoctorCard key={d.id} d={d} />
       ))}
