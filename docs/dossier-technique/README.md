@@ -1,0 +1,106 @@
+# Dossier technique et sécurité — Fajma
+
+**Version du dossier :** 2.4 — 30 septembre 2026
+**Périmètre :** code source du dépôt `sante-connect-main` (backend Django, frontend React, déploiement), services tiers.
+**Public visé :** acquéreurs, investisseurs, auditeurs techniques et juridiques, équipe technique reprenant le projet.
+
+Cette version remplace entièrement la version 1.x, qui décrivait le prototype initial (Supabase, Lovable Cloud).
+Le produit a depuis été reconstruit : backend Django, base PostgreSQL maîtrisée, aucune dépendance à Lovable
+ni à Supabase.
+
+---
+
+## 1. Fiche d'identité
+
+| Élément | Valeur |
+|---|---|
+| Produit | Plateforme de santé pour le Sénégal : prise de rendez-vous, téléconsultation, dossier médical, paiement, assurances, pharmacies |
+| Utilisateurs | Patients (et leurs proches), médecins, cliniques (responsables, secrétariat), pharmaciens, laboratoires d'analyses, administrateurs |
+| Canaux | Site web et application installable (PWA, publiable sur le Play Store), WhatsApp, USSD (tout téléphone, sans internet) |
+| Langues | Français, wolof (à faire relire par un locuteur natif), anglais ; SMS et menus dans la langue du patient |
+| Backend | Python 3.13, Django 6.1, Django REST Framework ; file de tâches `django.tasks` |
+| Frontend | React 19, TanStack Router/Start (mode SPA), Tailwind CSS 4, TypeScript |
+| Base de données | PostgreSQL 17 en production (SQLite en développement) |
+| Hébergement | Docker Compose sur un serveur au choix — **un hébergement au Sénégal est possible sans modification** |
+| Paiement | PayDunya (Wave, Orange Money, Free Money, cartes) ou règlement au cabinet |
+| Messages | Twilio : SMS et WhatsApp ; notifications push du navigateur (Web Push, gratuites) |
+| Téléconsultation | Jitsi Meet (serveur public au démarrage, auto-hébergeable) |
+| Assistant IA | Fournisseur configurable via une API compatible OpenAI (Google Gemini par défaut) |
+| Qualité | 227 tests automatisés de l'API ; parcours de bout en bout dans un navigateur réel pour chaque rôle ; intégration continue GitHub Actions |
+| Taille du code | ≈ 13 200 lignes Python (hors tests et migrations), ≈ 3 200 lignes de tests, ≈ 28 500 lignes TypeScript/React |
+
+## 2. Contenu du dossier
+
+| # | Document | Contenu |
+|---|---|---|
+| 1 | [Architecture](01-architecture.md) | Composants, organisation du code, fonctionnalités, modèle de données, intégrations |
+| 2 | [Sécurité](02-securite.md) | Authentification, contrôle d'accès, protections, secrets, journal d'audit, tests |
+| 3 | [Données personnelles et conformité](03-donnees-et-conformite.md) | Inventaire des données, sous-traitants, droits des personnes, obligations au Sénégal |
+| 4 | [Exploitation et déploiement](04-exploitation.md) | Installation, mise en production, tâches planifiées, sauvegardes, supervision |
+| 5 | [Risques et plan d'action](05-risques-et-plan-action.md) | Points ouverts, gravité, actions avant commercialisation |
+| 6 | [Informations pour une cession](06-cession.md) | Propriété, licences des composants, dépendances aux prestataires, coûts, reprise par une autre équipe |
+
+## 3. Synthèse pour la direction
+
+**Ce qui est en place**
+
+- **Couverture fonctionnelle de niveau Doctolib, adaptée au Sénégal** : réservation (site, WhatsApp, USSD),
+  téléconsultation, dossier médical, ordonnances et certificats vérifiables par QR code, paiement mobile avec
+  commission et reversement aux médecins, abonnements des médecins, assurances (IPM, mutuelles CMU, assureurs)
+  avec tiers payant, carnet de vaccination et suivi de grossesse, ordonnances transmises aux pharmacies,
+  secrétariat de clinique ou de cabinet, télé-expertise entre médecins, visites à domicile, séries de
+  séances (kinésithérapie, soins), remplacements entre médecins, tableau de pilotage.
+- **Chaque acteur gère lui-même ses informations** : fiche et photo du médecin, horaires et garde de la
+  pharmacie, informations de la clinique ; l'administration dispose des outils de support (recherche de
+  compte, suspension, réinitialisation de la double authentification, ajout de pharmacies).
+- **Le contrôle d'accès est appliqué par le serveur** pour chaque requête, et vérifié par des tests
+  automatisés (tentatives d'accès aux données d'un autre patient, d'un autre médecin, d'une autre pharmacie…).
+- **Traçabilité** : chaque consultation d'un dossier par un professionnel est inscrite dans un journal
+  inaltérable, visible par le patient concerné.
+- **Argent tracé** : journal comptable non modifiable par médecin ; paiements vérifiés directement auprès
+  de PayDunya ; remboursement automatique en cas d'annulation.
+- **Sécurité des comptes** : double authentification (TOTP) **obligatoire pour tous les professionnels et
+  administrateurs**, connexion par code SMS pour les patients, sessions HttpOnly, limites de débit, en-têtes de
+  sécurité et politique CSP stricte.
+- **Exploitation** : sauvegardes quotidiennes chiffrées avec test de restauration mensuel automatique,
+  supervision avec alertes email, purge nocturne des données techniques selon des durées de conservation.
+- **Souveraineté** : l'ensemble de la plateforme (base, fichiers, API) peut être hébergé au Sénégal ; les
+  seuls flux sortants sont ceux des prestataires listés (SMS, IA, vidéo si non auto-hébergée).
+
+**Ce qui doit être fait avant une commercialisation** (détail : [plan d'action](05-risques-et-plan-action.md))
+
+1. **Réglementaire** : autorisation de la CDP pour le traitement de données de santé ; encadrement des
+   transferts hors du Sénégal ; validation par un juriste des CGU et de la politique de confidentialité
+   (projets fournis) ; qualification juridique de l'encaissement pour le compte des médecins.
+2. **Téléconsultation** : héberger Jitsi (ou un service contractualisé) au lieu du serveur public.
+3. **Validation médicale** : calendrier vaccinal (PEV) et consultations prénatales à faire valider par la
+   Direction de la Prévention ; textes wolof à faire relire.
+4. **Test d'intrusion** par un prestataire indépendant, puis exploitation sur l'infrastructure cible
+   (HTTPS, première restauration de sauvegarde, abonnement à un moniteur de disponibilité externe).
+5. **Contrats opérateurs** : Twilio (numéros, modèles WhatsApp approuvés), agrégateur USSD, PayDunya en
+   production ; les virements aux médecins et remboursements sont aujourd'hui exécutés manuellement par
+   l'administration, qui en saisit la référence.
+
+## 4. Méthode
+
+Dossier établi par lecture intégrale du code source, exécution de la suite de tests de l'API (227 tests) et
+de parcours de bout en bout dans un navigateur réel (Chrome et Edge, ordinateur et mobile) : patient, médecin,
+médecin remplaçant, clinique, secrétariat, pharmacien, administrateur, activation obligatoire de la double
+authentification, mode hors ligne sur le build de production.
+
+**Limites** : les intégrations externes (PayDunya, Twilio, agrégateur USSD, service push des navigateurs,
+Jitsi) ont été testées avec des réponses simulées, faute d'accès réseau et de comptes de production dans
+l'environnement d'audit. Le déploiement Docker et le script de test de restauration n'ont pas pu être exécutés
+dans cet environnement (la composition a été validée par `docker compose config`, les scripts par `sh -n`).
+Ces points sont signalés **« À vérifier »**.
+
+## 5. Historique des versions
+
+| Version | Date | Changements |
+|---|---|---|
+| 1.x | 2026 | Prototype initial (Supabase, Lovable Cloud) |
+| 2.0 | 29/09/2026 | Reconstruction complète (Django, PostgreSQL), dossier réécrit |
+| 2.1 | 30/09/2026 | Visites à domicile, séries de séances, remplacements ; double authentification obligatoire pour les professionnels ; outils d'administration ; fiches modifiables par chaque acteur ; supervision, test de restauration, purge des données ; chapitre 6 (cession) |
+| 2.2 | 30/09/2026 | Agenda tenu par le cabinet (saisie et déplacement de RDV), pièces jointes dans la messagerie, exports tableur (dont bordereau de tiers payant) ; suivi à domicile (tension, glycémie, poids), rappels de médicaments, laboratoires d'analyses, disponibilité des médicaments en pharmacie, pages publiques des cliniques, « Mes médecins », messagerie avec le remplaçant |
+| 2.3 | 30/09/2026 | Mise en service simulée avec de vrais comptes pour chaque rôle. Corrections : la mise à jour du profil ne peut plus effacer ni « garder vérifié » un numéro changé (sécurité) ; géolocalisation automatique des cabinets (recherche par quartier) ; file « À traiter » et menu de l'administration ; notifications de validation, de rattachement, de nouvelle ordonnance et de compte-rendu ; alerte « en-tête d'ordonnance incomplet » ; compte-rendu et ordonnance possibles après « Terminé » ; affichage mobile de l'espace patient et du dossier |
+| 2.4 | 30/09/2026 | Renforcements avant mise en service : fichiers chiffrés sur le disque, antivirus (ClamAV), déconnexion des professionnels après 30 min d'inactivité, alerte de connexion depuis un nouvel appareil, contrôle des failles des bibliothèques serveur (pip-audit) |

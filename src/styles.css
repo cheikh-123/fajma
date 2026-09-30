@@ -1,0 +1,261 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * Fajma — Design System
+ * Couleurs du Sénégal : vert (couleur principale), jaune et rouge en touches d'accent, sur fond blanc.
+ * Mode sombre : classe « dark » sur <html> (bouton soleil/lune, voir src/lib/theme.tsx).
+ */
+
+@theme inline {
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-ring-offset-background: var(--background);
+
+  /* Fajma brand tokens */
+  --color-sunu-green: var(--sunu-green);
+  --color-sunu-green-soft: var(--sunu-green-soft);
+  --color-sunu-gold: var(--sunu-gold);
+  --color-sunu-gold-ink: var(--sunu-gold-ink);
+  --color-sunu-red: var(--sunu-red);
+  --color-sunu-teal: var(--sunu-teal);
+  --color-sunu-dark: var(--sunu-dark);
+  --color-sunu-ink: var(--sunu-ink);
+  --color-sunu-card: var(--sunu-card);
+  --color-sunu-surface: var(--sunu-surface);
+  --color-sunu-line: var(--sunu-line);
+  --color-sunu-night: var(--sunu-night);
+  --color-sunu-success: var(--sunu-success);
+
+  --shadow-sunu-soft: 0 20px 60px -20px color-mix(in oklab, var(--sunu-green) 22%, transparent);
+  --shadow-sunu-card: 0 10px 30px -12px var(--sunu-shadow);
+}
+
+:root {
+  --radius: 0.875rem;
+  color-scheme: light;
+
+  /* Fajma : couleurs du drapeau */
+  --sunu-green: #00853f; /* vert du drapeau : boutons, liens, logo */
+  --sunu-green-soft: #e7f4ec; /* fond vert pâle */
+  --sunu-gold: #fdef42; /* jaune du drapeau : fonds et décor uniquement */
+  --sunu-gold-ink: #8a6a00; /* jaune foncé, lisible en texte sur blanc */
+  --sunu-red: #e31b23; /* rouge du drapeau : touches d'accent, avec parcimonie */
+  --sunu-teal: #0f7f5f; /* validé, terminé */
+  --sunu-dark: #0f1a14; /* titres */
+  --sunu-ink: #1c2620; /* texte */
+  --sunu-card: #ffffff; /* pages et cartes */
+  /* Courbes à deux séries (validées daltonisme, voir components/care) */
+  --chart-1: #00853f;
+  --chart-2: #2563eb;
+  --sunu-surface: #f6f9f7; /* sections */
+  --sunu-line: #e2e9e4; /* bordures */
+  --sunu-night: #0b2415; /* panneaux sombres (restent sombres dans les deux modes) */
+  --sunu-success: #1fa35c;
+  --sunu-shadow: rgb(15 26 20 / 0.12);
+
+  /* Base shadcn tokens */
+  --background: var(--sunu-card);
+  --foreground: var(--sunu-dark);
+  --card: var(--sunu-card);
+  --card-foreground: var(--sunu-dark);
+  --popover: var(--sunu-card);
+  --popover-foreground: var(--sunu-dark);
+  --primary: var(--sunu-green);
+  --primary-foreground: #ffffff;
+  --secondary: var(--sunu-surface);
+  --secondary-foreground: var(--sunu-dark);
+  --muted: var(--sunu-surface);
+  --muted-foreground: #56645b;
+  --accent: var(--sunu-green-soft);
+  --accent-foreground: var(--sunu-dark);
+  --destructive: var(--sunu-red);
+  --destructive-foreground: #ffffff;
+  --border: var(--sunu-line);
+  --input: var(--sunu-line);
+  --ring: var(--sunu-green);
+}
+
+.dark {
+  color-scheme: dark;
+
+  --chart-1: #22a06b;
+  --chart-2: #5b8ff5;
+
+  --sunu-green: #17964f; /* un peu plus clair : lisible sur fond sombre, texte blanc encore lisible dessus */
+  --sunu-green-soft: #12291c;
+  --sunu-gold: #fdef42;
+  --sunu-gold-ink: #f5d83a;
+  --sunu-red: #f0444b;
+  --sunu-teal: #3cc08e;
+  --sunu-dark: #eef4f0;
+  --sunu-ink: #d6e0da;
+  --sunu-card: #121a15;
+  --sunu-surface: #0c120e;
+  --sunu-line: #25312a;
+  --sunu-night: #071a0e;
+  --sunu-success: #3cc08e;
+  --sunu-shadow: rgb(0 0 0 / 0.5);
+
+  --muted-foreground: #9aa9a0;
+}
+
+/* Couleurs d'alerte (orange, rouge, gris) : versions sombres des fonds pâles et textes éclaircis. */
+.dark .bg-amber-50 {
+  background-color: #2a2108;
+}
+.dark .bg-amber-100 {
+  background-color: #3a2e0a;
+}
+.dark .border-amber-200 {
+  border-color: #5a460f;
+}
+.dark .border-amber-300 {
+  border-color: #7a5e14;
+}
+.dark .text-amber-600 {
+  color: #f0b429;
+}
+.dark .text-amber-700 {
+  color: #f7c948;
+}
+.dark .text-amber-800 {
+  color: #fadb5f;
+}
+.dark .text-amber-900 {
+  color: #fce588;
+}
+.dark .text-amber-900\/80 {
+  color: rgb(252 229 136 / 0.8);
+}
+.dark .bg-red-50 {
+  background-color: #2b0e10;
+}
+.dark .bg-red-100 {
+  background-color: #3d1216;
+}
+.dark .border-red-200 {
+  border-color: #5c1a20;
+}
+.dark .border-red-300 {
+  border-color: #7f232b;
+}
+.dark .text-red-600 {
+  color: #f87171;
+}
+.dark .text-red-700 {
+  color: #fca5a5;
+}
+.dark .bg-gray-200 {
+  background-color: #25312a;
+}
+.dark .border-gray-400 {
+  border-color: #3a4a40;
+}
+.dark .text-gray-600 {
+  color: #b5c2ba;
+}
+.dark .text-gray-700 {
+  color: #cfd9d3;
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  /* Une icône ne rétrécit jamais à côté d'un texte long (sinon elle devient un point). */
+  svg.lucide {
+    flex-shrink: 0;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    font-feature-settings: "cv11", "ss01";
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+@utility sunu-cta {
+  background-color: var(--sunu-green);
+  color: white;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
+  &:hover {
+    background-color: color-mix(in oklab, var(--sunu-green) 90%, black);
+    box-shadow: var(--shadow-sunu-soft);
+  }
+}
+
+/* Bande aux couleurs du drapeau en haut de chaque page. */
+body::before {
+  content: "";
+  display: block;
+  height: 4px;
+  background: linear-gradient(
+    90deg,
+    var(--sunu-green) 0 33.34%,
+    var(--sunu-gold) 33.34% 66.67%,
+    var(--sunu-red) 66.67%
+  );
+}
+
+@media print {
+  body::before {
+    display: none;
+  }
+  /* Impression toujours en clair (encre noire sur papier blanc), même en mode sombre. */
+  .dark {
+    color-scheme: light;
+    --sunu-green: #00853f;
+    --sunu-green-soft: #e7f4ec;
+    --sunu-gold-ink: #8a6a00;
+    --sunu-red: #e31b23;
+    --sunu-teal: #0f7f5f;
+    --sunu-dark: #0f1a14;
+    --sunu-ink: #1c2620;
+    --sunu-card: #ffffff;
+    --sunu-surface: #f6f9f7;
+    --sunu-line: #e2e9e4;
+    --muted-foreground: #56645b;
+  }
+}

@@ -1,0 +1,19 @@
+# Contexte de construction des images (deploy/*.Dockerfile) : jamais de données locales ni de secrets.
+**/node_modules
+dist
+.git
+.vscode
+.idea
+.env
+.env.*
+!.env.example
+deploy/.env
+deploy/backups
+backend/.venv
+backend/db.sqlite3
+backend/private_media
+backend/staticfiles
+**/__pycache__
+**/*.pyc
+*.log
+docs

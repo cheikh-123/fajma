@@ -1,0 +1,120 @@
+# Fajma — déploiement sur un serveur (au Sénégal de préférence).
+#   cp deploy/.env.example deploy/.env   # puis remplir les valeurs
+#   docker compose -f deploy/docker-compose.yml --env-file deploy/.env up -d --build
+# Services : base PostgreSQL, API, worker (SMS/emails), planificateur (rappels), sauvegarde, site web (nginx).
+
+name: fajma
+
+x-backend: &backend
+  build:
+    context: ..
+    dockerfile: deploy/backend.Dockerfile
+  env_file: .env
+  environment:
+    DATABASE_URL: postgres://fajma:${POSTGRES_PASSWORD}@db:5432/fajma
+    PRIVATE_MEDIA_ROOT: /data/private_media
+    TASK_BACKEND: database
+    CLAMAV_ADDRESS: clamav:3310
+  volumes:
+    - private_media:/data/private_media
+  depends_on:
+    db:
+      condition: service_healthy
+  restart: unless-stopped
+
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: fajma
+      POSTGRES_USER: fajma
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD manquant}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fajma -d fajma"]
+      interval: 5s
+      retries: 10
+    restart: unless-stopped
+
+  # Antivirus : chaque fichier déposé (documents, résultats, pièces jointes) est analysé avant stockage.
+  # Base de signatures mise à jour automatiquement (freshclam). Prévoir ~2 Go de mémoire pour ce service.
+  clamav:
+    image: clamav/clamav:stable
+    volumes:
+      - clamav_db:/var/lib/clamav
+    healthcheck:
+      test: ["CMD", "clamdcheck.sh"]
+      interval: 60s
+      start_period: 300s
+      retries: 3
+    restart: unless-stopped
+
+  backend:
+    <<: *backend
+    command: sh -c "python manage.py migrate --noinput && gunicorn sunusante.wsgi:application --bind 0.0.0.0:8000 --workers 3 --threads 8 --timeout 60 --access-logfile -"
+    healthcheck:
+      # Se présente comme une requête HTTPS relayée par nginx (sinon redirection HTTPS et hôte refusé).
+      test: ["CMD", "python", "-c", "import os,urllib.request as u; u.urlopen(u.Request('http://localhost:8000/api/health', headers={'Host': os.environ['DJANGO_ALLOWED_HOSTS'].split(',')[0], 'X-Forwarded-Proto': 'https'}))"]
+      interval: 15s
+      retries: 5
+
+  # Temps réel (/api/events) : serveur ASGI séparé, où des milliers de connexions ouvertes ne bloquent
+  # ni processus ni fil ; l'API reste sur le serveur classique, plus efficace pour les requêtes courtes.
+  events:
+    <<: *backend
+    command: gunicorn sunusante.asgi:application -k uvicorn_worker.UvicornWorker --bind 0.0.0.0:8001 --workers 2 --timeout 400 --access-logfile -
+
+  worker:
+    <<: *backend
+    command: python manage.py db_worker
+
+  scheduler:
+    <<: *backend
+    # Rappels de RDV et rappels programmés par les médecins, toutes les 10 minutes.
+    # + relecture des agendas personnels des médecins (Google Agenda, Outlook…).
+    # + supervision (alertes email) et, une fois par nuit vers 3 h, purge des données techniques anciennes.
+    command: >
+      sh -c "while true; do python manage.py send_reminders; python manage.py sync_calendars;
+      python manage.py monitor --quiet;
+      if [ \"$$(date +%H)\" = \"03\" ] && [ \"$$(date +%M)\" -lt 10 ]; then python manage.py purge_data; fi;
+      sleep 600; done"
+    volumes:
+      - private_media:/data/private_media
+      - ./backups:/backups:ro  # contrôle de la dernière sauvegarde par « monitor »
+
+  # Sauvegarde quotidienne (base + fichiers privés) dans deploy/backups, à copier hors du serveur.
+  backup:
+    image: postgres:17-alpine
+    command: sh /backup.sh
+    environment:
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+      BACKUP_PASSPHRASE: ${BACKUP_PASSPHRASE:-}
+      BACKUP_KEEP_DAYS: ${BACKUP_KEEP_DAYS:-30}
+    volumes:
+      - ./backup.sh:/backup.sh:ro
+      - ./restore-test.sh:/restore-test.sh:ro
+      - private_media:/data/private_media:ro
+      - ./backups:/backups
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  web:
+    build:
+      context: ..
+      dockerfile: deploy/frontend.Dockerfile
+      args:
+        VITE_JITSI_DOMAIN: ${JITSI_DOMAIN:-meet.jit.si}
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+      - events
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+  clamav_db:
+  private_media:

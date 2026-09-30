@@ -1,0 +1,21 @@
+{
+  "packageId": "sn.fajma.app",
+  "host": "www.fajma.sn",
+  "name": "Fajma — Rendez-vous médicaux",
+  "launcherName": "Fajma",
+  "display": "standalone",
+  "orientation": "portrait",
+  "themeColor": "#00853f",
+  "navigationColor": "#ffffff",
+  "backgroundColor": "#ffffff",
+  "enableNotifications": true,
+  "startUrl": "/mon-espace",
+  "iconUrl": "https://www.fajma.sn/icons/icon-512.png",
+  "maskableIconUrl": "https://www.fajma.sn/icons/icon-maskable-512.png",
+  "webManifestUrl": "https://www.fajma.sn/manifest.webmanifest",
+  "appVersionName": "1.0.0",
+  "appVersionCode": 1,
+  "signingKey": { "path": "./android.keystore", "alias": "fajma" },
+  "fallbackType": "customtabs",
+  "minSdkVersion": 21
+}

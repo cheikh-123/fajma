@@ -1,0 +1,53 @@
+{
+  "name": "Fajma — Rendez-vous médicaux au Sénégal",
+  "short_name": "Fajma",
+  "description": "Prenez rendez-vous avec un médecin, téléconsultez et gérez votre dossier médical.",
+  "lang": "fr",
+  "start_url": "/mon-espace",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#00853f",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Trouver un médecin",
+      "url": "/medecins"
+    },
+    {
+      "name": "Mes rendez-vous",
+      "url": "/mon-espace"
+    },
+    {
+      "name": "Messages",
+      "url": "/messages"
+    }
+  ],
+  "id": "/",
+  "categories": [
+    "medical",
+    "health"
+  ],
+  "dir": "ltr",
+  "prefer_related_applications": false
+}
