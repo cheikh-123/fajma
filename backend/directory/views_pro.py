@@ -606,3 +606,76 @@ def my_prescription_header(request):
             doctor.city = get_str(data, "city", required=True, min_len=2, max_len=80)
             doctor.save()
     return Response(prescription_header_dict(doctor))
+
+
+# ── Guide de démarrage ───────────────────────────────────────────────
+
+
+@api_view(["GET"])
+def my_onboarding(request):
+    """Étapes pour être opérationnel sur Fajma, dans l'ordre, avec l'onglet de l'espace médecin où les faire."""
+    from accounts.security import mfa_enabled
+    from medical.issuer import missing_mentions
+
+    from .models import DoctorCredential
+
+    user = require_user(request)
+    doctor = my_doctor(user)
+    creds = DoctorCredential.objects.filter(doctor=doctor)
+    missing = missing_mentions(doctor)
+    steps = [
+        {
+            "id": "profile",
+            "title": "Compléter ma fiche publique",
+            "hint": "Photo, présentation et adresse du cabinet : c'est ce que les patients voient avant de réserver.",
+            "tab": "profil",
+            "done": bool(doctor.photo_path and doctor.bio and doctor.address),
+        },
+        {
+            "id": "credential",
+            "title": "Déposer mon inscription à l'Ordre des médecins",
+            "hint": "Obligatoire pour que l'équipe Fajma publie votre fiche.",
+            "tab": "profil",
+            "done": creds.exists(),
+        },
+        {
+            "id": "schedule",
+            "title": "Définir mon emploi du temps",
+            "hint": "Vos plages de consultation : sans elles, aucun rendez-vous en ligne.",
+            "tab": "planning",
+            "done": doctor.availability.exists(),
+        },
+        {
+            "id": "types",
+            "title": "Vérifier mes motifs et tarifs",
+            "hint": "Consultation, suivi, téléconsultation… avec leur durée et leur prix.",
+            "tab": "planning",
+            "done": doctor.consultation_types.filter(is_active=True).exists(),
+        },
+        {
+            "id": "prescription",
+            "title": "Compléter l'en-tête de mes ordonnances",
+            "hint": "N° d'Ordre, cabinet et signature : indispensables pour délivrer ordonnances et certificats.",
+            "tab": "ordonnances",
+            "done": not missing,
+        },
+        {
+            "id": "mfa",
+            "title": "Sécuriser mon compte",
+            "hint": "Double authentification : obligatoire, vous accédez à des données de santé.",
+            "tab": "securite",
+            "done": mfa_enabled(user),
+        },
+        {
+            "id": "published",
+            "title": "Fiche validée par Fajma",
+            "hint": (
+                "Votre fiche est en ligne : les patients peuvent vous trouver et réserver."
+                if doctor.is_verified
+                else "L'équipe Fajma vérifie votre justificatif ; vous êtes prévenu par SMS et email dès la mise en ligne."
+            ),
+            "tab": None,
+            "done": doctor.is_verified,
+        },
+    ]
+    return Response({"steps": steps, "done": sum(s["done"] for s in steps), "total": len(steps)})

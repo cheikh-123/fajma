@@ -16,6 +16,7 @@ import {
 import type { EditablePharmacy } from "@/api/types";
 import { NotificationBell } from "@/components/NotificationBell";
 import { LogoutButton } from "@/components/LogoutButton";
+import { HelpLink } from "@/components/HelpLink";
 import { DutyControl, PharmacyEditor } from "@/components/PharmacyEditor";
 import { WEEK } from "@/lib/weekdays";
 import { SecuritySection } from "@/components/SecuritySection";
@@ -76,6 +77,7 @@ function PharmacyPage() {
           </Link>
           <ThemeToggle className="ml-auto mr-3" />
           <NotificationBell />
+          <HelpLink />
           <LogoutButton />
         </div>
       </header>

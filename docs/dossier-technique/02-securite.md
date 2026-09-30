@@ -82,6 +82,7 @@ Chaque règle ci-dessus est couverte par au moins un test automatisé qui tente 
 | Virus dans un fichier déposé | Analyse antivirus **ClamAV** (service `clamav`, signatures mises à jour automatiquement) de chaque fichier avant stockage : documents, résultats d'analyses, pièces jointes, justificatifs, photos, signatures. Fichier infecté refusé ; antivirus injoignable = dépôt refusé (jamais de fichier non inspecté) et alerte de supervision |
 | Vol du disque, d'un volume ou d'une sauvegarde | **Chiffrement de chaque fichier sur le disque** (Fernet : AES-128-CBC + HMAC-SHA256, `sunusante/uploads.py`) avec une clé (`FILE_ENCRYPTION_KEYS`) conservée hors du serveur de fichiers et hors des sauvegardes ; fichier altéré refusé ; rotation de clé sans coupure (`encrypt_files --rotate`) |
 | Poste de cabinet ou de clinique laissé ouvert | Déconnexion automatique des comptes professionnels après 30 minutes sans activité |
+| Formulaire de contact détourné (spam, saturation) | Limite de 5 demandes par heure et par adresse, champ piège anti-robots, contrôle du format du contact ; message d'avertissement contre la saisie d'informations médicales détaillées |
 | Faille connue dans une bibliothèque | Contrôle automatique à chaque modification : `npm audit` (interface) et `pip-audit` (serveur) dans l'intégration continue |
 | Script injecté (XSS) | React échappe les contenus ; CSP stricte sans `unsafe-inline` pour les scripts (empreintes calculées au build) ; cookie de session inaccessible au JavaScript |
 | Clic détourné (clickjacking) | `frame-ancestors 'none'` et `X-Frame-Options: DENY`, sauf le module de réservation intégrable, qui ne contient ni connexion ni paiement |
@@ -120,7 +121,7 @@ exécuté par l'intégration continue.
 
 ## 2.8 Tests de sécurité réalisés
 
-- **230 tests automatisés de l'API**, dont les tentatives d'accès interdites de la matrice § 2.4 (y compris
+- **235 tests automatisés de l'API**, dont les tentatives d'accès interdites de la matrice § 2.4 (y compris
   pour un remplaçant, une secrétaire, un médecin sans lien avec le patient), les manipulations de prix et de
   parts, les fichiers piégés, les doubles réservations, les webhooks non signés, les secrets USSD invalides, la
   réutilisation de session USSD par un autre numéro, les doubles notifications de paiement, le blocage des

@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ThemeToggle } from "@/lib/theme";
 import { LogoutButton } from "@/components/LogoutButton";
+import { HelpLink } from "@/components/HelpLink";
 import { NotificationBell } from "@/components/NotificationBell";
 import { useMe } from "@/api/auth";
 import {
@@ -107,6 +108,7 @@ function ClinicPage() {
               </Link>
             )}
             <NotificationBell />
+            <HelpLink />
             <LogoutButton />
           </div>
         </div>

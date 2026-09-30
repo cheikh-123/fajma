@@ -80,6 +80,8 @@ Purge automatique chaque nuit (`purge_data`, durées réglables par variables d'
 | Notifications de l'application | 1 an | Suppression |
 | Occupations importées des agendas personnels | 7 jours après la date | Suppression |
 | Identité des patients sans compte (saisis au guichet) | 5 ans après le RDV | Anonymisation (le RDV reste pour les statistiques) |
+| Appareils de connexion connus (alerte « nouvel appareil ») | 2 ans sans utilisation | Suppression |
+| Demandes d'aide traitées (nom, contact, message) | 2 ans après traitement | Suppression (et dès la suppression du compte) |
 | Journal d'audit | 5 ans ⚖️ | Suppression |
 | **Données médicales** (dossiers, comptes-rendus, ordonnances, certificats, documents, carnets) | **Aucune purge automatique** | Durée légale à fixer ⚖️ |
 | Données de paiement et journal comptable | Aucune purge automatique | Obligations comptables à fixer ⚖️ |

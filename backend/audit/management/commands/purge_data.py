@@ -29,6 +29,7 @@ class Command(BaseCommand):
         from bots.models import BotSession
         from directory.models import ExternalBusy
         from notifications.models import Notification, SmsReminder
+        from support.models import SupportRequest
 
         now = timezone.now()
         days = settings.RETENTION_DAYS
@@ -43,6 +44,7 @@ class Command(BaseCommand):
             "SMS envoyés": SmsReminder.objects.filter(scheduled_for__lt=before("sms_reminders")),
             "notifications": Notification.objects.filter(created_at__lt=before("notifications")),
             "créneaux d'agendas importés": ExternalBusy.objects.filter(ends_at__lt=before("external_busy")),
+            "demandes d'aide traitées": SupportRequest.objects.filter(status="closed", closed_at__lt=before("support_requests")),
             "appareils de connexion inutilisés": KnownDevice.objects.filter(last_seen_at__lt=before("known_devices")),
             "journal des accès": AuditEvent.objects.filter(created_at__lt=before("audit_events")),
         }

@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AideRouteImport } from './routes/aide'
 import { Route as AssistantRouteImport } from './routes/assistant'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as CguRouteImport } from './routes/cgu'
@@ -48,6 +49,11 @@ const IndexRoute = IndexRouteImport.update({
 } as any)
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AideRoute = AideRouteImport.update({
+  id: '/aide',
+  path: '/aide',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AssistantRoute = AssistantRouteImport.update({
@@ -202,6 +208,7 @@ const AuthenticatedTeleconsultationIdRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/aide': typeof AideRoute
   '/assistant': typeof AssistantRoute
   '/auth': typeof AuthRoute
   '/cgu': typeof CguRoute
@@ -234,6 +241,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/aide': typeof AideRoute
   '/assistant': typeof AssistantRoute
   '/auth': typeof AuthRoute
   '/cgu': typeof CguRoute
@@ -268,6 +276,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/aide': typeof AideRoute
   '/assistant': typeof AssistantRoute
   '/auth': typeof AuthRoute
   '/cgu': typeof CguRoute
@@ -302,6 +311,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/aide'
     | '/assistant'
     | '/auth'
     | '/cgu'
@@ -334,6 +344,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/aide'
     | '/assistant'
     | '/auth'
     | '/cgu'
@@ -367,6 +378,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/aide'
     | '/assistant'
     | '/auth'
     | '/cgu'
@@ -401,6 +413,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AideRoute: typeof AideRoute
   AssistantRoute: typeof AssistantRoute
   AuthRoute: typeof AuthRoute
   CguRoute: typeof CguRoute
@@ -432,6 +445,13 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/aide': {
+      id: '/aide'
+      path: '/aide'
+      fullPath: '/aide'
+      preLoaderRoute: typeof AideRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/assistant': {
@@ -680,6 +700,7 @@ const AuthenticatedRouteRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AideRoute: AideRoute,
   AssistantRoute: AssistantRoute,
   AuthRoute: AuthRoute,
   CguRoute: CguRoute,

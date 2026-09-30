@@ -29,6 +29,7 @@ from accounts.security import admin_login
 
 from care import views as care
 from labs import views as labs
+from support import views as support
 
 from . import analytics as core_analytics
 from . import exports
@@ -154,6 +155,7 @@ pro_urls = [
     path("subscription/<uuid:payment_id>/refresh", finance.pro_subscription_refresh),
     path("patients/<uuid:patient_id>/recalls", medical.add_recall),
     path("recalls/<uuid:recall_id>/delete", medical.delete_recall),
+    path("onboarding", pro.my_onboarding),
     path("availability", pro.my_availability),
     path("availability/<uuid:availability_id>", pro.update_availability),
     path("availability/<uuid:availability_id>/delete", pro.delete_availability),
@@ -226,6 +228,8 @@ admin_urls = [
     path("refunds/<uuid:refund_id>", finance.admin_complete_refund),
     path("overview", accounts.admin_overview),
     path("todo", accounts.admin_todo),
+    path("support", support.admin_list),
+    path("support/<uuid:request_id>", support.admin_close),
     path("users", accounts.admin_users),
     path("users/<uuid:user_id>", accounts.admin_user_action),
     path("verification", accounts.admin_set_verification),
@@ -288,6 +292,7 @@ urlpatterns = [
     path("api/notifications/push/subscribe", push.push_subscribe),
     path("api/notifications/push/unsubscribe", push.push_unsubscribe),
     path("api/health", core.health),
+    path("api/support", support.create_request),
     path("api/events", stream.event_stream),
     path("api/calendar/<str:token>.ics", calendar_sync.calendar_feed),
     path("api/client-errors", core.client_error),

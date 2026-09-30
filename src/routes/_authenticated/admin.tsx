@@ -2,6 +2,8 @@ import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { ThemeToggle } from "@/lib/theme";
 import { redirectBeforeHydration } from "@/lib/first-load";
 import { LogoutButton } from "@/components/LogoutButton";
+import { HelpLink } from "@/components/HelpLink";
+import { SupportAdmin } from "@/components/admin/SupportAdmin";
 import { NotificationBell } from "@/components/NotificationBell";
 import {
   queryOptions,
@@ -107,6 +109,7 @@ function AdminPage() {
               Voir le site
             </Link>
             <NotificationBell />
+            <HelpLink />
             <LogoutButton />
           </div>
         </div>
@@ -197,6 +200,9 @@ function AdminPage() {
         <div id="pharmaciens" className="mt-6 scroll-mt-20">
           <PharmacyMembersAdmin />
         </div>
+        <div id="support" className="mt-6 scroll-mt-20">
+          <SupportAdmin />
+        </div>
         <div id="avis" className="mt-6 scroll-mt-20">
           <ReviewModeration />
         </div>
@@ -231,6 +237,7 @@ function AdminPage() {
 
 const ADMIN_SECTIONS = [
   ["pilotage", "Pilotage"],
+  ["support", "Support"],
   ["validation", "Validations"],
   ["comptes", "Comptes"],
   ["justificatifs", "Justificatifs"],
@@ -252,6 +259,7 @@ function AdminTodoBar() {
   });
   if (!data) return null;
   const items = [
+    ["support", "demande(s) d'aide", data.support_open],
     ["validation", "médecin(s) à valider", data.doctors_to_verify],
     ["justificatifs", "justificatif(s) à vérifier", data.credentials_pending],
     ["validation", "établissement(s) à valider", data.clinics_to_verify],

@@ -22,7 +22,7 @@ MFA_SETUP_MESSAGE = (
 )
 
 # Routes toujours accessibles : connexion, déconnexion, profil minimal, activation de la double authentification.
-ALLOWED_PREFIXES = ("/api/auth/", "/api/health", "/api/client-errors", "/api/notifications/push/key")
+ALLOWED_PREFIXES = ("/api/auth/", "/api/health", "/api/client-errors", "/api/notifications/push/key", "/api/support")
 
 
 def is_professional(user) -> bool:

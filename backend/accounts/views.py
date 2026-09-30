@@ -476,6 +476,7 @@ def admin_todo(request):
     """Compteurs de la file de travail de l'administration (bandeau « À traiter »)."""
     from directory.models import DoctorCredential
     from payments.models import Payout, Refund
+    from support.models import SupportRequest
 
     require_admin(request)
     return Response(
@@ -486,6 +487,7 @@ def admin_todo(request):
             "reviews_reported": Review.objects.filter(status="reported").count(),
             "payouts_requested": Payout.objects.filter(status="requested").count(),
             "refunds_pending": Refund.objects.filter(status="pending").count(),
+            "support_open": SupportRequest.objects.filter(status="open").count(),
             "sms_failed": SmsReminder.objects.filter(status="failed", scheduled_for__gte=timezone.now() - timedelta(days=7)).count(),
         }
     )
@@ -745,6 +747,7 @@ def delete_my_account(request):
             pass
     MedicalDocument.objects.filter(patient=user).delete()
     HealthProfile.objects.filter(user=user).delete()
+    user.support_requests.all().delete()
     user.relatives.all().delete()
     Appointment.objects.filter(patient=user, status__in=("pending", "confirmed")).update(
         status="cancelled", cancelled_by="patient", cancelled_at=timezone.now(), cancel_reason="Compte supprimé"

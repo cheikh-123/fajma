@@ -44,6 +44,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { NotificationBell } from "@/components/NotificationBell";
+import { HelpLink } from "@/components/HelpLink";
 import {
   LocationsPanel,
   SettingsPanel,
@@ -67,6 +68,7 @@ import { NewAppointmentForm } from "@/components/pro/NewAppointmentForm";
 import { ExportsPanel } from "@/components/pro/ExportsPanel";
 import { MissingMentions } from "@/components/pro/MissingMentions";
 import { SchedulePanel } from "@/components/pro/SchedulePanel";
+import { OnboardingChecklist } from "@/components/pro/OnboardingChecklist";
 import { PrescriptionPreview } from "@/components/pro/PrescriptionPreview";
 import { LabOrderAction } from "@/components/pro/LabOrderAction";
 import { MoveAppointmentForm } from "@/components/MoveAppointmentForm";
@@ -203,6 +205,7 @@ function ProPage() {
           </Link>
           <ThemeToggle className="ml-auto mr-3" />
           <div className="flex items-center gap-3">
+            <HelpLink />
             <NotificationBell />
             <button
               onClick={signOut}
@@ -509,23 +512,7 @@ function DoctorDashboard({ profile }: { profile: Profile }) {
 
       {tab === "rdv" && (
         <div className="mt-6">
-          {avail.length === 0 && (
-            <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-sunu-gold bg-sunu-card p-5">
-              <div>
-                <p className="font-bold text-sunu-dark">Définissez votre emploi du temps</p>
-                <p className="mt-0.5 text-sm text-sunu-ink/60">
-                  Sans plages de consultation, les patients ne peuvent pas prendre rendez-vous en
-                  ligne avec vous.
-                </p>
-              </div>
-              <button
-                onClick={() => goTo("planning")}
-                className="flex items-center gap-1.5 rounded-lg bg-sunu-green px-4 py-2 text-sm font-semibold text-white"
-              >
-                Mon emploi du temps <ArrowRight className="size-4" />
-              </button>
-            </div>
-          )}
+          <OnboardingChecklist onGo={goTo} />
           <StatsStrip />
           <section className="mt-6">
             <div className="mb-3 flex items-center justify-between">

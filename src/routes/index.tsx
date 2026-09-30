@@ -604,6 +604,7 @@ function Landing() {
                 { label: "Téléconsultation", to: "/medecins", search: { tele: "1" } },
                 { label: "Assistant symptômes", to: "/assistant" },
                 { label: "Pharmacies", to: "/pharmacies" },
+                { label: "Aide et contact", to: "/aide" },
               ]}
             />
             <FooterCol
@@ -638,9 +639,9 @@ function Landing() {
               <Link to="/cgu" className="hover:text-sunu-green">
                 CGU
               </Link>
-              <a href="mailto:contact@fajma.sn" className="hover:text-sunu-green">
-                Contact
-              </a>
+              <Link to="/aide" className="hover:text-sunu-green">
+                Aide et contact
+              </Link>
             </div>
           </div>
         </div>

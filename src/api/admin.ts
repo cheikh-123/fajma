@@ -57,6 +57,7 @@ export type AdminTodo = {
   reviews_reported: number;
   payouts_requested: number;
   refunds_pending: number;
+  support_open: number;
   sms_failed: number;
 };
 export const getAdminTodo = () => api.get<AdminTodo>("/admin/todo");

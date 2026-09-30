@@ -355,3 +355,15 @@ export const uploadCredential = ({
 
 export const deleteCredential = (id: string) =>
   api.post<{ ok: true }>(`/pro/credentials/${id}/delete`);
+
+export type OnboardingStep = {
+  id: string;
+  title: string;
+  hint: string;
+  /** Onglet de l'espace médecin où faire l'étape (null : étape réalisée par l'équipe Fajma). */
+  tab: "profil" | "planning" | "ordonnances" | "securite" | null;
+  done: boolean;
+};
+
+export const getMyOnboarding = () =>
+  api.get<{ steps: OnboardingStep[]; done: number; total: number }>("/pro/onboarding");

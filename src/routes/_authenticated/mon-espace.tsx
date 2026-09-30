@@ -45,6 +45,7 @@ import {
   appointmentIcsUrl,
 } from "@/api/appointments";
 import { NotificationBell } from "@/components/NotificationBell";
+import { HelpLink } from "@/components/HelpLink";
 import { getReceipt, startPayment } from "@/api/payments";
 import { buildReceiptPdf, downloadPdf } from "@/lib/receipt-pdf";
 import { listDoctorSlots } from "@/api/directory";
@@ -177,6 +178,7 @@ function MyAreaPage() {
           <div className="flex items-center gap-2 sm:gap-3">
             <ThemeToggle />
             <LanguageSwitcher />
+            <HelpLink />
             <NotificationBell />
             <button
               onClick={signOut}

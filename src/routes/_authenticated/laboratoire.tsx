@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { getLabDashboard, labReceive, labUploadResult, type LabOrder } from "@/api/labs";
 import { NotificationBell } from "@/components/NotificationBell";
 import { LogoutButton } from "@/components/LogoutButton";
+import { HelpLink } from "@/components/HelpLink";
 import { SecuritySection } from "@/components/SecuritySection";
 import { ThemeToggle } from "@/lib/theme";
 import { formatDate, formatDateTime } from "@/lib/datetime";
@@ -70,6 +71,7 @@ function LabPage() {
           </Link>
           <ThemeToggle className="ml-auto mr-3" />
           <NotificationBell />
+          <HelpLink />
           <LogoutButton />
         </div>
       </header>

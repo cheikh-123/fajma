@@ -43,7 +43,8 @@ RETENTION_DAYS = {
     "notifications": env_int("RETENTION_NOTIFICATIONS_DAYS", 365),  # cloche de l'application
     "external_busy": env_int("RETENTION_EXTERNAL_BUSY_DAYS", 7),  # créneaux importés des agendas personnels
     "walk_in_identity": env_int("RETENTION_WALK_IN_DAYS", 1825),  # nom/tél. des patients sans compte (RDV passés)
-    "known_devices": env_int("RETENTION_DEVICES_DAYS", 730),  # navigateurs connus (alerte nouvelle connexion)
+    "known_devices": env_int("RETENTION_DEVICES_DAYS", 730),
+    "support_requests": env_int("RETENTION_SUPPORT_DAYS", 730),  # demandes d'aide traitées  # navigateurs connus (alerte nouvelle connexion)
     "audit_events": env_int("RETENTION_AUDIT_DAYS", 1825),  # journal des accès (à valider : preuve en cas de litige)
 }
 
@@ -89,6 +90,7 @@ INSTALLED_APPS = [
     "expertise",
     "care",
     "labs",
+    "support",
 ]
 
 MIDDLEWARE = [
@@ -255,6 +257,7 @@ REST_FRAMEWORK = {
         "booking": "20/hour",
         "otp": "10/hour",
         "client_errors": "30/min",
+        "support": "5/hour",
     },
 }
 
