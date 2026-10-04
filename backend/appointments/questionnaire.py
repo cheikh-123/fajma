@@ -1,6 +1,7 @@
 """
-Questionnaire avant consultation : le médecin définit ses questions (par défaut ou par motif),
-le patient y répond après avoir réservé. Les questions sont figées sur le rendez-vous à la réservation.
+Questionnaire avant consultation : le médecin définit ses questions (par défaut ou par motif). Le patient
+les voit sur la fiche du médecin et peut y répondre en réservant, ou plus tard depuis son espace ; répondre
+n'est jamais obligatoire. Les questions sont figées sur le rendez-vous à la réservation.
 """
 
 from __future__ import annotations
@@ -29,7 +30,8 @@ def clean_questions(raw) -> list[dict]:
             raise ApiError(f"Question {i} : intitulé de 3 à 200 caractères")
         if kind not in TYPES:
             raise ApiError(f"Question {i} : type inconnu")
-        item = {"id": f"q{i}", "label": label, "type": kind, "required": bool(q.get("required"))}
+        # Jamais obligatoire : le patient reste libre de ne pas répondre.
+        item = {"id": f"q{i}", "label": label, "type": kind, "required": False}
         if kind == "choice":
             options = [str(o).strip()[:60] for o in (q.get("options") or []) if str(o).strip()]
             if not 2 <= len(options) <= 8 or len(set(options)) != len(options):
@@ -52,9 +54,7 @@ def clean_answers(questions: list[dict], raw) -> dict:
     for q in questions:
         value = raw.get(q["id"])
         if value in (None, ""):
-            if q["required"]:
-                raise ApiError(f"Réponse obligatoire : « {q['label']} »")
-            continue
+            continue  # réponse facultative
         if q["type"] == "yesno":
             if not isinstance(value, bool):
                 raise ApiError(f"Répondez par oui ou non : « {q['label']} »")

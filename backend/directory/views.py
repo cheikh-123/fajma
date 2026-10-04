@@ -152,6 +152,11 @@ def get_doctor(request, doctor_id):
         locations=[location_dict(loc) for loc in doctor.locations.all()],
         insurers=accepted_insurers(doctor),
         replacements=public_replacements(doctor),
+        # Questions du médecin (facultatives) : par défaut, et propres à certains motifs.
+        questionnaire=doctor.questionnaire or [],
+        questionnaires_by_type={
+            str(t.id): t.questionnaire for t in doctor.consultation_types.filter(is_active=True) if t.questionnaire
+        },
     )
     return Response(data)
 

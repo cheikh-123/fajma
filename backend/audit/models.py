@@ -25,6 +25,7 @@ class AuditEvent(BaseModel):
         ("renewal_refused", "Renouvellement refusé"),
         ("emergency_card_updated", "Fiche d'urgence modifiée"),
         ("emergency_card_viewed", "Fiche d'urgence consultée (QR code)"),
+        ("medical_record_exported", "Dossier médical téléchargé en PDF"),
         ("data_exported", "Export des données"),
         ("account_deleted", "Compte supprimé"),
         ("admin_verification", "Validation (administration)"),

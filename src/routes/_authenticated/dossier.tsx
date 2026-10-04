@@ -57,6 +57,7 @@ import { IssuedDocumentsSection } from "@/components/IssuedDocumentsSection";
 import { AccessLogSection, PhoneVerification } from "@/components/AccountTrust";
 import { usePrescriptionPdf } from "@/hooks/use-prescription-pdf";
 import { RenewalBox } from "@/components/care/RenewalBox";
+import { MedicalRecordPdfButton } from "@/components/care/MedicalRecordPdfButton";
 import { EmergencyCardSection } from "@/components/care/EmergencyCardSection";
 import { formatDate } from "@/lib/datetime";
 
@@ -144,6 +145,9 @@ function DossierPage() {
           <p className="mt-2 text-sm text-sunu-ink/60">
             Vos informations, comptes-rendus et ordonnances au même endroit.
           </p>
+          <div className="mt-4">
+            <MedicalRecordPdfButton />
+          </div>
         </div>
         <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-[320px_1fr]">
           <aside className="min-w-0 self-start rounded-xl border border-sunu-line bg-sunu-card p-5">

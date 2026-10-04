@@ -54,6 +54,8 @@ Tous les rôles autres que « patient » exigent la double authentification (§ 
 | Justificatifs du médecin | — | Les siens | — | — | — (administration seulement) |
 | Fiche d'urgence (QR code) | Activation et choix des informations | — | — | — | Toute personne qui scanne le QR code : nom, âge et seulement les informations choisies ; consultation journalisée, patient prévenu |
 | Demande de renouvellement | Les siennes | Celles adressées à lui (médecin prescripteur) | — | — | — |
+| Dossier médical complet (export PDF) | Le sien et celui de ses proches, à la demande (journalisé) | — | — | — | — |
+| Réponses au questionnaire | Les siennes (facultatives) | Celles des RDV de son agenda | — | — | — |
 
 **Médecin remplaçant** : pendant la période du remplacement (de la veille jusqu'à 30 jours après la fin), il
 voit les RDV qu'il assure, les comptes-rendus et ordonnances du titulaire pour les patients qu'il reçoit, et
@@ -128,7 +130,7 @@ exécuté par l'intégration continue.
 
 ## 2.8 Tests de sécurité réalisés
 
-- **249 tests automatisés de l'API**, dont les tentatives d'accès interdites de la matrice § 2.4 (y compris
+- **251 tests automatisés de l'API**, dont les tentatives d'accès interdites de la matrice § 2.4 (y compris
   pour un remplaçant, une secrétaire, un médecin sans lien avec le patient), les manipulations de prix et de
   parts, les fichiers piégés, les doubles réservations, les webhooks non signés, les secrets USSD invalides, la
   réutilisation de session USSD par un autre numéro, les doubles notifications de paiement, le blocage des

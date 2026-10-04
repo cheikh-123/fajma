@@ -23,6 +23,8 @@ export const createAppointment = ({
     visit_latitude?: number;
     visit_longitude?: number;
     series?: SeriesRequest;
+    /** Réponses facultatives au questionnaire du médecin. */
+    answers?: Record<string, string | boolean>;
   };
 }) =>
   api.post<{

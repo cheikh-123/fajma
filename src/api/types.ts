@@ -100,6 +100,9 @@ export type DoctorListItem = DoctorSummary & {
 
 export type DoctorDetail = DoctorSummary & {
   consultation_types: ConsultationType[];
+  /** Questions facultatives du médecin (par défaut, et propres à certains motifs). */
+  questionnaire?: Question[];
+  questionnaires_by_type?: Record<string, Question[]>;
   accepts_new_patients: boolean;
   cancellation_deadline_hours: number;
   booking_instructions: string | null;

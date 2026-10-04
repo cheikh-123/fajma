@@ -1,6 +1,6 @@
 # Dossier technique et sécurité — Fajma
 
-**Version du dossier :** 2.9 — 5 octobre 2026
+**Version du dossier :** 3.0 — 5 octobre 2026
 **Périmètre :** code source du dépôt `sante-connect-main` (backend Django, frontend React, déploiement), services tiers.
 **Public visé :** acquéreurs, investisseurs, auditeurs techniques et juridiques, équipe technique reprenant le projet.
 
@@ -26,7 +26,7 @@ ni à Supabase.
 | Messages | Twilio : SMS et WhatsApp ; notifications push du navigateur (Web Push, gratuites) |
 | Téléconsultation | Jitsi Meet (serveur public au démarrage, auto-hébergeable) |
 | Assistant IA | Fournisseur configurable via une API compatible OpenAI (Google Gemini par défaut) |
-| Qualité | 249 tests automatisés de l'API ; parcours de bout en bout dans un navigateur réel pour chaque rôle ; intégration continue GitHub Actions |
+| Qualité | 251 tests automatisés de l'API ; parcours de bout en bout dans un navigateur réel pour chaque rôle ; intégration continue GitHub Actions |
 | Taille du code | ≈ 13 200 lignes Python (hors tests et migrations), ≈ 3 200 lignes de tests, ≈ 28 500 lignes TypeScript/React |
 
 ## 2. Contenu du dossier
@@ -84,7 +84,7 @@ ni à Supabase.
 
 ## 4. Méthode
 
-Dossier établi par lecture intégrale du code source, exécution de la suite de tests de l'API (249 tests) et
+Dossier établi par lecture intégrale du code source, exécution de la suite de tests de l'API (251 tests) et
 de parcours de bout en bout dans un navigateur réel (Chrome et Edge, ordinateur et mobile) : patient, médecin,
 médecin remplaçant, clinique, secrétariat, pharmacien, administrateur, activation obligatoire de la double
 authentification, mode hors ligne sur le build de production.
@@ -110,3 +110,4 @@ Ces points sont signalés **« À vérifier »**.
 | 2.7 | 30/09/2026 | Agenda du médecin en glisser-déposer (déplacement et durée à la souris ou au doigt, couleur par motif validée daltonisme) ; assistant de prise de notes (dictée vocale, brouillon de compte-rendu par IA ou mise en forme locale, à relire) ; nouveau risque R-19 (transfert des notes au fournisseur d'IA) |
 | 2.8 | 01/10/2026 | Renouvellement d'ordonnance à la demande du patient (rappel avant échéance des traitements longs, décision du médecin) ; fiche d'urgence publique par QR code (informations choisies, lien révocable, consultations journalisées) ; alertes aux médecins sur les mesures à domicile dangereuses ou répétées ; animations modernisées ; logo Fajma en tête des ordonnances |
 | 2.9 | 05/10/2026 | Chapitre 7 « Inventaire des licences » (outil `tools/inventaire_licences.py`, annexe CSV : aucun composant sous copyleft fort, composants livrés aux navigateurs tous sous licence permissive) ; rapport d'activité mensuel dans l'administration (tableur, impression PDF, sans donnée nominative) ; comptage des patients corrigé (comptes professionnels exclus) |
+| 3.0 | 05/10/2026 | Questionnaire du médecin visible dès la réservation sur sa fiche, réponses toujours facultatives (plus de question obligatoire) ; dossier médical complet téléchargeable en PDF par le patient (export journalisé) |

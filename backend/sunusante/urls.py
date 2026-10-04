@@ -31,7 +31,7 @@ from care import views as care
 from labs import views as labs
 from support import views as support
 from medical import ai_notes
-from medical import emergency, renewals
+from medical import emergency, record_export, renewals
 
 from . import analytics as core_analytics
 from . import activity_report
@@ -89,6 +89,7 @@ patient_urls = [
     path("reviews", directory.create_review),
     path("health-profile", medical.my_health_profile),
     path("emergency-card", emergency.my_emergency_settings),
+    path("medical-record", record_export.my_medical_record),
     path("renewals", renewals.my_renewals),
     path("renewals/<uuid:renewal_id>/cancel", renewals.cancel_renewal),
     path("access-log", audit.my_access_log),

@@ -30,6 +30,7 @@
 | **Santé** | Symptômes décrits à l'assistant IA | Visiteurs | Orientation — **non conservés** |
 | **Santé** | Mesures à domicile (tension, glycémie, poids), rappels de médicaments, prescriptions et résultats d'analyses | Patients, proches | Suivi médical |
 | **Santé** | Fiche d'urgence (réglages : informations choisies, lien), demandes de renouvellement d'ordonnance et réponses du médecin | Patients | Secours, suivi des traitements longs |
+| **Santé** | Réponses facultatives au questionnaire du médecin (données en réservant ou ensuite) | Patients, proches | Préparation de la consultation |
 | Demandes aux pharmacies | Nom du médicament, précision, réponses (sans identité transmise à la pharmacie) | Patients | Éviter les déplacements inutiles |
 | Assurance | Organisme, numéro d'adhérent, taux de prise en charge | Patients | Tiers payant, feuille de soins |
 | Paiement | Montant, moyen, références de transaction et de virement | Patients, médecins | Encaissement, reversement |
@@ -64,7 +65,7 @@ instance Jitsi locale ; les autres transferts portent sur des données limitées
 | Information | Projets de CGU et de politique de confidentialité intégrés au site (à valider ⚖️) ; mention à chaque partage de dossier (pharmacie, confrère) |
 | Accès | Dossier complet consultable ; **journal des accès** montrant quel professionnel a consulté quoi |
 | Rectification | Profil, profil de santé, proches, assurances, carnet modifiables |
-| Portabilité | Export complet des données en JSON depuis le dossier |
+| Portabilité | Export complet des données en JSON depuis le dossier ; dossier médical lisible en PDF (« Télécharger mon dossier ») à remettre à un autre médecin |
 | Effacement | Suppression du compte en libre-service (anonymisation des données qui doivent être conservées) |
 | Maîtrise du partage | Partage des documents document par document et médecin par médecin ; envoi d'ordonnance à une pharmacie choisie ; information préalable du patient pour la télé-expertise |
 | Langue | Interface, SMS et menus en français, wolof ou anglais |

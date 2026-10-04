@@ -27,7 +27,8 @@ export function QuestionnairePanel() {
         <ClipboardList className="size-4" /> Questionnaire patient
       </h2>
       <p className="mt-1 text-xs text-sunu-ink/55">
-        Le patient y répond après avoir réservé ; vous lisez ses réponses dans l'agenda.
+        Le patient voit vos questions en réservant sur votre fiche et y répond s'il le souhaite
+        (jamais obligatoire) ; vous lisez ses réponses dans l'agenda.
       </p>
       {data.types.length > 0 && (
         <select
@@ -104,14 +105,6 @@ function Editor({ typeId, initial }: { typeId?: string; initial: QuestionDraft[]
                 </option>
               ))}
             </select>
-            <label className="flex items-center gap-1">
-              <input
-                type="checkbox"
-                checked={q.required}
-                onChange={(e) => update(i, { required: e.target.checked })}
-              />
-              obligatoire
-            </label>
           </div>
           {q.type === "choice" && (
             <input

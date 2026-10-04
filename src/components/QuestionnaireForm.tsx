@@ -43,13 +43,13 @@ export function QuestionnaireForm({ appt }: { appt: PatientAppointment }) {
         save.mutate();
       }}
     >
-      <p className="text-xs text-sunu-ink/60">Vos réponses ne sont visibles que par ce médecin.</p>
+      <p className="text-xs text-sunu-ink/60">
+        Facultatif : répondez aux questions que vous souhaitez. Vos réponses ne sont visibles que
+        par ce médecin.
+      </p>
       {appt.questionnaire.map((q) => (
         <fieldset key={q.id} className="text-sm">
-          <legend className="font-medium text-sunu-dark">
-            {q.label}
-            {q.required && <span className="text-red-600"> *</span>}
-          </legend>
+          <legend className="font-medium text-sunu-dark">{q.label}</legend>
           {q.type === "yesno" && (
             <div className="mt-1 flex gap-4">
               {[
@@ -60,7 +60,6 @@ export function QuestionnaireForm({ appt }: { appt: PatientAppointment }) {
                   <input
                     type="radio"
                     name={q.id}
-                    required={q.required}
                     checked={answers[q.id] === value}
                     onChange={() => setAnswers({ ...answers, [q.id]: value as boolean })}
                   />
@@ -72,7 +71,6 @@ export function QuestionnaireForm({ appt }: { appt: PatientAppointment }) {
           {q.type === "choice" && (
             <select
               aria-label={q.label}
-              required={q.required}
               value={(answers[q.id] as string) ?? ""}
               onChange={(e) => setAnswers({ ...answers, [q.id]: e.target.value })}
               className="mt-1 w-full rounded-lg border border-sunu-line bg-sunu-card px-3 py-2"
@@ -86,7 +84,6 @@ export function QuestionnaireForm({ appt }: { appt: PatientAppointment }) {
           {q.type === "text" && (
             <textarea
               aria-label={q.label}
-              required={q.required}
               maxLength={1000}
               rows={2}
               value={(answers[q.id] as string) ?? ""}

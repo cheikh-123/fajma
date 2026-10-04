@@ -264,6 +264,7 @@ def create_appointment(request):
     if data.get("series"):
         count, interval = parse_series(data["series"], options["ctype"])
         series, booked, skipped = book_series(user, doctor, scheduled_at, count, interval, **options)
+        _save_answers(booked[0], data.get("answers"))
         return Response(
             {
                 "id": str(booked[0].id),
@@ -272,7 +273,18 @@ def create_appointment(request):
             }
         )
     appt = book_for_patient(user, doctor, scheduled_at, **options)
+    _save_answers(appt, data.get("answers"))
     return Response({"id": str(appt.id), "status": appt.status})
+
+
+def _save_answers(appt, raw) -> None:
+    """Réponses facultatives au questionnaire, données dès la réservation (fiche du médecin)."""
+    if not raw or not appt.questionnaire:
+        return
+    answers = clean_answers(appt.questionnaire, raw)
+    if answers:
+        appt.answers, appt.answered_at = answers, timezone.now()
+        appt.save(update_fields=["answers", "answered_at", "updated_at"])
 
 
 @api_view(["POST"])

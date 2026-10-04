@@ -56,3 +56,77 @@ export type EmergencyCard = {
 } & Partial<Record<EmergencyField, string | null>>;
 
 export const getEmergencyCard = (token: string) => api.get<EmergencyCard>(`/emergency/${token}`);
+
+export type MedicalRecordExport = {
+  generated_at: string;
+  patient: {
+    full_name: string;
+    birth_date: string | null;
+    sex: "F" | "M" | null;
+    phone: string | null;
+    email: string | null;
+    city: string | null;
+  };
+  relatives: { full_name: string; relationship: string; birth_date: string | null }[];
+  health_profile: {
+    blood_group: string | null;
+    allergies: string | null;
+    conditions: string | null;
+    treatments: string | null;
+    vaccinations: string | null;
+    emergency_contact: string | null;
+  } | null;
+  records: {
+    date: string;
+    doctor: string;
+    specialty: string | null;
+    for: string | null;
+    summary: string;
+    diagnosis: string | null;
+    treatment: string | null;
+  }[];
+  prescriptions: {
+    date: string;
+    reference: string;
+    doctor: string;
+    for: string | null;
+    content: string;
+    instructions: string | null;
+    valid_until: string | null;
+  }[];
+  issued_documents: {
+    date: string;
+    kind: string;
+    reference: string;
+    doctor: string;
+    for: string | null;
+    start_date: string | null;
+    end_date: string | null;
+  }[];
+  lab_orders: {
+    date: string;
+    reference: string;
+    doctor: string;
+    for: string | null;
+    tests: string;
+    status: string;
+    laboratory: string | null;
+    result_note: string | null;
+    completed_at: string | null;
+  }[];
+  measurements: {
+    date: string;
+    kind: string;
+    for: string | null;
+    systolic: number | null;
+    diastolic: number | null;
+    pulse: number | null;
+    value: number | null;
+    context: string | null;
+    level: string;
+  }[];
+  vaccines: { date: string; vaccine: string; for: string | null; verified: boolean }[];
+  documents: { date: string; title: string; category: string }[];
+};
+
+export const getMedicalRecord = () => api.get<MedicalRecordExport>("/patient/medical-record");

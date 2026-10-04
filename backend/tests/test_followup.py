@@ -152,3 +152,22 @@ class MeasurementAlertTests(FollowUpCase):
         self.pat.post("/api/patient/emergency-card", {"alert_doctors": False}, format="json")
         self.measure(190, 120)
         self.assertEqual(self.alerts().count(), 0)
+
+
+@override_settings(PRIVATE_MEDIA_ROOT=tempfile.mkdtemp())
+class MedicalRecordExportTests(FollowUpCase):
+    def test_export_contains_own_record_only(self):
+        self.prescribe()
+        self.pat.post("/api/patient/health-profile", {"blood_group": "A+", "allergies": "Arachide"}, format="json")
+        self.pat.post("/api/patient/measurements", {"kind": "glucose", "value": 1.1, "context": "fasting"}, format="json")
+        data = self.pat.get("/api/patient/medical-record").data
+        self.assertEqual(data["patient"]["full_name"], "Awa P1")
+        self.assertEqual(data["health_profile"]["allergies"], "Arachide")
+        self.assertEqual(data["records"][0]["summary"], "Suivi HTA")
+        self.assertIn("Amlodipine 10 mg", data["prescriptions"][0]["content"])
+        self.assertEqual(data["measurements"][0]["kind"], "Glycémie")
+        self.assertTrue(AuditEvent.objects.filter(action="medical_record_exported", patient=self.p1).exists())
+        # Un autre patient obtient son propre dossier, vide.
+        other = self.client_for(self.p2).get("/api/patient/medical-record").data
+        self.assertEqual((other["records"], other["prescriptions"], other["health_profile"]), ([], [], None))
+        self.assertEqual(APIClient().get("/api/patient/medical-record").status_code, 403)

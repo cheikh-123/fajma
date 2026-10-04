@@ -27,6 +27,7 @@ import {
 import { toast } from "sonner";
 import { getDoctor, listDoctorSlots, listDoctorReviews } from "@/api/directory";
 import { createAppointment, previewSeries, SERIES_INTERVALS } from "@/api/appointments";
+import { BookingQuestions, type Answers } from "@/components/BookingQuestions";
 import type { ConsultationType, Mode } from "@/api/types";
 import { listMyCoverages, patientShare } from "@/api/insurance";
 import { getMyWaitlistEntry, joinWaitlist, leaveWaitlist, listMyRelatives } from "@/api/patient";
@@ -359,6 +360,9 @@ function BookingPanel({ doctor }: { doctor: Doctor }) {
   const [slot, setSlot] = useState<string | null>(null);
   const [relativeId, setRelativeId] = useState<string>("");
   const [reason, setReason] = useState("");
+  const [answers, setAnswers] = useState<Answers>({});
+  // Autre motif = autres questions : les réponses repartent de zéro.
+  useEffect(() => setAnswers({}), [type?.id]);
   // "" = tous les lieux, "main" = cabinet principal, sinon identifiant du lieu.
   const [place, setPlace] = useState("");
   // Visite à domicile
@@ -484,6 +488,7 @@ function BookingPanel({ doctor }: { doctor: Doctor }) {
               }
             : {}),
           series: series ?? undefined,
+          answers: Object.keys(answers).length ? answers : undefined,
         },
       });
     },
@@ -861,6 +866,18 @@ function BookingPanel({ doctor }: { doctor: Doctor }) {
               className="mt-1 w-full rounded-lg border border-sunu-line bg-sunu-card px-3 py-2 text-sm outline-none focus:border-sunu-green"
             />
           </label>
+
+          <BookingQuestions
+            key={type?.id ?? "default"}
+            questions={
+              (type ? doctor.questionnaires_by_type?.[type.id] : undefined) ??
+              doctor.questionnaire ??
+              []
+            }
+            value={answers}
+            onChange={setAnswers}
+            doctorName={doctor.full_name}
+          />
 
           <button
             disabled={

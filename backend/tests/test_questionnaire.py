@@ -39,7 +39,8 @@ class QuestionnaireTests(ApiTestCase):
         self.assertTrue(mine["can_answer"])
         c = self.client_for(self.p1)
         url = f"/api/appointments/{appt_id}/questionnaire"
-        self.assertEqual(c.post(url, {"answers": {"q2": "1 semaine"}}, format="json").status_code, 400)  # q1 obligatoire
+        # Rien n'est obligatoire : une réponse partielle (ou aucune) est acceptée.
+        self.assertEqual(c.post(url, {"answers": {"q2": "1 semaine"}}, format="json").status_code, 200)
         self.assertEqual(c.post(url, {"answers": {"q1": "oui"}}, format="json").status_code, 400)  # pas un booléen
         self.assertEqual(c.post(url, {"answers": {"q1": True, "q2": "Jamais"}}, format="json").status_code, 400)
         self.assertEqual(c.post(url, {"answers": {"q1": True, "q2": "1 semaine", "q3": "Paracétamol", "q9": "x"}}, format="json").status_code, 200)
@@ -59,3 +60,19 @@ class QuestionnaireTests(ApiTestCase):
         Appointment.objects.filter(id=appt_id).update(scheduled_at=timezone.now() - timedelta(hours=1))
         res = self.client_for(self.p1).post(f"/api/appointments/{appt_id}/questionnaire", {"answers": {"q1": True}}, format="json")
         self.assertEqual(res.status_code, 400)
+
+    def test_patient_sees_questions_on_doctor_page_and_answers_when_booking(self):
+        self.set_questions(QUESTIONS)
+        public = self.client_for().get(f"/api/directory/doctors/{self.doctor.id}").data
+        self.assertEqual([q["label"] for q in public["questionnaire"]][0], "Avez-vous de la fièvre ?")
+        self.assertFalse(any(q["required"] for q in public["questionnaire"]))  # jamais obligatoire
+        # Réservation avec des réponses partielles : enregistrées avec le RDV.
+        res = self.book(self.p1, answers={"q1": True, "q3": "Paracétamol"})
+        self.assertEqual(res.status_code, 200, res.data)
+        appt = Appointment.objects.get(id=res.data["id"])
+        self.assertEqual(appt.answers, {"q1": True, "q3": "Paracétamol"})
+        self.assertIsNotNone(appt.answered_at)
+        # Réservation sans aucune réponse : acceptée aussi.
+        res = self.book(self.p2, when=self.slot + timedelta(minutes=30))
+        self.assertEqual(res.status_code, 200, res.data)
+        self.assertFalse(Appointment.objects.get(id=res.data["id"]).answers)
