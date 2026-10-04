@@ -34,6 +34,7 @@ from medical import ai_notes
 from medical import emergency, renewals
 
 from . import analytics as core_analytics
+from . import activity_report
 from . import exports
 from . import views as core
 
@@ -236,6 +237,7 @@ admin_urls = [
     path("refunds/<uuid:refund_id>", finance.admin_complete_refund),
     path("overview", accounts.admin_overview),
     path("todo", accounts.admin_todo),
+    path("activity-report", activity_report.admin_activity_report),
     path("support", support.admin_list),
     path("support/<uuid:request_id>", support.admin_close),
     path("users", accounts.admin_users),

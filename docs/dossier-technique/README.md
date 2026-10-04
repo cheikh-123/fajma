@@ -1,6 +1,6 @@
 # Dossier technique et sécurité — Fajma
 
-**Version du dossier :** 2.8 — 1er octobre 2026
+**Version du dossier :** 2.9 — 5 octobre 2026
 **Périmètre :** code source du dépôt `sante-connect-main` (backend Django, frontend React, déploiement), services tiers.
 **Public visé :** acquéreurs, investisseurs, auditeurs techniques et juridiques, équipe technique reprenant le projet.
 
@@ -26,7 +26,7 @@ ni à Supabase.
 | Messages | Twilio : SMS et WhatsApp ; notifications push du navigateur (Web Push, gratuites) |
 | Téléconsultation | Jitsi Meet (serveur public au démarrage, auto-hébergeable) |
 | Assistant IA | Fournisseur configurable via une API compatible OpenAI (Google Gemini par défaut) |
-| Qualité | 247 tests automatisés de l'API ; parcours de bout en bout dans un navigateur réel pour chaque rôle ; intégration continue GitHub Actions |
+| Qualité | 249 tests automatisés de l'API ; parcours de bout en bout dans un navigateur réel pour chaque rôle ; intégration continue GitHub Actions |
 | Taille du code | ≈ 13 200 lignes Python (hors tests et migrations), ≈ 3 200 lignes de tests, ≈ 28 500 lignes TypeScript/React |
 
 ## 2. Contenu du dossier
@@ -39,6 +39,7 @@ ni à Supabase.
 | 4 | [Exploitation et déploiement](04-exploitation.md) | Installation, mise en production, tâches planifiées, sauvegardes, supervision |
 | 5 | [Risques et plan d'action](05-risques-et-plan-action.md) | Points ouverts, gravité, actions avant commercialisation |
 | 6 | [Informations pour une cession](06-cession.md) | Propriété, licences des composants, dépendances aux prestataires, coûts, reprise par une autre équipe |
+| 7 | [Inventaire des licences](07-licences.md) | Licence de chaque composant libre (serveur, application, outils), analyse et obligations ; annexe CSV |
 
 ## 3. Synthèse pour la direction
 
@@ -83,7 +84,7 @@ ni à Supabase.
 
 ## 4. Méthode
 
-Dossier établi par lecture intégrale du code source, exécution de la suite de tests de l'API (247 tests) et
+Dossier établi par lecture intégrale du code source, exécution de la suite de tests de l'API (249 tests) et
 de parcours de bout en bout dans un navigateur réel (Chrome et Edge, ordinateur et mobile) : patient, médecin,
 médecin remplaçant, clinique, secrétariat, pharmacien, administrateur, activation obligatoire de la double
 authentification, mode hors ligne sur le build de production.
@@ -108,3 +109,4 @@ Ces points sont signalés **« À vérifier »**.
 | 2.6 | 30/09/2026 | Connexion vérifiée pour chaque rôle (dont redirection de la clinique et du secrétariat vers leur agenda, redirection sans erreur au premier chargement) ; page publique « Aide et contact » (questions fréquentes, numéros d'urgence, formulaire) et suivi des demandes dans l'administration ; guide de démarrage du médecin en 7 étapes ; lanceur local `Lancer-Fajma.bat` |
 | 2.7 | 30/09/2026 | Agenda du médecin en glisser-déposer (déplacement et durée à la souris ou au doigt, couleur par motif validée daltonisme) ; assistant de prise de notes (dictée vocale, brouillon de compte-rendu par IA ou mise en forme locale, à relire) ; nouveau risque R-19 (transfert des notes au fournisseur d'IA) |
 | 2.8 | 01/10/2026 | Renouvellement d'ordonnance à la demande du patient (rappel avant échéance des traitements longs, décision du médecin) ; fiche d'urgence publique par QR code (informations choisies, lien révocable, consultations journalisées) ; alertes aux médecins sur les mesures à domicile dangereuses ou répétées ; animations modernisées ; logo Fajma en tête des ordonnances |
+| 2.9 | 05/10/2026 | Chapitre 7 « Inventaire des licences » (outil `tools/inventaire_licences.py`, annexe CSV : aucun composant sous copyleft fort, composants livrés aux navigateurs tous sous licence permissive) ; rapport d'activité mensuel dans l'administration (tableur, impression PDF, sans donnée nominative) ; comptage des patients corrigé (comptes professionnels exclus) |

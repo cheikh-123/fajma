@@ -8,7 +8,6 @@ from django.utils import timezone
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-from accounts.models import User
 from accounts.views import require_admin
 from appointments.models import Appointment
 from clinics.models import Clinic
@@ -16,6 +15,7 @@ from directory.models import Doctor
 from payments.models import LedgerEntry, Payment, Subscription
 from pharmacy.models import PharmacyMember
 from sunusante.api import get_int
+from sunusante.activity_report import patients_qs
 
 
 def _weekly(qs, date_field: str, **aggregates) -> dict[str, dict]:
@@ -40,7 +40,7 @@ def admin_analytics(request):
         cancelled=Count("id", filter=Q(status="cancelled")),
         tele=Count("id", filter=Q(mode="teleconsultation", status="completed")),
     )
-    patients = _weekly(User.objects.filter(date_joined__gte=start, doctor__isnull=True), "date_joined", n=Count("id"))
+    patients = _weekly(patients_qs().filter(date_joined__gte=start), "date_joined", n=Count("id"))
     paid = _weekly(Payment.objects.filter(status="paid", provider="paydunya", paid_at__gte=start), "paid_at", volume=Sum("amount"))
     commission = _weekly(LedgerEntry.objects.filter(kind="earning", created_at__gte=start), "created_at", c=Sum("commission"))
 
@@ -69,7 +69,7 @@ def admin_analytics(request):
         {
             "series": series,
             "kpis": {
-                "patients": User.objects.filter(doctor__isnull=True, is_staff=False).count(),
+                "patients": patients_qs().count(),  # sans les comptes professionnels
                 "doctors_verified": Doctor.objects.filter(is_verified=True).count(),
                 "doctors_pending": Doctor.objects.filter(is_verified=False).count(),
                 "clinics": Clinic.objects.count(),

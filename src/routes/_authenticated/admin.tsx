@@ -4,6 +4,7 @@ import { redirectBeforeHydration } from "@/lib/first-load";
 import { LogoutButton } from "@/components/LogoutButton";
 import { HelpLink } from "@/components/HelpLink";
 import { SupportAdmin } from "@/components/admin/SupportAdmin";
+import { ActivityReport } from "@/components/admin/ActivityReport";
 import { NotificationBell } from "@/components/NotificationBell";
 import {
   queryOptions,
@@ -148,6 +149,9 @@ function AdminPage() {
         <div id="pilotage" className="mt-6 scroll-mt-20">
           <AnalyticsDashboard />
         </div>
+        <div id="rapport" className="mt-6 scroll-mt-20">
+          <ActivityReport />
+        </div>
         <div id="validation" className="mt-8 grid scroll-mt-20 gap-6 lg:grid-cols-2">
           <Panel title="Validation des médecins">
             {data.doctors.map((d) => (
@@ -237,6 +241,7 @@ function AdminPage() {
 
 const ADMIN_SECTIONS = [
   ["pilotage", "Pilotage"],
+  ["rapport", "Rapport d'activité"],
   ["support", "Support"],
   ["validation", "Validations"],
   ["comptes", "Comptes"],

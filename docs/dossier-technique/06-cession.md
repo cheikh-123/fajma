@@ -17,16 +17,22 @@ Le code ne contient **aucun secret** et **aucune dépendance** à Lovable ou Sup
 
 ## 6.2 Licences des composants libres
 
-Inventaire établi le 30/09/2026 à partir des paquets installés.
+Synthèse de l'inventaire complet du [chapitre 7](07-licences.md) (généré par `tools/inventaire_licences.py`,
+dépendances directes et indirectes, liste détaillée en annexe CSV).
 
 | Licence | Composants | Conséquence pour une exploitation commerciale |
 |---|---|---|
-| MIT, BSD, ISC, Apache 2.0, PSF | Django, Django REST Framework, React, TanStack, Tailwind, Radix UI, Leaflet, Recharts, pdf-lib, gunicorn, cryptography, requests… (la quasi-totalité : 56 paquets frontend sur 56, 37 paquets Python sur 44) | Usage commercial libre ; conserver les mentions de licence |
+| MIT, BSD, ISC, Apache 2.0, PSF | Django, Django REST Framework, React, TanStack, Tailwind, Leaflet, Recharts, pdf-lib, gunicorn, cryptography, requests… (les 49 composants envoyés aux navigateurs ; 35 paquets Python sur 42) | Usage commercial libre ; conserver les mentions de licence |
 | LGPL 3.0 | `psycopg` (connexion PostgreSQL), `recurring-ical-events`, `x-wr-timezone` (lecture des agendas) | Utilisables dans un produit propriétaire sans publier le code de Fajma, tant que ces bibliothèques ne sont pas modifiées ; en cas de modification, publier les modifications de la bibliothèque |
 | MPL 2.0 | `certifi`, `pywebpush`, `py-vapid` | Usage libre ; les fichiers de ces bibliothèques modifiés restent sous MPL |
 
 Aucune licence « contaminante » (GPL, AGPL) n'impose de publier le code de Fajma. Le code propre de Fajma n'est
-pas publié sous licence libre. ⚖️ Faire confirmer l'inventaire par un outil d'audit de licences au moment de la cession.
+pas publié sous licence libre. ⚖️ Régénérer l'inventaire au moment de la cession et le faire confirmer par le
+conseil juridique de l'acquéreur.
+
+**Chiffres d'activité.** L'administration produit un rapport d'activité mensuel (patients, médecins,
+consultations, ordonnances, paiements, chiffre d'affaires, fidélité), téléchargeable en tableur ou imprimable
+en PDF, sans aucune donnée nominative : c'est la pièce à joindre au dossier de cession avec ce document.
 
 ## 6.3 Dépendance aux prestataires
 

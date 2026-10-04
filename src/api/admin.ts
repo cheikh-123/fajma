@@ -145,3 +145,52 @@ export type Analytics = {
 
 export const getAnalytics = (weeks = 12) =>
   api.get<Analytics>("/admin/analytics", { weeks: String(weeks) });
+
+export type ActivityMonth = {
+  month: string;
+  label: string;
+  new_patients: number;
+  active_patients: number;
+  new_doctors: number;
+  appointments_booked: number;
+  appointments_completed: number;
+  teleconsultations: number;
+  no_shows: number;
+  prescriptions: number;
+  pharmacy_orders: number;
+  lab_orders: number;
+  online_volume: number;
+  commission: number;
+  subscriptions: number;
+  revenue: number;
+};
+
+export type ActivityReport = {
+  generated_at: string;
+  period: { from: string; to: string; months: number };
+  totals: {
+    patients: number;
+    doctors_verified: number;
+    cities: number;
+    clinics: number;
+    partner_pharmacies: number;
+    partner_labs: number;
+    appointments_completed: number;
+    revenue: number;
+    online_volume: number;
+    returning_patients_rate: number | null;
+    no_show_rate: number | null;
+    reviews: number;
+    average_rating: number | null;
+    growth_appointments: number | null;
+    growth_patients: number | null;
+  };
+  channels: { channel: string; n: number }[];
+  months: ActivityMonth[];
+};
+
+export const getActivityReport = (months: number) =>
+  api.get<ActivityReport>("/admin/activity-report", { months });
+
+export const activityReportCsvUrl = (months: number) =>
+  `/api/admin/activity-report?months=${months}&export=csv`;
