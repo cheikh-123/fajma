@@ -1,9 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ThemeToggle } from "@/lib/theme";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
-import { BadgeCheck, Heart, ShieldAlert, ShieldX } from "lucide-react";
+import { BadgeCheck, ShieldAlert, ShieldX } from "lucide-react";
 import { verifyPrescription } from "@/api/documents";
 import { formatDate } from "@/lib/datetime";
+import { FajmaMark } from "@/components/FajmaMark";
 
 const verifyQO = (reference: string) =>
   queryOptions({
@@ -49,9 +50,7 @@ function VerifyPage() {
       <header className="border-b border-sunu-line bg-sunu-card">
         <div className="mx-auto flex h-16 max-w-3xl items-center px-6">
           <Link to="/" className="flex items-center gap-2">
-            <span className="grid size-8 place-items-center rounded-lg bg-sunu-green text-white">
-              <Heart className="size-4" />
-            </span>
+            <FajmaMark className="size-8" />
             <span className="text-xl font-bold text-sunu-green">Fajma</span>
           </Link>
           <ThemeToggle className="ml-auto mr-3" />

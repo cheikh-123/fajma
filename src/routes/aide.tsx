@@ -4,7 +4,6 @@ import {
   ArrowLeft,
   CheckCircle2,
   ChevronDown,
-  Heart,
   LifeBuoy,
   Loader2,
   Phone,
@@ -16,6 +15,7 @@ import { toast } from "sonner";
 import { useMe } from "@/api/auth";
 import { SUPPORT_TOPICS, sendSupportRequest, type SupportTopic } from "@/api/support";
 import { ThemeToggle } from "@/lib/theme";
+import { FajmaMark } from "@/components/FajmaMark";
 
 export const Route = createFileRoute("/aide")({
   head: () => ({
@@ -238,9 +238,7 @@ function HelpPage() {
       <header className="border-b border-sunu-line bg-sunu-card">
         <div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-4 sm:px-6">
           <Link to="/" className="flex items-center gap-2">
-            <span className="grid size-8 place-items-center rounded-lg bg-sunu-green text-white">
-              <Heart className="size-4" strokeWidth={2.5} />
-            </span>
+            <FajmaMark className="size-8" />
             <span className="text-xl font-bold text-sunu-green">Fajma</span>
           </Link>
           <ThemeToggle className="ml-auto mr-3" />

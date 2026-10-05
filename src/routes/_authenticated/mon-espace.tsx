@@ -11,32 +11,32 @@ import {
 } from "@tanstack/react-query";
 import { useState } from "react";
 import {
-  Heart,
+  BellRing,
+  Building2,
   Calendar,
-  Video,
-  MapPin,
-  LogOut,
-  Plus,
-  X,
-  Wallet,
-  CheckCircle2,
-  Sparkles,
-  Pill,
-  FileHeart,
-  Star,
-  MessageSquare,
   CalendarClock,
   CalendarPlus,
-  Receipt,
-  Users,
-  House,
-  Repeat,
-  UserRoundCheck,
-  Trash2,
-  BellRing,
-  Loader2,
+  CheckCircle2,
   ExternalLink,
-  Building2,
+  FileHeart,
+  Heart,
+  House,
+  Loader2,
+  LogOut,
+  MapPin,
+  MessageSquare,
+  Pill,
+  Plus,
+  Receipt,
+  Repeat,
+  Sparkles,
+  Star,
+  Trash2,
+  UserRoundCheck,
+  Users,
+  Video,
+  Wallet,
+  X,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -64,6 +64,7 @@ import { LanguageSwitcher, useI18n, type TKey } from "@/lib/i18n";
 import { MyDoctorsPanel } from "@/components/MyDoctorsPanel";
 import { ThemeToggle } from "@/lib/theme";
 import { dayOfMonth, formatDate, formatDateTime } from "@/lib/datetime";
+import { FajmaMark } from "@/components/FajmaMark";
 
 const apptsQO = queryOptions({
   queryKey: ["my-appointments"],
@@ -171,9 +172,7 @@ function MyAreaPage() {
       <header className="border-b border-sunu-line bg-sunu-card">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-4 sm:px-6">
           <Link to="/" className="flex items-center gap-2">
-            <span className="grid size-8 place-items-center rounded-lg bg-sunu-green text-white">
-              <Heart className="size-4" strokeWidth={2.5} />
-            </span>
+            <FajmaMark className="size-8" />
             <span className="text-xl font-bold text-sunu-green">Fajma</span>
           </Link>
           <div className="flex items-center gap-2 sm:gap-3">

@@ -21,7 +21,6 @@ import {
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
-  Heart,
   MapPin,
   Phone,
   Plus,
@@ -61,6 +60,7 @@ import {
   startOfDakarDay,
   toDakarInput,
 } from "@/lib/datetime";
+import { FajmaMark } from "@/components/FajmaMark";
 
 const clinicQO = queryOptions({ queryKey: ["my-clinic"], queryFn: () => getMyClinic() });
 const candidatesQO = queryOptions({
@@ -92,9 +92,7 @@ function ClinicPage() {
       <header className="border-b border-sunu-line bg-sunu-card">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
           <Link to="/" className="flex items-center gap-2">
-            <span className="grid size-8 place-items-center rounded-lg bg-sunu-green text-white">
-              <Heart className="size-4" />
-            </span>
+            <FajmaMark className="size-8" />
             <span className="font-bold text-sunu-green">Fajma · Clinique</span>
           </Link>
           <ThemeToggle className="ml-auto mr-3" />

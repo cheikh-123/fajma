@@ -101,7 +101,7 @@ d'être écrits sur le disque (clé conservée hors des sauvegardes).
 | Canaux | WhatsApp, USSD, notifications push, messages et alertes en temps réel (Server-Sent Events), application installable, mode hors ligne, module de réservation intégrable au site du médecin |
 | Agenda du médecin | Abonnement privé à ses RDV depuis Google Agenda / Outlook / iPhone (initiales seulement) ; import de ses occupations personnelles (adresse iCal secrète), qui bloquent les créneaux |
 | Pilotage | Activité hebdomadaire, taux d'absence, part de téléconsultation, canaux, spécialités et villes, volumes financiers ; rapport mensuel pour un acquéreur ou un investisseur (patients, consultations, chiffre d'affaires, fidélité), sans donnée nominative |
-| Interface | Mode clair et sombre, français / wolof / anglais, animations sobres (fondu entre les pages, désactivées si l'appareil le demande), affichage adapté au téléphone, logo Fajma sur tous les documents |
+| Interface | Mode clair et sombre, français / wolof / anglais, animations sobres (fondu entre les pages, désactivées si l'appareil le demande), affichage adapté au téléphone, logo Fajma sur tous les documents. **Logo** : le « f » de Fajma dessine une croix médicale, cœur doré au centre, aux couleurs du drapeau (vert et or) ; une seule définition (`src/lib/fajma-mark.ts`) reprise par le site, les PDF, l'icône d'onglet (`favicon.svg`, `favicon.ico`) et les icônes de l'application installée (dont l'icône adaptative Android) |
 | Référencement | Plan du site, pages HTML pour les robots, données structurées schema.org |
 
 ## 1.4 Modèle de données (principales tables)

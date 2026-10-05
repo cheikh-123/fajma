@@ -7,7 +7,7 @@
  *   Ces données personnelles sont effacées à la déconnexion (message « logout »).
  * - Tout le reste (écritures, paiements, fichiers médicaux) ne passe jamais par le cache.
  */
-const VERSION = "fajma-v2";
+const VERSION = "fajma-v3"; // v3 : nouveau logo (icônes)
 const STATIC = `${VERSION}-static`;
 const PAGES = `${VERSION}-pages`;
 const DATA = `${VERSION}-data`;

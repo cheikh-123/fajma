@@ -11,7 +11,6 @@ import {
 import { useState } from "react";
 import { z } from "zod";
 import {
-  Heart,
   LogOut,
   Calendar,
   Video,
@@ -103,6 +102,7 @@ import { SERIES_INTERVALS } from "@/api/appointments";
 import { listSpecialties } from "@/api/directory";
 import { logout } from "@/api/auth";
 import { dayOfMonth, formatDate, formatDateTime } from "@/lib/datetime";
+import { FajmaMark } from "@/components/FajmaMark";
 
 const profileQO = queryOptions({
   queryKey: ["my-doctor-profile"],
@@ -199,9 +199,7 @@ function ProPage() {
       <header className="border-b border-sunu-line bg-sunu-card">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
           <Link to="/" className="flex items-center gap-2">
-            <span className="grid size-8 place-items-center rounded-lg bg-sunu-green text-white">
-              <Heart className="size-4" strokeWidth={2.5} />
-            </span>
+            <FajmaMark className="size-8" />
             <span className="text-xl font-bold text-sunu-green">
               Fajma <span className="text-xs font-semibold text-sunu-teal">· Pro</span>
             </span>

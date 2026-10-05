@@ -6,7 +6,6 @@ import {
   Building2,
   ClipboardList,
   FlaskConical,
-  Heart,
   Lock,
   Loader2,
   Mail,
@@ -33,6 +32,7 @@ import {
 } from "@/api/auth";
 import { LanguageSwitcher, useI18n, type TKey } from "@/lib/i18n";
 import { ThemeToggle } from "@/lib/theme";
+import { FajmaMark } from "@/components/FajmaMark";
 
 export const Route = createFileRoute("/auth")({
   // uid + token : lien de réinitialisation reçu par email.
@@ -177,9 +177,7 @@ function AuthPage() {
       <header className="border-b border-sunu-line bg-sunu-card">
         <div className="mx-auto flex h-16 max-w-7xl items-center px-6">
           <Link to="/" className="flex items-center gap-2">
-            <span className="grid size-8 place-items-center rounded-lg bg-sunu-green text-white">
-              <Heart className="size-4" strokeWidth={2.5} />
-            </span>
+            <FajmaMark className="size-8" />
             <span className="text-xl font-bold text-sunu-green">Fajma</span>
           </Link>
           <ThemeToggle className="ml-auto" />

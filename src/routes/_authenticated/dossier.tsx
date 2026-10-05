@@ -19,7 +19,6 @@ import {
   FileHeart,
   FileText,
   FolderOpen,
-  Heart,
   MapPin,
   Pill,
   Printer,
@@ -60,6 +59,7 @@ import { RenewalBox } from "@/components/care/RenewalBox";
 import { MedicalRecordPdfButton } from "@/components/care/MedicalRecordPdfButton";
 import { EmergencyCardSection } from "@/components/care/EmergencyCardSection";
 import { formatDate } from "@/lib/datetime";
+import { FajmaMark } from "@/components/FajmaMark";
 
 const healthQO = queryOptions({ queryKey: ["my-health-data"], queryFn: () => getMyHealthData() });
 const documentsQO = queryOptions({ queryKey: ["my-documents"], queryFn: () => listMyDocuments() });
@@ -122,9 +122,7 @@ function DossierPage() {
       <header className="border-b border-sunu-line bg-sunu-card">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
           <Link to="/" className="flex items-center gap-2">
-            <span className="grid size-8 place-items-center rounded-lg bg-sunu-green text-white">
-              <Heart className="size-4" />
-            </span>
+            <FajmaMark className="size-8" />
             <span className="text-xl font-bold text-sunu-green">Fajma</span>
           </Link>
           <ThemeToggle className="ml-auto mr-3" />

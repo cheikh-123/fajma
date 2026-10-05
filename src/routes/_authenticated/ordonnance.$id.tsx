@@ -1,11 +1,12 @@
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { ThemeToggle } from "@/lib/theme";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
-import { ArrowLeft, FileDown, Heart, Printer } from "lucide-react";
+import { ArrowLeft, FileDown, Printer } from "lucide-react";
 import { getMyPrescription } from "@/api/documents";
 import { usePrescriptionPdf } from "@/hooks/use-prescription-pdf";
 import { formatDate } from "@/lib/datetime";
 import { drName, patientLine, renewalText } from "@/lib/prescription-text";
+import { FajmaMark } from "@/components/FajmaMark";
 
 const prescriptionQO = (id: string) =>
   queryOptions({
@@ -88,9 +89,7 @@ function PrescriptionPage() {
         <article className="rounded-xl border border-sunu-line bg-sunu-card p-5 sm:p-8 print:rounded-none print:border-0 print:p-0">
           <div className="mb-4 flex justify-end">
             <span className="flex items-center gap-2" aria-label="Fajma">
-              <span className="grid size-8 place-items-center rounded-lg bg-sunu-green text-white">
-                <Heart className="size-4" strokeWidth={2.5} />
-              </span>
+              <FajmaMark className="size-8" />
               <span className="text-lg font-bold text-sunu-green">Fajma</span>
             </span>
           </div>

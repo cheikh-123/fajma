@@ -5,6 +5,7 @@
 import { rgb, type PDFDocument, type PDFFont, type PDFImage, type PDFPage } from "pdf-lib";
 import QRCode from "qrcode";
 import type { DocumentIssuer } from "@/api/types";
+import { FAJMA_MARK_PATHS } from "@/lib/fajma-mark";
 import { clean, drName, frDate } from "@/lib/prescription-text";
 
 export { ageAt, clean, drName, frDate } from "@/lib/prescription-text";
@@ -210,25 +211,16 @@ export async function drawSignatureBlock(
   textAt(page, drName(issuer.full_name), x, areaTop - 112, 8, f.font, MUTED);
 }
 
-// Logo Fajma (celui du site) : carré vert arrondi et cœur blanc, dessinés en vectoriel (net à l'impression).
-const LOGO_SQUARE = "M5 0H19Q24 0 24 5V19Q24 24 19 24H5Q0 24 0 19V5Q0 0 5 0Z";
-const LOGO_HEART =
-  "M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z";
-
+// Logo Fajma (celui du site, lib/fajma-mark.ts) : le « f » en croix médicale, en vectoriel (net à l'impression).
 /**
  * Logo et nom « Fajma ». (x, y) : coin inférieur gauche du carré ; `size` : côté du carré.
  * Renvoie la largeur occupée.
  */
 export function drawFajmaLogo(page: PDFPage, bold: PDFFont, x: number, y: number, size: number) {
-  page.drawSvgPath(LOGO_SQUARE, { x, y: y + size, scale: size / 24, color: GREEN });
-  const heart = size / 2; // comme sur le site : cœur de la moitié du carré, centré
-  page.drawSvgPath(LOGO_HEART, {
-    x: x + size / 4,
-    y: y + size - size / 4 + heart / 24,
-    scale: heart / 24,
-    borderColor: rgb(1, 1, 1),
-    borderWidth: 2.5, // en unités du dessin (24), comme le trait du site
-  });
+  const draw = { x, y: y + size, scale: size / 32 };
+  page.drawSvgPath(FAJMA_MARK_PATHS.square, { ...draw, color: GREEN });
+  page.drawSvgPath(FAJMA_MARK_PATHS.letter, { ...draw, color: rgb(1, 1, 1) });
+  page.drawSvgPath(FAJMA_MARK_PATHS.heart, { ...draw, color: GOLD });
   const textSize = size * 0.62;
   page.drawText("Fajma", {
     x: x + size + size * 0.3,

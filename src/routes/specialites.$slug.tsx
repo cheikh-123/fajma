@@ -1,9 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ThemeToggle } from "@/lib/theme";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
-import { ArrowLeft, Heart, MapPin, Star, Video } from "lucide-react";
+import { ArrowLeft, MapPin, Star, Video } from "lucide-react";
 import { listDoctors, listSpecialties } from "@/api/directory";
 import { SpecialtyIcon } from "@/components/SpecialtyIcon";
+import { FajmaMark } from "@/components/FajmaMark";
 
 const qo = (slug: string) =>
   queryOptions({
@@ -54,9 +55,7 @@ function SpecialtyPage() {
       <header className="border-b border-sunu-line bg-sunu-card">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
           <Link to="/" className="flex items-center gap-2">
-            <span className="grid size-8 place-items-center rounded-lg bg-sunu-green text-white">
-              <Heart className="size-4" strokeWidth={2.5} />
-            </span>
+            <FajmaMark className="size-8" />
             <span className="text-xl font-bold text-sunu-green">Fajma</span>
           </Link>
           <ThemeToggle className="ml-auto mr-3" />

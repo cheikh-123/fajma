@@ -11,7 +11,6 @@ import { z } from "zod";
 import {
   ArrowLeft,
   FileText,
-  Heart,
   Loader2,
   MessageSquare,
   Paperclip,
@@ -24,6 +23,7 @@ import { getThread, listThreads, sendChatMessage, type Thread } from "@/api/mess
 import { LanguageSwitcher, useI18n } from "@/lib/i18n";
 import { ThemeToggle } from "@/lib/theme";
 import { formatDateTime } from "@/lib/datetime";
+import { FajmaMark } from "@/components/FajmaMark";
 
 const threadsQO = queryOptions({
   queryKey: ["threads"],
@@ -67,9 +67,7 @@ function MessagesPage() {
       <header className="border-b border-sunu-line bg-sunu-card">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-4 sm:px-6">
           <Link to="/" className="flex items-center gap-2">
-            <span className="grid size-8 place-items-center rounded-lg bg-sunu-green text-white">
-              <Heart className="size-4" strokeWidth={2.5} />
-            </span>
+            <FajmaMark className="size-8" />
             <span className="text-xl font-bold text-sunu-green">Fajma</span>
           </Link>
           <div className="flex items-center gap-2 sm:gap-3">

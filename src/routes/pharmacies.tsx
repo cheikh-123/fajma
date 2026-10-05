@@ -2,9 +2,10 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ThemeToggle } from "@/lib/theme";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { useState } from "react";
-import { Heart, MapPin, Phone, Clock, Navigation, Search, Moon } from "lucide-react";
+import { MapPin, Phone, Clock, Navigation, Search, Moon } from "lucide-react";
 import { listPharmacies } from "@/api/directory";
 import { MedicineAvailability } from "@/components/pharmacy/MedicineAvailability";
+import { FajmaMark } from "@/components/FajmaMark";
 
 const pharmaciesQO = queryOptions({
   queryKey: ["pharmacies"],
@@ -50,9 +51,7 @@ function PharmaciesPage() {
       <header className="border-b border-sunu-line bg-sunu-card">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
           <Link to="/" className="flex items-center gap-2">
-            <span className="grid size-8 place-items-center rounded-lg bg-sunu-green text-white">
-              <Heart className="size-4" strokeWidth={2.5} />
-            </span>
+            <FajmaMark className="size-8" />
             <span className="text-xl font-bold text-sunu-green">Fajma</span>
           </Link>
           <ThemeToggle className="ml-auto mr-3" />

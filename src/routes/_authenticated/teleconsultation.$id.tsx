@@ -4,7 +4,6 @@ import {
   ArrowLeft,
   Clock,
   CreditCard,
-  Heart,
   Loader2,
   LockKeyhole,
   Play,
@@ -18,6 +17,7 @@ import {
   teleconsultationStart,
 } from "@/api/appointments";
 import { formatDateTime, formatTime } from "@/lib/datetime";
+import { FajmaMark } from "@/components/FajmaMark";
 
 // Serveur de visioconférence : meet.jit.si par défaut, un Jitsi hébergé au Sénégal en production.
 const JITSI_DOMAIN = import.meta.env.VITE_JITSI_DOMAIN || "meet.jit.si";
@@ -75,9 +75,7 @@ function TeleconsultationPage() {
           <ArrowLeft className="size-4" /> Retour
         </Link>
         <span className="flex items-center gap-2 font-bold">
-          <span className="grid size-8 place-items-center rounded-lg bg-sunu-green">
-            <Heart className="size-4" />
-          </span>
+          <FajmaMark className="size-8" />
           Fajma
         </span>
         <span className="inline-flex items-center gap-1.5 text-xs text-white/60">

@@ -8,26 +8,27 @@ import { CityInput } from "@/components/CityInput";
 import { LanguageSwitcher, useI18n } from "@/lib/i18n";
 import { ThemeToggle } from "@/lib/theme";
 import {
-  Search,
-  MapPin,
-  Video,
-  ShieldCheck,
-  CalendarCheck,
-  Stethoscope,
-  Pill,
-  FileText,
-  Star,
   ArrowRight,
-  Heart,
   Baby,
-  Eye,
   Bone,
   Brain,
+  CalendarCheck,
   CheckCircle2,
+  Eye,
+  FileText,
+  Heart,
+  MapPin,
+  Pill,
+  Search,
+  ShieldCheck,
+  Star,
+  Stethoscope,
+  Video,
 } from "lucide-react";
 import doctorHero from "@/assets/doctor-hero.jpg";
 import medicalRecords from "@/assets/medical-records.jpg";
 import pharmacyImg from "@/assets/pharmacy.jpg";
+import { FajmaMark } from "@/components/FajmaMark";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -94,9 +95,7 @@ function Landing() {
       <nav className="sticky top-0 z-40 border-b border-sunu-line bg-sunu-card/85 backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
           <Link to="/" className="flex items-center gap-2">
-            <span className="grid size-8 place-items-center rounded-lg bg-sunu-green text-white">
-              <Heart className="size-4" strokeWidth={2.5} />
-            </span>
+            <FajmaMark className="size-8" />
             <span className="text-xl font-bold tracking-tight text-sunu-green">Fajma</span>
           </Link>
           <div className="hidden items-center gap-6 text-sm font-medium text-sunu-ink/70 lg:flex">
@@ -587,9 +586,7 @@ function Landing() {
           <div className="grid gap-10 md:grid-cols-4">
             <div>
               <div className="flex items-center gap-2">
-                <span className="grid size-8 place-items-center rounded-lg bg-sunu-green text-white">
-                  <Heart className="size-4" strokeWidth={2.5} />
-                </span>
+                <FajmaMark className="size-8" />
                 <span className="text-lg font-bold text-sunu-green">Fajma</span>
               </div>
               <p className="mt-4 max-w-xs text-sm text-sunu-ink/55">

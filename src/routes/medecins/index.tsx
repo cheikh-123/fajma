@@ -3,7 +3,6 @@ import { useQuery, useSuspenseQuery, queryOptions } from "@tanstack/react-query"
 import { useState } from "react";
 import { z } from "zod";
 import {
-  Heart,
   Search,
   MapPin,
   Star,
@@ -23,6 +22,7 @@ import { formatDateTime } from "@/lib/datetime";
 import { listInsurers } from "@/api/insurance";
 import { LanguageSwitcher, useI18n } from "@/lib/i18n";
 import { ThemeToggle } from "@/lib/theme";
+import { FajmaMark } from "@/components/FajmaMark";
 
 const searchSchema = z.object({
   city: z.string().optional(),
@@ -145,9 +145,7 @@ function MedecinsPage() {
       <header className="sticky top-0 z-40 border-b border-sunu-line bg-sunu-card/90 backdrop-blur">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 px-4 sm:px-6">
           <Link to="/" className="flex items-center gap-2">
-            <span className="grid size-8 place-items-center rounded-lg bg-sunu-green text-white">
-              <Heart className="size-4" strokeWidth={2.5} />
-            </span>
+            <FajmaMark className="size-8" />
             <span className="text-xl font-bold text-sunu-green">Fajma</span>
           </Link>
           <div className="flex items-center gap-1.5 sm:gap-3">

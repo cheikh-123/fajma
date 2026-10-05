@@ -8,14 +8,14 @@ import {
   BellRing,
   CalendarDays,
   FileText,
+  FlaskConical,
   Heart,
   Lock,
   MessageSquare,
   Phone,
+  Pill,
   StickyNote,
   Trash2,
-  Pill,
-  FlaskConical,
 } from "lucide-react";
 import { LazyMeasurementsChart as MeasurementsChart } from "@/components/care/LazyMeasurementsChart";
 import { formatMeasurement } from "@/lib/measurements";
@@ -29,6 +29,7 @@ import {
   getPatientFile,
 } from "@/api/doctor";
 import { formatDate, formatDateTime } from "@/lib/datetime";
+import { FajmaMark } from "@/components/FajmaMark";
 
 const fileQO = (id: string) =>
   queryOptions({
@@ -83,9 +84,7 @@ function PatientFilePage() {
       <header className="border-b border-sunu-line bg-sunu-card">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
           <Link to="/" className="flex items-center gap-2">
-            <span className="grid size-8 place-items-center rounded-lg bg-sunu-green text-white">
-              <Heart className="size-4" />
-            </span>
+            <FajmaMark className="size-8" />
             <span className="text-xl font-bold text-sunu-green">
               Fajma <span className="text-xs font-semibold text-sunu-teal">· Pro</span>
             </span>

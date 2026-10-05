@@ -1,7 +1,8 @@
 import { Link } from "@tanstack/react-router";
 import { ThemeToggle } from "@/lib/theme";
 import type { ReactNode } from "react";
-import { ArrowLeft, Heart } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
+import { FajmaMark } from "@/components/FajmaMark";
 
 /** Mise en page commune des pages juridiques (CGU, confidentialité, mentions légales). */
 export function LegalLayout({
@@ -18,9 +19,7 @@ export function LegalLayout({
       <header className="border-b border-sunu-line bg-sunu-card">
         <div className="mx-auto flex h-16 max-w-4xl items-center justify-between px-4 sm:px-6">
           <Link to="/" className="flex items-center gap-2">
-            <span className="grid size-8 place-items-center rounded-lg bg-sunu-green text-white">
-              <Heart className="size-4" />
-            </span>
+            <FajmaMark className="size-8" />
             <span className="font-bold text-sunu-green">Fajma</span>
           </Link>
           <ThemeToggle className="ml-auto mr-3" />

@@ -1,9 +1,10 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { Heart, LogOut, ShieldAlert } from "lucide-react";
+import { LogOut, ShieldAlert } from "lucide-react";
 import { SecuritySection } from "@/components/SecuritySection";
 import { logout, useMe } from "@/api/auth";
 import { ThemeToggle } from "@/lib/theme";
+import { FajmaMark } from "@/components/FajmaMark";
 
 export const Route = createFileRoute("/_authenticated/securite")({
   head: () => ({
@@ -43,9 +44,7 @@ function SecurityPage() {
       <header className="border-b border-sunu-line bg-sunu-card">
         <div className="mx-auto flex h-16 max-w-3xl items-center justify-between gap-3 px-4 sm:px-6">
           <span className="flex items-center gap-2">
-            <span className="grid size-8 place-items-center rounded-lg bg-sunu-green text-white">
-              <Heart className="size-4" strokeWidth={2.5} />
-            </span>
+            <FajmaMark className="size-8" />
             <span className="text-xl font-bold text-sunu-green">Fajma</span>
           </span>
           <div className="flex items-center gap-3">

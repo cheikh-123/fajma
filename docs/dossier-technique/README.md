@@ -1,6 +1,6 @@
 # Dossier technique et sécurité — Fajma
 
-**Version du dossier :** 3.6 — 5 octobre 2026
+**Version du dossier :** 3.7 — 5 octobre 2026
 **Périmètre :** code source du dépôt `sante-connect-main` (backend Django, frontend React, déploiement), services tiers.
 **Public visé :** acquéreurs, investisseurs, auditeurs techniques et juridiques, équipe technique reprenant le projet.
 
@@ -120,3 +120,4 @@ Ces points sont signalés **« À vérifier »**.
 | 3.4 | 05/10/2026 | Audit, volets 7 à 15 (chapitre 9) et correctifs : numérotation légale continue des reçus ; désinscription SMS (STOP / START) ; rappels jamais envoyés deux fois ; purge des comptes inactifs avec préavis (désactivée tant que la durée légale n'est pas fixée) ; bouton « Déconnecter mes autres appareils » ; réservation idempotente et refus de réserver chez soi-même ; `/api/health` détaillé pour la supervision ; flux temps réel économe en connexions, PostgreSQL à 200 connexions ; accessibilité WCAG AA (contrastes, libellés, tablette) vérifiée avec axe-core |
 | 3.5 | 05/10/2026 | Recette complète de l'interface de production (§ 9.17, 78 affichages, 7 rôles, téléphone et ordinateur) et correctifs : page blanche au rechargement répété (flux temps réel différé et fermé au départ de la page), page 404 sans erreur, retour de paiement sans référence, débordements sur téléphone, bibliothèques PDF et graphiques chargées à la demande (dossier patient 483 → 309 Ko, espace médecin 413 → 238 Ko) |
 | 3.6 | 05/10/2026 | Base de données vérifiée sur un vrai PostgreSQL 17 (§ 4.5, § 9.18) : correction des tests PostgreSQL de l'intégration continue (en échec depuis l'origine, à tort déclarés au vert) et de deux erreurs PostgreSQL de production ; dossiers médicaux et paiements protégés contre la suppression en cascade ; secret de double authentification chiffré ; index, pagination de l'annuaire, agenda borné, requêtes regroupées ; test de volume (200 000 RDV) ; sauvegarde, restauration, transfert SQLite → PostgreSQL et déménagement vérifiés ; sauvegardes toutes les 6 h conseillées |
+| 3.7 | 05/10/2026 | Nouveau logo lié au nom : le « f » de Fajma dessine une croix médicale (vert et or du drapeau), sur le site, les PDF, l'icône d'onglet et les icônes de l'application |
