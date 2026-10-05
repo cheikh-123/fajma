@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { AppointmentHistory } from "@/components/AppointmentHistory";
 import { InstallApp } from "@/components/InstallApp";
 import { QuestionnaireForm } from "@/components/QuestionnaireForm";
 import {
@@ -480,6 +481,7 @@ function ApptCard({
               {appt.cancel_reason ? ` : ${appt.cancel_reason}` : ""}
             </p>
           )}
+          <AppointmentHistory path={`/appointments/${appt.id}/history`} />
           {active && appt.booking_instructions && (
             <p className="mt-2 rounded-lg bg-sunu-green-soft/50 px-3 py-2 text-xs text-sunu-ink/80">
               <b>Avant votre rendez-vous :</b> {appt.booking_instructions}

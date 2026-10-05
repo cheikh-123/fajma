@@ -6,6 +6,7 @@ voir .env.example). En local : SQLite ; en production au Sénégal : PostgreSQL 
 """
 
 import os
+import sys
 from pathlib import Path
 from urllib.parse import unquote, urlparse
 
@@ -19,7 +20,10 @@ def env_bool(name: str, default: bool = False) -> bool:
     return os.environ.get(name, str(default)).lower() in {"1", "true", "yes", "on"}
 
 
-DEBUG = env_bool("DJANGO_DEBUG", True)
+# Sans variable DJANGO_DEBUG, le mode développement n'est actif que pour les commandes « manage.py » lancées sur
+# un poste (runserver, test, migrate…) : un serveur de production (gunicorn, uvicorn) démarre toujours en mode
+# sécurisé, même si la variable a été oubliée. docker-compose fixe de toute façon DJANGO_DEBUG=false.
+DEBUG = env_bool("DJANGO_DEBUG", Path(sys.argv[0]).name == "manage.py")
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY") or (
     "dev-only-insecure-key-change-me" if DEBUG else None
 )
@@ -100,6 +104,7 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "appointments.history.CurrentRequestMiddleware",
     "accounts.security.IdleTimeoutMiddleware",
     "accounts.security.MfaRequiredMiddleware",
     "accounts.devices.KnownDeviceMiddleware",

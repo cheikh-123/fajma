@@ -110,6 +110,7 @@ appointment_urls = [
     path("<uuid:appointment_id>/reschedule", appointments.reschedule_appointment),
     path("<uuid:appointment_id>/teleconsultation", appointments.teleconsultation_access),
     path("<uuid:appointment_id>/ics", appointments.appointment_ics),
+    path("<uuid:appointment_id>/history", appointments.appointment_history),
     path("<uuid:appointment_id>/teleconsultation/ready", appointments.teleconsultation_ready),
     path("<uuid:appointment_id>/teleconsultation/start", appointments.teleconsultation_start),
 ]
@@ -122,6 +123,7 @@ pro_urls = [
     path("appointments/<uuid:appointment_id>/record", medical.save_consultation_record),
     path("appointments/<uuid:appointment_id>/ai-draft", ai_notes.draft_record),
     path("appointments/<uuid:appointment_id>/arrived", appointments.doctor_mark_arrived),
+    path("appointments/<uuid:appointment_id>/history", appointments.doctor_appointment_history),
     path("appointments/<uuid:appointment_id>/repeat", appointments.doctor_repeat_appointment),
     path("appointments/new", appointments.pro_new_appointment),
     path("appointments/<uuid:appointment_id>/lab-order", labs.prescribe),
@@ -215,6 +217,7 @@ clinic_urls = [
     path("<uuid:clinic_id>/appointments/<uuid:appointment_id>", clinics.update_appointment),
     path("<uuid:clinic_id>/appointments/<uuid:appointment_id>/repeat", clinics.repeat),
     path("<uuid:clinic_id>/appointments/<uuid:appointment_id>/move", clinics.move),
+    path("<uuid:clinic_id>/appointments/<uuid:appointment_id>/history", clinics.appointment_history),
     path("<uuid:clinic_id>/export.csv", exports.clinic_appointments_csv),
     path("<uuid:clinic_id>/patients", clinic_patients.clinic_patients),
     path("<uuid:clinic_id>/patients/unify", clinic_patients.unify_name),

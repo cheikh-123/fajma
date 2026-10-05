@@ -58,6 +58,28 @@ export const cancelAppointment = ({
 /** Lien de téléchargement du fichier .ics (ajout à l'agenda du téléphone). */
 export const appointmentIcsUrl = (id: string) => `/api/appointments/${id}/ics`;
 
+export type AppointmentEvent = {
+  at: string;
+  action:
+    | "created"
+    | "confirmed"
+    | "rescheduled"
+    | "cancelled"
+    | "completed"
+    | "no_show"
+    | "arrived"
+    | "status";
+  label: string;
+  by_role: string;
+  by_name: string | null;
+  from_at: string | null;
+  to_at: string | null;
+  note: string | null;
+};
+
+/** Historique d'un RDV ; path : /appointments/<id>/history, /pro/appointments/<id>/history ou /clinics/<c>/appointments/<id>/history. */
+export const getAppointmentHistory = (path: string) => api.get<AppointmentEvent[]>(path);
+
 export const rescheduleAppointment = ({ data }: { data: { id: string; scheduled_at: string } }) =>
   api.post<{ ok: true }>(`/appointments/${data.id}/reschedule`, {
     scheduled_at: data.scheduled_at,

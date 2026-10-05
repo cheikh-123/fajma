@@ -221,14 +221,17 @@ internet).
 | Créneaux | Calculés par le serveur : plages − absences − RDV existants − délai minimal ; jamais deux RDV sur le même horaire (contrainte en base) |
 | Rendez-vous à venir | 4 au plus par patient et par médecin (hors séances d'une série) |
 | Nouveaux patients | Un médecin peut les refuser ; ses patients connus restent acceptés |
-| Annulation | En ligne jusqu'au délai fixé par le médecin ; remboursement intégral d'un RDV payé en ligne |
+| Annulation | En ligne jusqu'au délai fixé par le médecin (passé ce délai, le patient doit appeler le cabinet) ; remboursement intégral d'un RDV payé en ligne ; le créneau libéré est aussitôt réservable et les inscrits de la liste d'attente sont prévenus |
+| Historique d'un RDV | Chaque prise, confirmation, déplacement (ancien → nouvel horaire), annulation (avec motif), arrivée et fin de consultation est enregistrée avec son auteur ; bouton « Historique » sur chaque RDV pour le patient, le médecin et le secrétariat (le patient voit le rôle des membres du cabinet, pas leur nom) |
+| Absences du médecin | Congés et absences bloquent les créneaux en ligne ; les agendas personnels importés aussi |
+| RDV pour un proche | Le patient réserve pour un enfant ou un parent enregistré dans « Mes proches » |
 | Questionnaire | Jamais obligatoire ; questions figées sur le RDV à la réservation ; réponses visibles du seul médecin |
 | Ordonnance et certificat | Impossibles sans en-tête complet (n° d'Ordre, signature) ; en-tête figé à l'émission ; vérifiables par QR code |
 | Renouvellement | Ordonnance de moins d'un an, une demande en cours à la fois, décision du seul prescripteur, refus motivé |
 | Accès d'un médecin au dossier | RDV confirmé ou terminé avec le patient ; documents seulement s'ils sont partagés ; chaque accès journalisé |
 | Fiche d'urgence | Désactivée par défaut ; informations choisies par le patient ; lien révocable |
 | Alertes de mesures | 3 médecins au plus, une alerte par médecin, patient et type de mesure toutes les 24 h |
-| Sécurité des comptes | Code SMS : 3 envois par 10 minutes ; double authentification et déconnexion après 30 min d'inactivité pour les professionnels |
+| Sécurité des comptes | 10 mots de passe faux en 15 min : compte verrouillé 15 min ; code SMS : 3 envois par 10 minutes ; double authentification et déconnexion après 30 min d'inactivité pour les professionnels |
 | Argent | Commission selon la formule (Essentiel 8 %, Pro 3 %, Clinique 2 %) ; virement dès 5 000 F ; paiements vérifiés auprès de PayDunya |
 | Avis | Seulement après une consultation terminée ; modération par Fajma |
 | Exports | Réservés à leur titulaire (médecin, clinique, patient, administration) et journalisés |

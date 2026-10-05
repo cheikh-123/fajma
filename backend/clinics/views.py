@@ -187,7 +187,7 @@ def doctor_secretariat(request):
 
 
 def public_clinic_dict(clinic: Clinic, *, with_doctors: bool = False) -> dict:
-    from appointments.scheduling import next_available
+    from appointments.scheduling import next_available_many
     from directory.serializers import doctor_dict
 
     doctors = [m.doctor for m in clinic.members.select_related("doctor__specialty") if m.doctor.is_verified]
@@ -202,7 +202,8 @@ def public_clinic_dict(clinic: Clinic, *, with_doctors: bool = False) -> dict:
         "specialties": sorted({d.specialty.name for d in doctors if d.specialty}),
     }
     if with_doctors:
-        data["doctors"] = [{**doctor_dict(d), "next_slot": next_available(d.id)} for d in doctors]
+        next_slots = next_available_many(doctors)
+        data["doctors"] = [{**doctor_dict(d), "next_slot": next_slots[d.id]} for d in doctors]
     return data
 
 
@@ -407,3 +408,20 @@ def repeat(request, clinic_id, appointment_id):
     count, interval = parse_repeat(body(request))
     created, skipped = repeat_appointment(appt, count, interval, user, "clinic")
     return Response({"ok": True, "created": len(created), "skipped": skipped})
+
+
+@api_view(["GET"])
+def appointment_history(request, clinic_id, appointment_id):
+    """Historique d'un rendez-vous d'un médecin de la clinique (secrétariat)."""
+    from appointments.history import history
+
+    user = require_user(request)
+    clinic, _ = clinic_access(user, clinic_id)
+    appt = (
+        Appointment.objects.filter(id=appointment_id, doctor__clinic_memberships__clinic=clinic)
+        .select_related("doctor", "practitioner")
+        .first()
+    )
+    if not appt:
+        raise not_found("Rendez-vous introuvable")
+    return Response(history(appt))

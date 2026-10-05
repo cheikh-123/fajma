@@ -965,3 +965,27 @@ def appointment_ics(request, appointment_id):
     response = HttpResponse("\r\n".join(lines) + "\r\n", content_type="text/calendar; charset=utf-8")
     response["Content-Disposition"] = f'attachment; filename="rdv-fajma-{appt.scheduled_at:%Y%m%d}.ics"'
     return response
+
+
+@api_view(["GET"])
+def appointment_history(request, appointment_id):
+    """Historique du rendez-vous (qui l'a pris, déplacé, annulé…) pour le patient concerné."""
+    from .history import history
+
+    user = require_user(request)
+    appt = Appointment.objects.filter(id=appointment_id, patient=user).select_related("doctor", "practitioner").first()
+    if not appt:
+        raise not_found("Rendez-vous introuvable")
+    return Response(history(appt, for_patient=True))
+
+
+@api_view(["GET"])
+def doctor_appointment_history(request, appointment_id):
+    """Historique complet d'un rendez-vous de l'agenda du médecin (titulaire ou remplaçant)."""
+    from .history import history
+
+    doctor = my_doctor(require_user(request))
+    appt = Appointment.objects.filter(involves(doctor), id=appointment_id).select_related("doctor", "practitioner").first()
+    if not appt:
+        raise not_found("Rendez-vous introuvable")
+    return Response(history(appt))

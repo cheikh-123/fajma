@@ -11,6 +11,7 @@ x-backend: &backend
     dockerfile: deploy/backend.Dockerfile
   env_file: .env
   environment:
+    DJANGO_DEBUG: "false"  # jamais de mode développement en production (pages de débogage, accès démo)
     DATABASE_URL: postgres://fajma:${POSTGRES_PASSWORD}@db:5432/fajma
     PRIVATE_MEDIA_ROOT: /data/private_media
     TASK_BACKEND: database

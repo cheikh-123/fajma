@@ -130,3 +130,34 @@ class WaitlistEntry(BaseModel):
     class Meta:
         ordering = ["created_at"]
         constraints = [models.UniqueConstraint(fields=["patient", "doctor"], name="unique_waitlist_entry")]
+
+
+class AppointmentEvent(BaseModel):
+    """
+    Historique d'un rendez-vous : qui l'a créé, confirmé, déplacé, annulé… et quand. Rempli automatiquement
+    à chaque enregistrement du rendez-vous (appointments/history.py), quelle que soit la page à l'origine.
+    """
+
+    ACTIONS = [
+        ("created", "Rendez-vous pris"),
+        ("confirmed", "Confirmé"),
+        ("rescheduled", "Déplacé"),
+        ("cancelled", "Annulé"),
+        ("completed", "Consultation terminée"),
+        ("no_show", "Patient absent"),
+        ("arrived", "Patient arrivé"),
+        ("status", "Statut modifié"),
+    ]
+
+    appointment = models.ForeignKey(Appointment, on_delete=models.CASCADE, related_name="events")
+    actor = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name="+")
+    action = models.CharField(max_length=12, choices=ACTIONS)
+    from_status = models.CharField(max_length=10, blank=True)
+    to_status = models.CharField(max_length=10, blank=True)
+    from_at = models.DateTimeField(null=True, blank=True)
+    to_at = models.DateTimeField(null=True, blank=True)
+    note = models.CharField(max_length=300, blank=True)
+
+    class Meta:
+        ordering = ["created_at"]
+        indexes = [models.Index(fields=["appointment", "created_at"])]

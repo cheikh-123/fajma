@@ -13,7 +13,7 @@ from rest_framework.decorators import api_view, throttle_classes
 from rest_framework.response import Response
 
 from appointments.models import Appointment
-from appointments.scheduling import compute_slots, next_available
+from appointments.scheduling import compute_slots, next_available_many
 from insurance.views import accepted_insurers
 from sunusante.api import ApiError, ScopedThrottle, body, get_int, get_str, get_uuid, iso, not_found, require_user
 
@@ -109,9 +109,10 @@ def list_doctors(request):
 
     # Prochaine disponibilité de chaque médecin (comme sur Doctolib), filtres et tri associés.
     results = []
+    next_slots = next_available_many(doctors)
     for d in doctors:
         data = doctor_dict(d)
-        data["next_slot"] = next_available(d.id)
+        data["next_slot"] = next_slots[d.id]
         data["accepts_new_patients"] = d.accepts_new_patients
         data["distance_km"] = round(distances[d.id], 1) if d.id in distances else None
         results.append(data)

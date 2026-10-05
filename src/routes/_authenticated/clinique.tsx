@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { AppointmentHistory } from "@/components/AppointmentHistory";
 import { ThemeToggle } from "@/lib/theme";
 import { LogoutButton } from "@/components/LogoutButton";
 import { HelpLink } from "@/components/HelpLink";
@@ -453,6 +454,9 @@ function Agenda({ clinic }: { clinic: Clinic }) {
                                   <Phone className="size-3" /> {a.patient_phone}
                                 </a>
                               )}
+                              <AppointmentHistory
+                                path={`/clinics/${clinic.id}/appointments/${a.id}/history`}
+                              />
                             </div>
                             <span
                               className={`rounded-full px-2 py-0.5 text-xs font-semibold ${st.cls}`}

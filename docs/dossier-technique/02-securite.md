@@ -95,7 +95,9 @@ Chaque règle ci-dessus est couverte par au moins un test automatisé qui tente 
 | Faille connue dans une bibliothèque | Contrôle automatique à chaque modification : `npm audit` (interface) et `pip-audit` (serveur) dans l'intégration continue |
 | Script injecté (XSS) | React échappe les contenus ; CSP stricte sans `unsafe-inline` pour les scripts (empreintes calculées au build) ; cookie de session inaccessible au JavaScript |
 | Clic détourné (clickjacking) | `frame-ancestors 'none'` et `X-Frame-Options: DENY`, sauf le module de réservation intégrable, qui ne contient ni connexion ni paiement |
-| Abus et force brute | Limites de débit : connexion 10/min, codes SMS 10/h, réservations 20/h, assistant IA 15/min, recherches publiques 30/min |
+| Abus et force brute | Limites de débit : connexion 10/min, codes SMS 10/h, réservations 20/h, assistant IA 15/min, recherches publiques 30/min ; **verrou par compte** : après 10 mots de passe faux en 15 minutes sur un même email (même depuis des adresses différentes), connexion refusée pendant 15 minutes ; codes SMS limités à 3 par numéro et par 10 minutes |
+| Serveur de production lancé en mode développement | Sans réglage, le mode développement (pages de débogage, accès démo) n'est actif que pour les commandes `manage.py` sur un poste ; le serveur de production (gunicorn) démarre toujours en mode sécurisé et docker-compose impose `DJANGO_DEBUG=false` |
+| Contestation d'un rendez-vous (« je n'ai jamais annulé ») | Historique inaltérable de chaque rendez-vous : auteur, date, ancien et nouvel horaire, motif d'annulation |
 | Messages répétés par Twilio ou l'opérateur USSD | Réponse mémorisée par identifiant de message / saisie : aucune double réservation |
 | Sondage d'annuaire | La recherche de doublons en clinique ne révèle jamais l'existence d'un compte pour une personne inconnue de la clinique |
 | Faux documents médicaux | Référence aléatoire vérifiable publiquement ; la vérification n'affiche ni contenu médical ni identité complète |
@@ -130,13 +132,18 @@ exécuté par l'intégration continue.
 
 ## 2.8 Tests de sécurité réalisés
 
-- **251 tests automatisés de l'API**, dont les tentatives d'accès interdites de la matrice § 2.4 (y compris
+- **263 tests automatisés de l'API**, dont les tentatives d'accès interdites de la matrice § 2.4 (y compris
   pour un remplaçant, une secrétaire, un médecin sans lien avec le patient), les manipulations de prix et de
   parts, les fichiers piégés, les doubles réservations, les webhooks non signés, les secrets USSD invalides, la
   réutilisation de session USSD par un autre numéro, les doubles notifications de paiement, le blocage des
   professionnels sans double authentification, la suspension de compte (sessions coupées), le chiffrement des fichiers sur le disque (et le refus d'un
   fichier altéré), le refus d'un fichier infecté ou non analysable, la déconnexion après inactivité (sans
   prolongation par les rafraîchissements automatiques) et l'alerte de connexion depuis un nouvel appareil.
+- **Balayage des accès croisés** (`tests/test_idor_sweep.py`) : un autre patient, un autre médecin et un visiteur
+  tentent une quarantaine de routes sur les données d'autrui (RDV, documents, ordonnances, paiements, proches,
+  mesures, analyses, renouvellements, assurances) : toutes refusées, rien n'est modifié.
+- **Double réservation simultanée** : sous PostgreSQL, la contrainte d'exclusion refuse en base deux rendez-vous
+  qui se chevauchent même si les contrôles applicatifs sont contournés (`tests/test_overlap_constraint.py`).
 - **Parcours de bout en bout** dans un navigateur réel pour chaque rôle, sur ordinateur et mobile, dont le mode
   hors ligne et l'effacement des données à la déconnexion sur le build de production, et l'activation imposée de
   la double authentification.

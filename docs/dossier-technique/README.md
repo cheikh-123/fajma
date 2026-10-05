@@ -1,6 +1,6 @@
 # Dossier technique et sécurité — Fajma
 
-**Version du dossier :** 3.1 — 5 octobre 2026
+**Version du dossier :** 3.2 — 5 octobre 2026
 **Périmètre :** code source du dépôt `sante-connect-main` (backend Django, frontend React, déploiement), services tiers.
 **Public visé :** acquéreurs, investisseurs, auditeurs techniques et juridiques, équipe technique reprenant le projet.
 
@@ -26,7 +26,7 @@ ni à Supabase.
 | Messages | Twilio : SMS et WhatsApp ; notifications push du navigateur (Web Push, gratuites) |
 | Téléconsultation | Jitsi Meet (serveur public au démarrage, auto-hébergeable) |
 | Assistant IA | Fournisseur configurable via une API compatible OpenAI (Google Gemini par défaut) |
-| Qualité | 251 tests automatisés de l'API ; parcours de bout en bout dans un navigateur réel pour chaque rôle ; intégration continue GitHub Actions |
+| Qualité | 263 tests automatisés de l'API ; parcours de bout en bout dans un navigateur réel pour chaque rôle ; intégration continue GitHub Actions |
 | Taille du code | ≈ 14 900 lignes Python (hors tests et migrations), ≈ 3 900 lignes de tests, ≈ 32 600 lignes TypeScript/React |
 
 ## 2. Contenu du dossier
@@ -85,7 +85,7 @@ ni à Supabase.
 
 ## 4. Méthode
 
-Dossier établi par lecture intégrale du code source, exécution de la suite de tests de l'API (251 tests) et
+Dossier établi par lecture intégrale du code source, exécution de la suite de tests de l'API (263 tests) et
 de parcours de bout en bout dans un navigateur réel (Chrome et Edge, ordinateur et mobile) : patient, médecin,
 médecin remplaçant, clinique, secrétariat, pharmacien, administrateur, activation obligatoire de la double
 authentification, mode hors ligne sur le build de production.
@@ -113,3 +113,4 @@ Ces points sont signalés **« À vérifier »**.
 | 2.9 | 05/10/2026 | Chapitre 7 « Inventaire des licences » (outil `tools/inventaire_licences.py`, annexe CSV : aucun composant sous copyleft fort, composants livrés aux navigateurs tous sous licence permissive) ; rapport d'activité mensuel dans l'administration (tableur, impression PDF, sans donnée nominative) ; comptage des patients corrigé (comptes professionnels exclus) |
 | 3.0 | 05/10/2026 | Questionnaire du médecin visible dès la réservation sur sa fiche, réponses toujours facultatives (plus de question obligatoire) ; dossier médical complet téléchargeable en PDF par le patient (export journalisé) |
 | 3.1 | 05/10/2026 | Dossier complété de A à Z : chapitre 1 mis à jour avec toutes les fonctionnalités (emploi du temps, agenda en glisser-déposer, questionnaire, renouvellements, fiche d'urgence, alertes, assistant de notes, aide et support, tarifs, rapport d'activité, dossier en PDF), tables et intégrations (antivirus) ; nouveau chapitre 8 « Guide fonctionnel de A à Z » (parcours de chaque rôle, automatismes, règles, glossaire) ; chiffres du code actualisés |
+| 3.2 | 05/10/2026 | Audit global (sécurité, concurrence, portabilité, performance, robustesse, métier) et correctifs : mode développement impossible par oubli en production (`DJANGO_DEBUG`) ; verrou par compte contre la force brute répartie (10 échecs en 15 min) ; recherche de médecins sans requêtes en cascade (4 requêtes quel que soit le nombre de médecins) ; base de données injoignable = réponse 503 lisible ; **historique de chaque rendez-vous** (qui l'a pris, confirmé, déplacé, annulé, quand), visible du patient, du médecin et du secrétariat ; balayage automatique des accès croisés (IDOR) et test de la contrainte anti-double réservation sous PostgreSQL |

@@ -36,7 +36,7 @@ d'être écrits sur le disque (clé conservée hors des sauvegardes).
 | `backend/sunusante/` | Configuration, routes de l'API, outils communs (validation des entrées ; fichiers déposés : contrôle du type, antivirus, chiffrement), tableau de pilotage, rapport d'activité, exports tableur |
 | `backend/accounts/` | Comptes, connexion (mot de passe, code SMS, double authentification), déconnexion après inactivité, alerte « nouvel appareil », profil, proches, export et suppression des données, outils d'administration |
 | `backend/directory/` | Annuaire, fiches médecin, emploi du temps (plages, absences), guide de démarrage, avis et modération, justificatifs (diplômes), remplacements, référencement |
-| `backend/appointments/` | Rendez-vous, calcul des créneaux, questionnaire avant consultation, liste d'attente, téléconsultation |
+| `backend/appointments/` | Rendez-vous, calcul des créneaux, questionnaire avant consultation, liste d'attente, téléconsultation, historique automatique de chaque rendez-vous (`history.py`) |
 | `backend/payments/` | Paiements PayDunya, journal comptable des médecins, virements, remboursements, abonnements |
 | `backend/insurance/` | Organismes (IPM, CMU, assureurs), couvertures des patients, tiers payant |
 | `backend/medical/` | Comptes-rendus, ordonnances (en-tête, signature), certificats et arrêts de travail, documents, profil de santé, rappels, renouvellements d'ordonnance, fiche d'urgence (QR code), assistant de prise de notes, export du dossier en PDF |
@@ -115,6 +115,7 @@ d'être écrits sur le disque (clé conservée hors des sauvegardes).
 | `directory_pharmacy` | Officines (horaires, jours d'ouverture, garde et fin de garde) |
 | `directory_review`, `directory_doctorcredential` | Avis (modération, réponse), justificatifs des médecins |
 | `appointments_appointment`, `…_appointmentseries`, `…_waitlistentry` | Rendez-vous (canal, assurance figée, questionnaire, adresse de visite, médecin remplaçant, rang dans une série), séries de séances, liste d'attente |
+| `appointments_appointmentevent` | Historique des rendez-vous : action (pris, confirmé, déplacé, annulé, terminé, absent, arrivé), auteur, ancien et nouvel horaire ou statut, motif ; écrit automatiquement à chaque modification, quelle que soit son origine |
 | `payments_payment`, `…_refund`, `…_payout`, `…_ledgerentry`, `…_subscription`, `…_subscriptionpayment` | Paiements, remboursements, virements, journal comptable, abonnements |
 | `insurance_insurer`, `…_patientcoverage`, `…_doctorinsurer` | Organismes, couvertures, organismes acceptés |
 | `medical_*` | Comptes-rendus, ordonnances, documents, partages, profils de santé (dont réglages de la fiche d'urgence et des alertes), notes privées, rappels, documents rédigés, demandes de renouvellement |

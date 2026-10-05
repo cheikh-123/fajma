@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { AppointmentHistory } from "@/components/AppointmentHistory";
 import { ThemeToggle } from "@/lib/theme";
 import {
   useSuspenseQuery,
@@ -857,6 +858,7 @@ function DoctorApptCard({
             {appt.cancel_reason ? ` : ${appt.cancel_reason}` : ""}
           </p>
         )}
+        <AppointmentHistory path={`/pro/appointments/${appt.id}/history`} />
         <p className="mt-1 text-sm text-sunu-ink/60">
           {formatDateTime(d, { weekday: "long", hour: "2-digit", minute: "2-digit" })}
           {" · "}

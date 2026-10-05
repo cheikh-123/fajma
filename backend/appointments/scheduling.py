@@ -100,8 +100,21 @@ def compute_slots(
     doctor_id, days: int, duration_minutes: int | None = None, ignore_id: str | None = None, mode: str = "in_person"
 ) -> dict:
     windows, busy = _schedule(doctor_id, mode)
-    replacements = active_replacements(doctor_id)
     lead, horizon_days = _limits(doctor_id)
+    return _slots_from(windows, busy, active_replacements(doctor_id), lead, horizon_days, days, duration_minutes, ignore_id)
+
+
+def _slots_from(
+    windows: list[DoctorAvailability],
+    busy: list[Busy],
+    replacements: list[Replacement],
+    lead: timedelta,
+    horizon_days: int,
+    days: int,
+    duration_minutes: int | None = None,
+    ignore_id: str | None = None,
+    first_only: bool = False,
+) -> dict:
     now = timezone.now()
     today = now.astimezone(UTC).replace(hour=0, minute=0, second=0, microsecond=0)
     found: dict[str, dict] = {}
@@ -115,7 +128,7 @@ def compute_slots(
             while t + duration <= end:
                 if t > now + lead and not _overlaps(busy, t, t + duration, ignore_id):
                     iso = t.isoformat().replace("+00:00", "Z")
-                    substitute = replacement_at(doctor_id, t, replacements)
+                    substitute = replacement_at(None, t, replacements)
                     found[iso] = {
                         "iso": iso,
                         "label": slot_label(t),
@@ -123,6 +136,8 @@ def compute_slots(
                         "replacement": substitute.full_name if substitute else None,
                     }
                 t += step
+        if first_only and found:
+            break  # les jours sont parcourus dans l'ordre : le premier jour avec un créneau suffit
     slots = sorted(found.values(), key=lambda s: s["iso"])
     return {"slots": slots[:80], "hasAvailability": bool(windows)}
 
@@ -180,6 +195,39 @@ def next_available(doctor_id) -> dict | None:
     """Premier créneau libre (pour l'annuaire : « Prochaine disponibilité »)."""
     slots = compute_slots(doctor_id, 30)["slots"]
     return slots[0] if slots else None
+
+
+def next_available_many(doctors: list[Doctor]) -> dict:
+    """
+    Prochaine disponibilité de toute une liste de médecins en 4 requêtes au total (au lieu de 6 par médecin) :
+    plages, rendez-vous, absences/agendas externes et remplacements sont chargés une fois pour tous.
+    """
+    from collections import defaultdict
+
+    ids = [d.id for d in doctors]
+    if not ids:
+        return {}
+    now = timezone.now()
+    windows, busy, repl = defaultdict(list), defaultdict(list), defaultdict(list)
+    for w in DoctorAvailability.objects.filter(doctor_id__in=ids, kind="office"):
+        windows[w.doctor_id].append(w)
+    for a in Appointment.objects.filter(doctor_id__in=ids, status__in=ACTIVE_STATUSES, ends_at__gte=now).only(
+        "id", "doctor_id", "scheduled_at", "ends_at"
+    ):
+        busy[a.doctor_id].append(Busy(str(a.id), a.scheduled_at, a.ends_at))
+    for t in TimeOff.objects.filter(doctor_id__in=ids, ends_at__gte=now):
+        busy[t.doctor_id].append(Busy(f"off-{t.id}", t.starts_at, t.ends_at))
+    for b in ExternalBusy.objects.filter(doctor_id__in=ids, ends_at__gte=now):
+        busy[b.doctor_id].append(Busy(f"ext-{b.id}", b.starts_at, b.ends_at))
+    for r in Replacement.objects.filter(doctor_id__in=ids, status="accepted", ends_at__gt=now).select_related("replacement"):
+        repl[r.doctor_id].append(r)
+    result = {}
+    for d in doctors:
+        lead = max(MIN_LEAD, timedelta(hours=d.min_notice_hours))
+        horizon = min(d.booking_horizon_days, MAX_HORIZON_DAYS)
+        slots = _slots_from(windows[d.id], busy[d.id], repl[d.id], lead, horizon, 30, first_only=True)["slots"]
+        result[d.id] = slots[0] if slots else None
+    return result
 
 
 def assert_no_overlap(doctor_id, start: datetime, duration_minutes: int, ignore_id: str | None = None) -> None:

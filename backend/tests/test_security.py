@@ -7,6 +7,7 @@ from datetime import UTC, datetime, time, timedelta
 
 from django.core.cache import cache
 from django.test import TestCase
+from django.utils import timezone
 from rest_framework.test import APIClient
 
 from accounts.models import Relative, User
@@ -155,6 +156,21 @@ class AccountTests(ApiTestCase):
         self.assertEqual(client.post("/api/auth/login", {"email": "p1@test.sn", "password": "faux"}, format="json").status_code, 401)
         self.assertEqual(client.post("/api/auth/login", {"email": "P1@test.sn", "password": PASSWORD}, format="json").status_code, 200)
         self.assertEqual(client.get("/api/auth/me").data["user"]["email"], "p1@test.sn")
+
+    def test_account_locked_after_repeated_failures_from_many_addresses(self):
+        from audit.models import AuditEvent
+
+        # 10 échecs venus d'adresses différentes (la limite par IP ne les arrête pas).
+        for i in range(10):
+            AuditEvent.objects.create(action="login_failed", ip=f"10.0.0.{i}", metadata={"email": "p1@test.sn"})
+        client = APIClient()
+        res = client.post("/api/auth/login", {"email": "P1@test.sn", "password": PASSWORD}, format="json")
+        self.assertEqual(res.status_code, 429)
+        # Les autres comptes ne sont pas touchés.
+        self.assertEqual(client.post("/api/auth/login", {"email": "p2@test.sn", "password": PASSWORD}, format="json").status_code, 200)
+        # Les échecs anciens ne comptent plus.
+        AuditEvent.objects.filter(action="login_failed").update(created_at=timezone.now() - timedelta(minutes=20))
+        self.assertEqual(APIClient().post("/api/auth/login", {"email": "p1@test.sn", "password": PASSWORD}, format="json").status_code, 200)
 
     def test_csrf_enforced_on_login(self):
         client = APIClient(enforce_csrf_checks=True)

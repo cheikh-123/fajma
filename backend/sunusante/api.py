@@ -2,11 +2,12 @@
 
 from __future__ import annotations
 
+import logging
 import uuid
 from typing import Any
 
 from django.core.exceptions import ValidationError as DjangoValidationError
-from django.db import IntegrityError
+from django.db import DatabaseError, IntegrityError
 from django.http import Http404
 from rest_framework import exceptions, status
 from rest_framework.response import Response
@@ -23,6 +24,9 @@ class ApiError(exceptions.APIException):
     def __init__(self, message: str, code: int = status.HTTP_400_BAD_REQUEST):
         super().__init__(message)
         self.status_code = code
+
+
+logger = logging.getLogger(__name__)
 
 
 def not_found(message: str) -> ApiError:
@@ -42,6 +46,11 @@ def exception_handler(exc: Exception, context: dict) -> Response | None:
         if "appointment_no_overlap" in str(exc):
             return Response({"error": "Ce créneau vient d'être réservé. Choisissez-en un autre."}, status=409)
         return Response({"error": "Cette opération entre en conflit avec des données existantes."}, status=409)
+    if isinstance(exc, DatabaseError):
+        # Base de données arrêtée ou injoignable : réponse JSON lisible (503) plutôt qu'une page d'erreur,
+        # l'interface affiche alors « service momentanément indisponible ». Le détail reste dans les journaux.
+        logger.exception("base de données indisponible")
+        return Response({"error": "Service momentanément indisponible. Réessayez dans quelques minutes."}, status=503)
     response = drf_exception_handler(exc, context)
     if response is None:
         return None

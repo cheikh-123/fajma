@@ -18,7 +18,7 @@ from rest_framework.authentication import SessionAuthentication
 from rest_framework.decorators import api_view, throttle_classes
 from rest_framework.response import Response
 
-from appointments.models import Appointment
+from appointments.models import Appointment, AppointmentEvent
 from clinics.models import Clinic
 from directory.models import Doctor, Review
 from medical.models import MedicalRecord, Prescription
@@ -109,14 +109,35 @@ def register(request):
     return Response({"user": user_dict(user, request.session)})
 
 
+# Verrou par compte : la limite par adresse IP ne suffit pas contre une attaque répartie sur de nombreuses
+# adresses. Au-delà de 10 échecs en 15 minutes sur un même email, les essais sont refusés le temps que ça retombe.
+LOGIN_MAX_FAILURES = 10
+LOGIN_LOCK_MINUTES = 15
+
+
+def _refuse_if_locked(email: str) -> None:
+    from datetime import timedelta as _td
+
+    from audit.models import AuditEvent
+
+    if not email:
+        return
+    since = timezone.now() - _td(minutes=LOGIN_LOCK_MINUTES)
+    failures = AuditEvent.objects.filter(action="login_failed", created_at__gte=since, metadata__email=email).count()
+    if failures >= LOGIN_MAX_FAILURES:
+        raise ApiError(f"Trop d'essais pour ce compte. Réessayez dans {LOGIN_LOCK_MINUTES} minutes ou réinitialisez le mot de passe.", 429)
+
+
 @api_view(["POST"])
 @throttle_classes([AuthThrottle])
 def login_view(request):
     enforce_csrf(request)
     data = body(request)
-    user = authenticate(request, email=(data.get("email") or "").strip().lower(), password=data.get("password") or "")
+    email = (data.get("email") or "").strip().lower()[:120]
+    _refuse_if_locked(email)
+    user = authenticate(request, email=email, password=data.get("password") or "")
     if user is None:
-        audit.log(request, "login_failed", email=(data.get("email") or "")[:120])
+        audit.log(request, "login_failed", email=email)
         raise ApiError("Email ou mot de passe incorrect", 401)
     if TwoFactor.objects.filter(user=user, enabled=True).exists():
         # Mot de passe correct : on attend le code de l'application avant d'ouvrir la session.
@@ -749,9 +770,12 @@ def delete_my_account(request):
     HealthProfile.objects.filter(user=user).delete()
     user.support_requests.all().delete()
     user.relatives.all().delete()
-    Appointment.objects.filter(patient=user, status__in=("pending", "confirmed")).update(
-        status="cancelled", cancelled_by="patient", cancelled_at=timezone.now(), cancel_reason="Compte supprimé"
+    active = Appointment.objects.filter(patient=user, status__in=("pending", "confirmed"))
+    AppointmentEvent.objects.bulk_create(
+        AppointmentEvent(appointment=a, actor=user, action="cancelled", from_status=a.status, to_status="cancelled", note="Compte supprimé")
+        for a in active
     )
+    active.update(status="cancelled", cancelled_by="patient", cancelled_at=timezone.now(), cancel_reason="Compte supprimé")
     user.email = f"supprime-{user.id}@invalid.fajma"
     user.full_name = "Compte supprimé"
     user.phone = user.city = user.avatar_url = ""
