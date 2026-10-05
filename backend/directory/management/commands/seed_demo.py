@@ -129,7 +129,7 @@ class Command(BaseCommand):
 
     def create_accounts(self):
         admin, _ = User.objects.get_or_create(email="admin@fajma.local", defaults={"full_name": "Administrateur", "is_staff": True, "is_superuser": True})
-        patient, _ = User.objects.get_or_create(email="patient@fajma.local", defaults={"full_name": "Awa Ndiaye", "phone": "771234567", "city": "Dakar"})
+        patient, _ = User.objects.get_or_create(email="patient@fajma.local", defaults={"full_name": "Awa Ndiaye", "phone": "771234567", "city": "Dakar", "sex": "F"})
         doc_user, _ = User.objects.get_or_create(email="medecin@fajma.local", defaults={"full_name": "Dr Aïssatou Diop"})
         pharmacist, _ = User.objects.get_or_create(email="pharmacie@fajma.local", defaults={"full_name": "Moussa Faye (pharmacien)"})
         cardio_user, _ = User.objects.get_or_create(email="cardiologue@fajma.local", defaults={"full_name": "Dr Mamadou Ndiaye"})
