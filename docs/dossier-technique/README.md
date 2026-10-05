@@ -1,6 +1,6 @@
 # Dossier technique et sécurité — Fajma
 
-**Version du dossier :** 3.2 — 5 octobre 2026
+**Version du dossier :** 3.3 — 5 octobre 2026
 **Périmètre :** code source du dépôt `sante-connect-main` (backend Django, frontend React, déploiement), services tiers.
 **Public visé :** acquéreurs, investisseurs, auditeurs techniques et juridiques, équipe technique reprenant le projet.
 
@@ -41,6 +41,7 @@ ni à Supabase.
 | 6 | [Informations pour une cession](06-cession.md) | Propriété, licences des composants, dépendances aux prestataires, coûts, reprise par une autre équipe |
 | 7 | [Inventaire des licences](07-licences.md) | Licence de chaque composant libre (serveur, application, outils), analyse et obligations ; annexe CSV |
 | 8 | [Guide fonctionnel de A à Z](08-guide-fonctionnel.md) | Ce que fait chaque utilisateur, étape par étape (patient, médecin, secrétariat, pharmacie, laboratoire, administration, secours), automatismes, règles de fonctionnement, glossaire |
+| 9 | [Audit global du code](09-audit-global.md) | Réponses point par point aux six volets de l'audit (sécurité, créneaux, portabilité, performance, robustesse, métier), problèmes classés par gravité et correctifs |
 
 ## 3. Synthèse pour la direction
 
@@ -114,3 +115,4 @@ Ces points sont signalés **« À vérifier »**.
 | 3.0 | 05/10/2026 | Questionnaire du médecin visible dès la réservation sur sa fiche, réponses toujours facultatives (plus de question obligatoire) ; dossier médical complet téléchargeable en PDF par le patient (export journalisé) |
 | 3.1 | 05/10/2026 | Dossier complété de A à Z : chapitre 1 mis à jour avec toutes les fonctionnalités (emploi du temps, agenda en glisser-déposer, questionnaire, renouvellements, fiche d'urgence, alertes, assistant de notes, aide et support, tarifs, rapport d'activité, dossier en PDF), tables et intégrations (antivirus) ; nouveau chapitre 8 « Guide fonctionnel de A à Z » (parcours de chaque rôle, automatismes, règles, glossaire) ; chiffres du code actualisés |
 | 3.2 | 05/10/2026 | Audit global (sécurité, concurrence, portabilité, performance, robustesse, métier) et correctifs : mode développement impossible par oubli en production (`DJANGO_DEBUG`) ; verrou par compte contre la force brute répartie (10 échecs en 15 min) ; recherche de médecins sans requêtes en cascade (4 requêtes quel que soit le nombre de médecins) ; base de données injoignable = réponse 503 lisible ; **historique de chaque rendez-vous** (qui l'a pris, confirmé, déplacé, annulé, quand), visible du patient, du médecin et du secrétariat ; balayage automatique des accès croisés (IDOR) et test de la contrainte anti-double réservation sous PostgreSQL |
+| 3.3 | 05/10/2026 | Nouveau chapitre 9 « Audit global du code » : les six volets de l'audit détaillés question par question, problèmes classés (bloquant, important, mineur), correctifs et tests associés |
