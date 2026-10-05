@@ -59,6 +59,13 @@ def whatsapp(request):
     if not phone:
         return HttpResponse(status=400)
     sid = (request.POST.get("MessageSid") or "")[:64]
+    from notifications.optout import STOP_REPLY, is_start, is_stop, opt_in, opt_out
+
+    if is_stop(text):
+        opt_out(phone, "whatsapp")
+        return _twiml(STOP_REPLY)
+    if is_start(text):
+        opt_in(phone)  # puis le menu s'affiche comme d'habitude
     with transaction.atomic():
         session, _ = BotSession.objects.select_for_update().get_or_create(channel="whatsapp", key=phone, defaults={"phone": phone})
         # Twilio renvoie le même message s'il n'a pas eu de réponse à temps : on redonne la même réponse.

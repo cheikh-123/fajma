@@ -1,10 +1,45 @@
 from django.conf import settings
-from django.db import models
+from django.db import models, transaction
+from django.utils import timezone
 
 from sunusante.models import BaseModel
 
 
-class Payment(BaseModel):
+class ReceiptCounter(models.Model):
+    """Compteur des reçus par année : numérotation continue, sans trou ni doublon (obligation légale)."""
+
+    year = models.PositiveIntegerField(primary_key=True)
+    last = models.PositiveIntegerField(default=0)
+
+
+def next_receipt_number() -> str:
+    """FJ-2026-000001, FJ-2026-000002… Le verrou de ligne garantit un numéro unique même en cas d'accès simultanés."""
+    year = timezone.localdate().year
+    with transaction.atomic():
+        ReceiptCounter.objects.get_or_create(year=year)
+        counter = ReceiptCounter.objects.select_for_update().get(year=year)
+        counter.last += 1
+        counter.save(update_fields=["last"])
+    return f"FJ-{year}-{counter.last:06d}"
+
+
+class ReceiptNumbered(models.Model):
+    """Attribue le numéro de reçu au passage à « payé », une seule fois, quel que soit le chemin (en ligne, espèces)."""
+
+    receipt_number = models.CharField(max_length=20, null=True, blank=True, unique=True)
+
+    class Meta:
+        abstract = True
+
+    def save(self, *args, **kwargs):
+        if self.status == "paid" and not self.receipt_number:
+            self.receipt_number = next_receipt_number()
+            if kwargs.get("update_fields") is not None:
+                kwargs["update_fields"] = set(kwargs["update_fields"]) | {"receipt_number"}
+        super().save(*args, **kwargs)
+
+
+class Payment(ReceiptNumbered, BaseModel):
     METHODS = [("wave", "Wave"), ("orange_money", "Orange Money"), ("free_money", "Free Money"), ("cash", "Espèces")]
     STATUSES = [("pending", "En attente"), ("paid", "Payé"), ("failed", "Échoué"), ("refunded", "Remboursé")]
 
@@ -114,7 +149,7 @@ class Subscription(BaseModel):
     current_period_end = models.DateTimeField(null=True, blank=True)
 
 
-class SubscriptionPayment(BaseModel):
+class SubscriptionPayment(ReceiptNumbered, BaseModel):
     STATUSES = [("pending", "En attente"), ("paid", "Payé"), ("failed", "Échoué")]
 
     doctor = models.ForeignKey("directory.Doctor", on_delete=models.PROTECT, related_name="subscription_payments")

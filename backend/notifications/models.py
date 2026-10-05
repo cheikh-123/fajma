@@ -6,7 +6,13 @@ from sunusante.models import BaseModel
 
 class SmsReminder(BaseModel):
     KINDS = [("reminder_24h", "Rappel 24 h"), ("reminder_2h", "Rappel 2 h")]
-    STATUSES = [("pending", "En attente"), ("sent", "Envoyé"), ("delivered", "Livré"), ("failed", "Échec")]
+    STATUSES = [
+        ("pending", "En attente"),
+        ("sending", "En cours d'envoi"),
+        ("sent", "Envoyé"),
+        ("delivered", "Livré"),
+        ("failed", "Échec"),
+    ]
     CHANNELS = [("sms", "SMS"), ("whatsapp", "WhatsApp")]
 
     appointment = models.ForeignKey("appointments.Appointment", on_delete=models.CASCADE, related_name="reminders")
@@ -50,3 +56,15 @@ class PushSubscription(BaseModel):
     p256dh = models.CharField(max_length=200)
     auth = models.CharField(max_length=100)
     user_agent = models.CharField(max_length=200, blank=True)
+
+
+class SmsOptOut(BaseModel):
+    """
+    Numéro qui a répondu STOP (SMS ou WhatsApp) ou que l'opérateur signale désinscrit : plus aucun SMS
+    automatique (rappels, alertes), seulement les codes de connexion qu'il demande lui-même. START le réactive.
+    """
+
+    SOURCES = [("sms", "Réponse STOP par SMS"), ("whatsapp", "STOP sur WhatsApp"), ("carrier", "Désinscrit chez l'opérateur")]
+
+    phone = models.CharField(max_length=30, unique=True)
+    source = models.CharField(max_length=10, choices=SOURCES)

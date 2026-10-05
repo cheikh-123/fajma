@@ -131,11 +131,23 @@ def _send_via(channel: str, to: str, body: str, status_callback: str | None) -> 
     return SendResult(True, sid=sid, channel=channel)
 
 
-def send_message(*, to: str, body: str, channel: str = "sms", status_callback: str | None = None) -> SendResult:
-    """Envoie sur le canal demandé ; si WhatsApp échoue, repli automatique sur le SMS."""
+def send_message(
+    *, to: str, body: str, channel: str = "sms", status_callback: str | None = None, essential: bool = False
+) -> SendResult:
+    """
+    Envoie sur le canal demandé ; si WhatsApp échoue, repli automatique sur le SMS.
+    essential : message demandé par la personne elle-même (code de connexion), envoyé même après un STOP.
+    """
+    from .optout import CARRIER_UNSUBSCRIBED, is_opted_out, opt_out
+
+    if not essential and is_opted_out(to):
+        return SendResult(False, error="Numéro désinscrit (STOP) : message non envoyé", permanent=True)
     if channel == "whatsapp":
         result = _send_via("whatsapp", to, body, status_callback)
         if result.ok:
             return result
         logger.warning("WhatsApp indisponible, repli SMS : %s", result.error)
-    return _send_via("sms", to, body, status_callback)
+    result = _send_via("sms", to, body, status_callback)
+    if not result.ok and CARRIER_UNSUBSCRIBED in result.error:
+        opt_out(to, "carrier")
+    return result

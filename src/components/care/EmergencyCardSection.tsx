@@ -183,7 +183,7 @@ export function EmergencyCardSection() {
               ) : (
                 <Loader2 className="size-6 animate-spin text-sunu-ink/40" />
               )}
-              <span className="mt-1 flex items-center gap-1 text-[11px] font-semibold text-gray-600">
+              <span className="mt-1 flex items-center gap-1 text-[11px] font-semibold text-[#4b5563]">
                 <QrCode className="size-3.5" /> Fiche d'urgence
               </span>
             </div>

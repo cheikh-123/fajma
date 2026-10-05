@@ -60,5 +60,11 @@ class Command(BaseCommand):
                 for qs in targets.values():
                     qs.delete()
                 walk_ins.update(external_patient_name="Patient anonymisé", external_patient_phone="", reason="", notes="")
+        if days.get("inactive_accounts"):
+            from accounts.erasure import purge_inactive_accounts
+
+            warned, purged = purge_inactive_accounts(days["inactive_accounts"], dry_run=dry_run)
+            report["préavis de compte inactif"] = warned
+            report["comptes inactifs anonymisés"] = purged
         verb = "à supprimer" if dry_run else "supprimé(s)"
         self.stdout.write(" ; ".join(f"{label} : {n} {verb}" for label, n in report.items()))

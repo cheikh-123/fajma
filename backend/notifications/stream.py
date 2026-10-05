@@ -72,6 +72,19 @@ class _Cursor:
         return chunks
 
 
+def _fetch_and_release(cursor: _Cursor):
+    """Lecture puis fermeture de la connexion du fil d'exécution : pas de connexion PostgreSQL retenue entre deux lectures."""
+    from django.db import connection
+
+    def run() -> list[str]:
+        try:
+            return cursor.fetch()
+        finally:
+            connection.close()
+
+    return run
+
+
 def _sync_stream(cursor: _Cursor):
     deadline = time.monotonic() + settings.EVENTS_STREAM_SECONDS
     last_beat = time.monotonic()
@@ -87,7 +100,7 @@ def _sync_stream(cursor: _Cursor):
 async def _async_stream(cursor: _Cursor):
     deadline = time.monotonic() + settings.EVENTS_STREAM_SECONDS
     last_beat = time.monotonic()
-    fetch = sync_to_async(cursor.fetch, thread_sensitive=False)
+    fetch = sync_to_async(_fetch_and_release(cursor), thread_sensitive=False)
     yield "retry: 3000\n\n"
     while time.monotonic() < deadline:
         for chunk in await fetch():

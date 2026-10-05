@@ -26,6 +26,9 @@ x-backend: &backend
 services:
   db:
     image: postgres:17-alpine
+    # Connexions : API 3 processus x 8 fils + flux temps réel (connexion rendue après chaque lecture) + tâches ;
+    # 200 laisse une large marge avant saturation (chaque connexion ~ 10 Mo de mémoire).
+    command: ["postgres", "-c", "max_connections=200"]
     environment:
       POSTGRES_DB: fajma
       POSTGRES_USER: fajma

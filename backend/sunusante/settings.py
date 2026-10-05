@@ -50,12 +50,17 @@ RETENTION_DAYS = {
     "known_devices": env_int("RETENTION_DEVICES_DAYS", 730),
     "support_requests": env_int("RETENTION_SUPPORT_DAYS", 730),  # demandes d'aide traitées  # navigateurs connus (alerte nouvelle connexion)
     "audit_events": env_int("RETENTION_AUDIT_DAYS", 1825),  # journal des accès (à valider : preuve en cas de litige)
+    # Comptes patients sans connexion ni rendez-vous : préavis par email puis anonymisation 30 jours après.
+    # 0 = désactivé tant que la durée n'est pas fixée avec un juriste et la CDP (ex. 1095 = 3 ans).
+    "inactive_accounts": env_int("RETENTION_INACTIVE_ACCOUNT_DAYS", 0),
 }
 
 # Supervision (commande « monitor », toutes les 10 minutes) : alertes par email.
 ALERT_EMAILS = [e.strip() for e in os.environ.get("ALERT_EMAILS", "").split(",") if e.strip()]
 BACKUP_DIR = os.environ.get("BACKUP_DIR", "/backups")  # vide = pas de contrôle des sauvegardes
 BACKUP_MAX_AGE_HOURS = env_int("BACKUP_MAX_AGE_HOURS", 26)
+# Jeton de la supervision externe pour obtenir le détail de /api/health (vide = équipe Fajma connectée seulement).
+HEALTH_TOKEN = os.environ.get("HEALTH_TOKEN", "")
 
 # Double authentification obligatoire pour médecins, pharmaciens, cliniques et administrateurs.
 MFA_REQUIRED_FOR_PROS = env_bool("MFA_REQUIRED_FOR_PROS", True)

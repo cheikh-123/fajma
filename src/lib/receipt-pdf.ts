@@ -23,6 +23,7 @@ export async function buildReceiptPdf(r: Receipt): Promise<Uint8Array> {
 
   drawFajmaLogo(page, bold, 50, 774, 30);
   text("Reçu de paiement", 50, 755, 14, bold);
+  if (r.receipt_number) text(`Reçu n° ${r.receipt_number}`, 380, 795, 10, bold);
   text(`Référence : ${r.reference}`, 380, 780, 10, font, MUTED);
   text(
     `Payé le : ${formatDate(r.paid_at, { day: "2-digit", month: "long", year: "numeric" })}`,

@@ -66,7 +66,8 @@ instance Jitsi locale ; les autres transferts portent sur des données limitées
 | Accès | Dossier complet consultable ; **journal des accès** montrant quel professionnel a consulté quoi |
 | Rectification | Profil, profil de santé, proches, assurances, carnet modifiables |
 | Portabilité | Export complet des données en JSON depuis le dossier ; dossier médical lisible en PDF (« Télécharger mon dossier ») à remettre à un autre médecin |
-| Effacement | Suppression du compte en libre-service (anonymisation des données qui doivent être conservées) |
+| Effacement | Suppression du compte en libre-service (anonymisation des données qui doivent être conservées) ; anonymisation automatique des comptes inactifs, après préavis par email (durée à fixer ⚖️, désactivée par défaut) |
+| Opposition aux SMS | Réponse STOP (SMS ou WhatsApp) : plus aucun SMS automatique ; START pour les réactiver |
 | Maîtrise du partage | Partage des documents document par document et médecin par médecin ; envoi d'ordonnance à une pharmacie choisie ; information préalable du patient pour la télé-expertise |
 | Langue | Interface, SMS et menus en français, wolof ou anglais |
 
@@ -86,6 +87,7 @@ Purge automatique chaque nuit (`purge_data`, durées réglables par variables d'
 | Appareils de connexion connus (alerte « nouvel appareil ») | 2 ans sans utilisation | Suppression |
 | Demandes d'aide traitées (nom, contact, message) | 2 ans après traitement | Suppression (et dès la suppression du compte) |
 | Journal d'audit | 5 ans ⚖️ | Suppression |
+| Comptes patients inactifs (ni connexion ni rendez-vous) | Désactivé par défaut (`RETENTION_INACTIVE_ACCOUNT_DAYS`, ex. 3 ans) ⚖️ | Préavis par email, puis anonymisation 30 jours après sans reconnexion |
 | **Données médicales** (dossiers, comptes-rendus, ordonnances, certificats, documents, carnets) | **Aucune purge automatique** | Durée légale à fixer ⚖️ |
 | Données de paiement et journal comptable | Aucune purge automatique | Obligations comptables à fixer ⚖️ |
 

@@ -370,6 +370,7 @@ function Agenda({ clinic }: { clinic: Clinic }) {
           </div>
           <select
             value={doctorFilter}
+            aria-label="Filtrer par médecin"
             onChange={(e) => setDoctorFilter(e.target.value)}
             className="rounded-lg border border-sunu-line bg-sunu-card px-3 py-2 text-sm"
           >
@@ -754,6 +755,7 @@ function WalkInForm({ clinic }: { clinic: Clinic }) {
         </select>
         <select
           value={form.doctor_id}
+          aria-label="Médecin"
           onChange={(e) => setForm({ ...form, doctor_id: e.target.value, when: "" })}
           className="rounded-lg border border-sunu-line bg-sunu-card px-3 py-2 text-sm"
         >
@@ -765,6 +767,7 @@ function WalkInForm({ clinic }: { clinic: Clinic }) {
         </select>
         <select
           value={form.duration_minutes}
+          aria-label="Durée"
           onChange={(e) => setForm({ ...form, duration_minutes: Number(e.target.value) })}
           className="rounded-lg border border-sunu-line bg-sunu-card px-3 py-2 text-sm"
         >
@@ -1155,6 +1158,7 @@ function Team({ clinic }: { clinic: Clinic }) {
             <h2 className="font-bold text-sunu-dark">Ajouter un praticien</h2>
             <select
               value={doctorId}
+              aria-label="Médecin à rattacher"
               onChange={(e) => setDoctorId(e.target.value)}
               className="mt-4 w-full rounded-lg border border-sunu-line px-3 py-2.5 text-sm"
             >
@@ -1194,6 +1198,7 @@ function Team({ clinic }: { clinic: Clinic }) {
             />
             <select
               value={staff.role}
+              aria-label="Rôle"
               onChange={(e) =>
                 setStaff({ ...staff, role: e.target.value as "secretary" | "manager" })
               }

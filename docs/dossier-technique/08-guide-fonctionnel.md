@@ -231,9 +231,11 @@ internet).
 | Accès d'un médecin au dossier | RDV confirmé ou terminé avec le patient ; documents seulement s'ils sont partagés ; chaque accès journalisé |
 | Fiche d'urgence | Désactivée par défaut ; informations choisies par le patient ; lien révocable |
 | Alertes de mesures | 3 médecins au plus, une alerte par médecin, patient et type de mesure toutes les 24 h |
-| Sécurité des comptes | 10 mots de passe faux en 15 min : compte verrouillé 15 min ; code SMS : 3 envois par 10 minutes ; double authentification et déconnexion après 30 min d'inactivité pour les professionnels |
+| Sécurité des comptes | Bouton « Déconnecter mes autres appareils » (page Sécurité) en cas de téléphone perdu ; 10 mots de passe faux en 15 min : compte verrouillé 15 min ; code SMS : 3 envois par 10 minutes ; double authentification et déconnexion après 30 min d'inactivité pour les professionnels |
 | Argent | Commission selon la formule (Essentiel 8 %, Pro 3 %, Clinique 2 %) ; virement dès 5 000 F ; paiements vérifiés auprès de PayDunya |
 | Avis | Seulement après une consultation terminée ; modération par Fajma |
+| SMS « STOP » | Répondre STOP (SMS ou WhatsApp) arrête tous les SMS automatiques ; START les réactive ; les codes de connexion demandés restent envoyés |
+| Reçus | Numéro légal continu par année (FJ-2026-000001…), attribué à l'encaissement et imprimé sur le reçu |
 | Exports | Réservés à leur titulaire (médecin, clinique, patient, administration) et journalisés |
 
 ## 8.11 Glossaire

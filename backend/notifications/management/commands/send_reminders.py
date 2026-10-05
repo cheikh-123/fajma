@@ -98,7 +98,18 @@ class Command(BaseCommand):
         token = settings.TWILIO["STATUS_TOKEN"]
         callback = f"{settings.PUBLIC_SITE_URL}/api/notifications/twilio-status?token={token}" if token else None
         sent = failed = 0
+        # Envoi interrompu (serveur arrêté entre la réservation et la fin de l'envoi) : on ne sait pas si le SMS
+        # est parti, il n'est donc PAS renvoyé (mieux vaut un rappel manquant que le même SMS plusieurs fois).
+        SmsReminder.objects.filter(status="sending", updated_at__lt=now - timedelta(minutes=30)).update(
+            status="failed", last_error="Envoi interrompu : non renvoyé pour éviter un doublon"
+        )
         for r in SmsReminder.objects.filter(status="pending", scheduled_for__lte=now, attempts__lt=MAX_ATTEMPTS)[:50]:
+            # Réservation atomique : si deux exécutions tournent en même temps, une seule obtient ce rappel.
+            claimed = SmsReminder.objects.filter(pk=r.pk, status="pending", attempts=r.attempts).update(
+                status="sending", attempts=r.attempts + 1, updated_at=timezone.now()
+            )
+            if not claimed:
+                continue
             r.attempts += 1
             result = send_message(to=r.recipient_phone, body=r.message, channel=r.channel, status_callback=callback)
             if result.ok:

@@ -1,13 +1,14 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import QRCode from "qrcode";
-import { KeyRound, Lock, ShieldCheck } from "lucide-react";
+import { KeyRound, Lock, MonitorSmartphone, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import {
   changePassword,
   confirmMfa,
   disableMfa,
   getMfaStatus,
+  logoutOtherDevices,
   meQueryKey,
   startMfa,
   useMe,
@@ -186,8 +187,40 @@ export function SecuritySection() {
           </div>
         )}
         <PasswordForm hasPassword={me?.has_password ?? true} />
+        <OtherDevices />
       </div>
     </section>
+  );
+}
+
+/** Téléphone perdu, ordinateur partagé, doute sur le compte : coupe toutes les autres sessions d'un clic. */
+function OtherDevices() {
+  const revoke = useMutation({
+    mutationFn: logoutOtherDevices,
+    onSuccess: (r) =>
+      toast.success(
+        r.closed
+          ? `${r.closed} autre(s) appareil(s) déconnecté(s).`
+          : "Aucun autre appareil n'était connecté.",
+      ),
+    onError: (e: Error) => toast.error(e.message),
+  });
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-3 border-t border-sunu-line pt-4">
+      <p className="text-sunu-ink/70">
+        Téléphone perdu ou ordinateur partagé ? Déconnectez immédiatement tous vos autres appareils
+        (cet appareil reste connecté). Pensez ensuite à changer votre mot de passe.
+      </p>
+      <button
+        onClick={() => {
+          if (window.confirm("Déconnecter tous vos autres appareils maintenant ?")) revoke.mutate();
+        }}
+        disabled={revoke.isPending}
+        className="flex items-center gap-2 rounded-lg border border-sunu-line px-4 py-2 text-xs font-semibold text-sunu-dark"
+      >
+        <MonitorSmartphone className="size-4" /> Déconnecter mes autres appareils
+      </button>
+    </div>
   );
 }
 

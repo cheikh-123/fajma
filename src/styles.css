@@ -73,6 +73,9 @@
   --sunu-gold-ink: #8a6a00; /* jaune foncé, lisible en texte sur blanc */
   --sunu-red: #e31b23; /* rouge du drapeau : touches d'accent, avec parcimonie */
   --sunu-teal: #0f7f5f; /* validé, terminé */
+  /* Mêmes teintes, un peu plus foncées pour le TEXTE (petits libellés sur fonds pâles : contraste ≥ 4,5:1) */
+  --sunu-green-text: #00753a;
+  --sunu-teal-text: #0b6b50;
   --sunu-dark: #0f1a14; /* titres */
   --sunu-ink: #1c2620; /* texte */
   --sunu-card: #ffffff; /* pages et cartes */
@@ -126,12 +129,14 @@
   --motif-5: #b5812a;
   --motif-other: #8a948d;
 
-  --sunu-green: #17964f; /* un peu plus clair : lisible sur fond sombre, texte blanc encore lisible dessus */
+  --sunu-green: #2fb36a; /* plus lumineux : texte vert lisible sur fond sombre (≥ 5:1) ; texte foncé sur les boutons */
   --sunu-green-soft: #12291c;
   --sunu-gold: #fdef42;
   --sunu-gold-ink: #f5d83a;
   --sunu-red: #f0444b;
   --sunu-teal: #3cc08e;
+  --sunu-green-text: var(--sunu-green);
+  --sunu-teal-text: var(--sunu-teal);
   --sunu-dark: #eef4f0;
   --sunu-ink: #d6e0da;
   --sunu-card: #121a15;
@@ -142,6 +147,44 @@
   --sunu-shadow: rgb(0 0 0 / 0.5);
 
   --muted-foreground: #9aa9a0;
+}
+
+/*
+ * Accessibilité (WCAG 2.1 AA, contraste ≥ 4,5:1, vérifié avec axe-core).
+ * Textes secondaires : opacité minimale de l'encre, dans les deux modes (en dessous, gris illisible).
+ * Mode sombre : les boutons de couleur (vert, turquoise) sont clairs, leur texte est donc foncé.
+ */
+.text-sunu-ink\/40,
+.text-sunu-ink\/45,
+.text-sunu-ink\/50,
+.text-sunu-ink\/55,
+.text-sunu-ink\/60 {
+  color: color-mix(in oklab, var(--sunu-ink) 68%, transparent);
+}
+.text-sunu-green {
+  color: var(--sunu-green-text);
+}
+.text-sunu-teal {
+  color: var(--sunu-teal-text);
+}
+/* Panneaux toujours sombres (accueil, téléconsultation) : versions claires du vert et du turquoise */
+.bg-sunu-night .text-sunu-green {
+  color: #4fd08a;
+}
+.bg-sunu-night .text-sunu-teal {
+  color: #3cc08e;
+}
+/* Petits textes blancs translucides sur les panneaux sombres */
+.text-white\/40,
+.text-white\/45,
+.text-white\/50,
+.text-white\/55 {
+  color: rgb(255 255 255 / 0.62);
+}
+.dark :is(.bg-sunu-green, .bg-sunu-teal, .bg-sunu-success, .sunu-cta),
+.dark :is(.bg-sunu-green, .bg-sunu-teal, .bg-sunu-success, .sunu-cta) .text-white,
+.dark :is(.hover\:bg-sunu-green, .hover\:bg-sunu-teal):hover {
+  color: #07120b;
 }
 
 /* Couleurs d'alerte (orange, rouge, gris) : versions sombres des fonds pâles et textes éclaircis. */

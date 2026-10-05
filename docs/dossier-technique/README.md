@@ -1,6 +1,6 @@
 # Dossier technique et sécurité — Fajma
 
-**Version du dossier :** 3.3 — 5 octobre 2026
+**Version du dossier :** 3.4 — 5 octobre 2026
 **Périmètre :** code source du dépôt `sante-connect-main` (backend Django, frontend React, déploiement), services tiers.
 **Public visé :** acquéreurs, investisseurs, auditeurs techniques et juridiques, équipe technique reprenant le projet.
 
@@ -26,7 +26,7 @@ ni à Supabase.
 | Messages | Twilio : SMS et WhatsApp ; notifications push du navigateur (Web Push, gratuites) |
 | Téléconsultation | Jitsi Meet (serveur public au démarrage, auto-hébergeable) |
 | Assistant IA | Fournisseur configurable via une API compatible OpenAI (Google Gemini par défaut) |
-| Qualité | 263 tests automatisés de l'API ; parcours de bout en bout dans un navigateur réel pour chaque rôle ; intégration continue GitHub Actions |
+| Qualité | 276 tests automatisés de l'API ; parcours de bout en bout dans un navigateur réel pour chaque rôle ; intégration continue GitHub Actions |
 | Taille du code | ≈ 14 900 lignes Python (hors tests et migrations), ≈ 3 900 lignes de tests, ≈ 32 600 lignes TypeScript/React |
 
 ## 2. Contenu du dossier
@@ -41,7 +41,7 @@ ni à Supabase.
 | 6 | [Informations pour une cession](06-cession.md) | Propriété, licences des composants, dépendances aux prestataires, coûts, reprise par une autre équipe |
 | 7 | [Inventaire des licences](07-licences.md) | Licence de chaque composant libre (serveur, application, outils), analyse et obligations ; annexe CSV |
 | 8 | [Guide fonctionnel de A à Z](08-guide-fonctionnel.md) | Ce que fait chaque utilisateur, étape par étape (patient, médecin, secrétariat, pharmacie, laboratoire, administration, secours), automatismes, règles de fonctionnement, glossaire |
-| 9 | [Audit global du code](09-audit-global.md) | Réponses point par point aux six volets de l'audit (sécurité, créneaux, portabilité, performance, robustesse, métier), problèmes classés par gravité et correctifs |
+| 9 | [Audit global du code](09-audit-global.md) | Réponses point par point aux quinze volets de l'audit (sécurité, créneaux, portabilité, performance, robustesse, métier, sessions, identité des médecins, paiement, SMS, confidentialité, fichiers, accessibilité, supervision, architecture), problèmes classés par gravité et correctifs |
 
 ## 3. Synthèse pour la direction
 
@@ -86,7 +86,7 @@ ni à Supabase.
 
 ## 4. Méthode
 
-Dossier établi par lecture intégrale du code source, exécution de la suite de tests de l'API (263 tests) et
+Dossier établi par lecture intégrale du code source, exécution de la suite de tests de l'API (276 tests) et
 de parcours de bout en bout dans un navigateur réel (Chrome et Edge, ordinateur et mobile) : patient, médecin,
 médecin remplaçant, clinique, secrétariat, pharmacien, administrateur, activation obligatoire de la double
 authentification, mode hors ligne sur le build de production.
@@ -116,3 +116,4 @@ Ces points sont signalés **« À vérifier »**.
 | 3.1 | 05/10/2026 | Dossier complété de A à Z : chapitre 1 mis à jour avec toutes les fonctionnalités (emploi du temps, agenda en glisser-déposer, questionnaire, renouvellements, fiche d'urgence, alertes, assistant de notes, aide et support, tarifs, rapport d'activité, dossier en PDF), tables et intégrations (antivirus) ; nouveau chapitre 8 « Guide fonctionnel de A à Z » (parcours de chaque rôle, automatismes, règles, glossaire) ; chiffres du code actualisés |
 | 3.2 | 05/10/2026 | Audit global (sécurité, concurrence, portabilité, performance, robustesse, métier) et correctifs : mode développement impossible par oubli en production (`DJANGO_DEBUG`) ; verrou par compte contre la force brute répartie (10 échecs en 15 min) ; recherche de médecins sans requêtes en cascade (4 requêtes quel que soit le nombre de médecins) ; base de données injoignable = réponse 503 lisible ; **historique de chaque rendez-vous** (qui l'a pris, confirmé, déplacé, annulé, quand), visible du patient, du médecin et du secrétariat ; balayage automatique des accès croisés (IDOR) et test de la contrainte anti-double réservation sous PostgreSQL |
 | 3.3 | 05/10/2026 | Nouveau chapitre 9 « Audit global du code » : les six volets de l'audit détaillés question par question, problèmes classés (bloquant, important, mineur), correctifs et tests associés |
+| 3.4 | 05/10/2026 | Audit, volets 7 à 15 (chapitre 9) et correctifs : numérotation légale continue des reçus ; désinscription SMS (STOP / START) ; rappels jamais envoyés deux fois ; purge des comptes inactifs avec préavis (désactivée tant que la durée légale n'est pas fixée) ; bouton « Déconnecter mes autres appareils » ; réservation idempotente et refus de réserver chez soi-même ; `/api/health` détaillé pour la supervision ; flux temps réel économe en connexions, PostgreSQL à 200 connexions ; accessibilité WCAG AA (contrastes, libellés, tablette) vérifiée avec axe-core |

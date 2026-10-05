@@ -56,6 +56,8 @@ class User(AbstractUser):
     avatar_url = models.URLField(blank=True)
     notification_channel = models.CharField(max_length=10, choices=CHANNELS, default="sms")
     preferred_language = models.CharField(max_length=2, choices=LANGUAGES, default="fr")
+    # Préavis d'anonymisation envoyé (compte inactif, voir accounts/erasure.py).
+    inactive_notice_at = models.DateTimeField(null=True, blank=True)
 
     USERNAME_FIELD = "email"
     # Demandé par « createsuperuser » : le nom de l'administrateur apparaît dans le journal des actions.

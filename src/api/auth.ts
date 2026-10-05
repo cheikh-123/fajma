@@ -43,6 +43,10 @@ export const logout = async () => {
 export const changePassword = (data: { current_password?: string; new_password: string }) =>
   api.post<{ ok: true }>("/auth/password-change", data);
 
+/** Ferme immédiatement toutes les sessions du compte sauf celle de cet appareil (téléphone perdu…). */
+export const logoutOtherDevices = () =>
+  api.post<{ ok: true; closed: number }>("/auth/sessions/logout-others");
+
 export const requestPasswordReset = (email: string) =>
   api.post<{ ok: true }>("/auth/password-reset", { email });
 

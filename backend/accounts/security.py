@@ -130,3 +130,19 @@ def admin_login(request, extra_context=None):
     if request.user.is_authenticated and request.user.is_staff:
         return redirect(target)
     return redirect(f"/auth?redirect={quote(target)}")
+
+
+def end_sessions(user, keep: str | None = None) -> int:
+    """
+    Ferme immédiatement toutes les sessions ouvertes du compte (téléphone perdu, compte piraté, suspension),
+    sauf éventuellement la session `keep` (celle de l'appareil qui fait la demande). Renvoie le nombre fermé.
+    """
+    from django.contrib.sessions.models import Session
+    from django.utils import timezone
+
+    closed = 0
+    for s in Session.objects.filter(expire_date__gt=timezone.now()).exclude(session_key=keep or ""):
+        if s.get_decoded().get("_auth_user_id") == str(user.pk):
+            s.delete()
+            closed += 1
+    return closed

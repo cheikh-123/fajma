@@ -69,8 +69,35 @@ def twilio_status(request):
     mapped = STATUS_MAP.get(status)
     if mapped:
         error_code = request.POST.get("ErrorCode")
+        if error_code == "21610":  # destinataire désinscrit chez l'opérateur (STOP)
+            from .optout import opt_out
+            from .sms import normalize_phone
+
+            opt_out(normalize_phone(request.POST.get("To", "").removeprefix("whatsapp:")), "carrier")
         SmsReminder.objects.filter(provider_sid=sid).update(
             status=mapped,
             last_error=f"Livraison échouée ({status}{f' code {error_code}' if error_code else ''})" if mapped == "failed" else "",
         )
     return HttpResponse("ok")
+
+
+@csrf_exempt
+@require_POST
+def twilio_inbound_sms(request):
+    """SMS reçu sur le numéro Fajma (signature Twilio vérifiée) : STOP désinscrit, START réinscrit."""
+    from bots.views import _twiml, twilio_signature_ok
+
+    from .optout import START_REPLY, STOP_REPLY, is_start, is_stop, opt_in, opt_out
+    from .sms import normalize_phone
+
+    if not twilio_signature_ok(request):
+        return HttpResponse(status=403)
+    phone = normalize_phone(request.POST.get("From", ""))
+    text = request.POST.get("Body") or ""
+    if phone and is_stop(text):
+        opt_out(phone, "sms")
+        return _twiml(STOP_REPLY)
+    if phone and is_start(text):
+        opt_in(phone)
+        return _twiml(START_REPLY)
+    return _twiml("Fajma : ce numéro ne lit pas les réponses. Vos rendez-vous : fajma.sn ou WhatsApp. STOP pour ne plus recevoir de SMS.")

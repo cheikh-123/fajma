@@ -35,6 +35,8 @@ class AuditEvent(BaseModel):
         ("data_export", "Export tableur"),
         ("password_changed", "Mot de passe modifié"),
         ("password_change_failed", "Échec de changement de mot de passe"),
+        ("sessions_revoked", "Autres appareils déconnectés"),
+        ("inactive_account_purged", "Compte inactif anonymisé (purge automatique)"),
         ("doctor_profile_updated", "Fiche médecin modifiée"),
         ("pharmacy_updated", "Officine modifiée (pharmacien)"),
         ("admin_user_search", "Recherche de compte (administration)"),

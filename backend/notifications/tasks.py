@@ -15,8 +15,8 @@ logger = logging.getLogger(__name__)
 
 
 @task
-def send_sms_task(to: str, body: str, channel: str = "sms") -> dict:
-    result = send_message(to=to, body=body, channel=channel)
+def send_sms_task(to: str, body: str, channel: str = "sms", essential: bool = False) -> dict:
+    result = send_message(to=to, body=body, channel=channel, essential=essential)
     if not result.ok:
         logger.warning("SMS non envoyé à %s : %s", to[-4:].rjust(len(to), "*"), result.error)
     return {"ok": result.ok, "sid": result.sid, "channel": result.channel, "error": result.error}
@@ -28,9 +28,12 @@ def send_email_task(to: str, subject: str, body: str) -> bool:
     return True
 
 
-def queue_sms(to: str, body: str, channel: str = "sms") -> None:
-    """Met l'envoi en file une fois la transaction validée (jamais de SMS pour une action annulée)."""
-    transaction.on_commit(lambda: send_sms_task.enqueue(to, body, channel))
+def queue_sms(to: str, body: str, channel: str = "sms", *, essential: bool = False) -> None:
+    """
+    Met l'envoi en file une fois la transaction validée (jamais de SMS pour une action annulée).
+    essential : envoyé même si le numéro a répondu STOP (code de connexion demandé par la personne).
+    """
+    transaction.on_commit(lambda: send_sms_task.enqueue(to, body, channel, essential))
 
 
 def queue_email(to: str, subject: str, body: str) -> None:

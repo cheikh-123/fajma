@@ -255,6 +255,8 @@ def create_appointment(request):
     doctor = Doctor.objects.filter(id=get_uuid(data, "doctor_id"), is_verified=True).first()
     if not doctor:
         raise not_found("Médecin introuvable")
+    if doctor.user_id == user.id:
+        raise ApiError("Vous ne pouvez pas prendre rendez-vous avec vous-même. Utilisez votre agenda pour bloquer un horaire.")
     options = {
         "reason": get_str(data, "reason", max_len=500) or "",
         "coverage_id": get_uuid(data, "coverage_id", required=False),
@@ -272,6 +274,14 @@ def create_appointment(request):
                 "series": {"id": str(series.id), "booked": len(booked), "skipped": skipped},
             }
         )
+    # Idempotence : la même demande renvoyée après une coupure réseau (réponse perdue) retrouve le rendez-vous
+    # déjà créé au lieu d'échouer sur « créneau déjà réservé » ou d'en créer un second.
+    same = Appointment.objects.filter(
+        patient=user, doctor=doctor, scheduled_at=scheduled_at, status__in=ACTIVE_STATUSES,
+        created_at__gte=timezone.now() - timedelta(minutes=10),
+    ).first()
+    if same:
+        return Response({"id": str(same.id), "status": same.status, "already_booked": True})
     appt = book_for_patient(user, doctor, scheduled_at, **options)
     _save_answers(appt, data.get("answers"))
     return Response({"id": str(appt.id), "status": appt.status})

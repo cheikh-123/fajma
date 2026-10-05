@@ -1,7 +1,6 @@
 """Comptes : authentification par session (cookie HttpOnly), profil, dossier, proches, back-office."""
 
 from django.conf import settings
-from pathlib import Path
 
 from django.contrib.auth import authenticate, login, logout, password_validation
 from django.contrib.auth.tokens import default_token_generator
@@ -18,7 +17,7 @@ from rest_framework.authentication import SessionAuthentication
 from rest_framework.decorators import api_view, throttle_classes
 from rest_framework.response import Response
 
-from appointments.models import Appointment, AppointmentEvent
+from appointments.models import Appointment
 from clinics.models import Clinic
 from directory.models import Doctor, Review
 from medical.models import MedicalRecord, Prescription
@@ -669,12 +668,9 @@ def admin_user_action(request, user_id):
         target.is_active = False
         target.save(update_fields=["is_active"])
         Doctor.objects.filter(user=target).update(is_verified=False)
-        from django.contrib.sessions.models import Session
+        from .security import end_sessions
 
-        # Déconnexion immédiate sur tous les appareils.
-        for s in Session.objects.filter(expire_date__gt=timezone.now()):
-            if s.get_decoded().get("_auth_user_id") == str(target.pk):
-                s.delete()
+        end_sessions(target)  # déconnexion immédiate sur tous les appareils
     elif action == "reactivate":
         if target.is_active:
             raise ApiError("Ce compte est déjà actif")
@@ -753,36 +749,14 @@ def delete_my_account(request):
     les rendez-vous passés et comptes-rendus restent chez le médecin (obligation de conservation),
     rattachés à un compte anonymisé.
     """
-    from medical.models import HealthProfile, MedicalDocument
+    from .erasure import anonymize_patient
 
     user = require_user(request)
     if not user.check_password(body(request).get("password") or ""):
         raise ApiError("Mot de passe incorrect", 403)
     if Doctor.objects.filter(user=user).exists() or Clinic.objects.filter(owner=user).exists():
         raise ApiError("Un compte professionnel se supprime en contactant l'équipe Fajma.")
-    root = Path(settings.PRIVATE_MEDIA_ROOT)
-    for doc in MedicalDocument.objects.filter(patient=user):
-        try:
-            (root / doc.file_path).unlink(missing_ok=True)
-        except OSError:
-            pass
-    MedicalDocument.objects.filter(patient=user).delete()
-    HealthProfile.objects.filter(user=user).delete()
-    user.support_requests.all().delete()
-    user.relatives.all().delete()
-    active = Appointment.objects.filter(patient=user, status__in=("pending", "confirmed"))
-    AppointmentEvent.objects.bulk_create(
-        AppointmentEvent(appointment=a, actor=user, action="cancelled", from_status=a.status, to_status="cancelled", note="Compte supprimé")
-        for a in active
-    )
-    active.update(status="cancelled", cancelled_by="patient", cancelled_at=timezone.now(), cancel_reason="Compte supprimé")
-    user.email = f"supprime-{user.id}@invalid.fajma"
-    user.full_name = "Compte supprimé"
-    user.phone = user.city = user.avatar_url = ""
-    user.is_active = False
-    user.phone_verified = False
-    user.set_unusable_password()
-    user.save()
+    anonymize_patient(user)
     audit.log(request, "account_deleted", patient=user)
     logout(request)
     return Response({"ok": True})
@@ -897,7 +871,7 @@ def otp_request(request):
         raise ApiError("Trop de codes demandés. Réessayez dans quelques minutes.", 429)
     code = f"{_secrets.randbelow(10**6):06d}"
     OtpCode.objects.create(phone=phone, code_hash=_otp_hash(phone, code), expires_at=now + _td(seconds=OTP_TTL))
-    queue_sms(phone, f"Fajma : votre code est {code}. Il expire dans 10 minutes. Ne le communiquez à personne.")
+    queue_sms(phone, f"Fajma : votre code est {code}. Il expire dans 10 minutes. Ne le communiquez à personne.", essential=True)
     data = {"sent": True, "phone": phone}
     # En local sans Twilio, le code est renvoyé pour pouvoir tester (jamais en production).
     if settings.DEBUG and not settings.TWILIO["ACCOUNT_SID"]:
@@ -977,3 +951,14 @@ def otp_verify(request):
     user.save()
     request.session.pop("otp_phone", None)
     return _finish_login(request, user)
+
+
+@api_view(["POST"])
+def logout_other_devices(request):
+    """Déconnecte immédiatement tous les autres appareils (téléphone perdu, doute sur le compte)."""
+    from .security import end_sessions
+
+    user = require_user(request)
+    closed = end_sessions(user, keep=request.session.session_key)
+    audit.log(request, "sessions_revoked", closed=closed)
+    return Response({"ok": True, "closed": closed})

@@ -646,6 +646,8 @@ export type PrescriptionDetail = {
 
 export type Receipt = {
   reference: string;
+  /** Numéro légal, séquentiel et sans trou (FJ-2026-000001) ; absent pour un paiement antérieur. */
+  receipt_number: string | null;
   amount: number;
   currency: string;
   method: string;

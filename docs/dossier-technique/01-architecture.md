@@ -108,7 +108,7 @@ d'être écrits sur le disque (clé conservée hors des sauvegardes).
 
 | Table | Contenu |
 |---|---|
-| `accounts_user`, `accounts_relative` | Comptes (email et/ou téléphone vérifié, langue), proches |
+| `accounts_user`, `accounts_relative` | Comptes (email et/ou téléphone vérifié, langue, date du préavis de compte inactif), proches |
 | `accounts_twofactor`, `accounts_otpcode`, `accounts_knowndevice` | Double authentification, codes SMS (empreintes uniquement), navigateurs déjà utilisés (jeton haché) |
 | `directory_doctor`, `…_doctorlocation`, `…_doctoravailability`, `…_timeoff`, `…_consultationtype` | Fiches (photo, visites à domicile), lieux, plages (cabinet ou domicile), absences, motifs, tarifs, séries, questionnaires |
 | `directory_replacement` | Remplacements entre médecins (période, statut) |
@@ -116,13 +116,14 @@ d'être écrits sur le disque (clé conservée hors des sauvegardes).
 | `directory_review`, `directory_doctorcredential` | Avis (modération, réponse), justificatifs des médecins |
 | `appointments_appointment`, `…_appointmentseries`, `…_waitlistentry` | Rendez-vous (canal, assurance figée, questionnaire, adresse de visite, médecin remplaçant, rang dans une série), séries de séances, liste d'attente |
 | `appointments_appointmentevent` | Historique des rendez-vous : action (pris, confirmé, déplacé, annulé, terminé, absent, arrivé), auteur, ancien et nouvel horaire ou statut, motif ; écrit automatiquement à chaque modification, quelle que soit son origine |
-| `payments_payment`, `…_refund`, `…_payout`, `…_ledgerentry`, `…_subscription`, `…_subscriptionpayment` | Paiements, remboursements, virements, journal comptable, abonnements |
+| `payments_payment`, `…_refund`, `…_payout`, `…_ledgerentry`, `…_subscription`, `…_subscriptionpayment` | Paiements (avec numéro de reçu légal), remboursements, virements, journal comptable, abonnements |
+| `payments_receiptcounter` | Compteur annuel des reçus : numérotation continue, sans trou ni doublon |
 | `insurance_insurer`, `…_patientcoverage`, `…_doctorinsurer` | Organismes, couvertures, organismes acceptés |
 | `medical_*` | Comptes-rendus, ordonnances, documents, partages, profils de santé (dont réglages de la fiche d'urgence et des alertes), notes privées, rappels, documents rédigés, demandes de renouvellement |
 | `carnet_*` | Doses de vaccin, rappels envoyés, grossesses, consultations prénatales |
 | `pharmacy_*` | Pharmaciens rattachés, ordonnances transmises |
 | `clinics_*`, `expertise_*`, `messaging_*` | Cliniques et personnel, télé-expertise, messages |
-| `notifications_*` | Notifications, rappels SMS, abonnements push |
+| `notifications_*` | Notifications, rappels SMS, abonnements push, numéros désinscrits des SMS (`smsoptout` : STOP) |
 | `bots_botsession` | Conversations WhatsApp/USSD en cours |
 | `care_measurement`, `care_medicationreminder` | Mesures à domicile, rappels de médicaments |
 | `labs_laboratory`, `…_laboratorymember`, `…_laborder` | Laboratoires, personnel rattaché, prescriptions d'analyses et résultats |

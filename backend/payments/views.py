@@ -158,6 +158,7 @@ def receipt(request, payment_id):
     return Response(
         {
             "reference": p.reference,
+            "receipt_number": p.receipt_number,
             "amount": p.amount,
             "currency": p.currency,
             "method": p.get_method_display(),

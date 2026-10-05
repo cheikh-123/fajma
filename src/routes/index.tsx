@@ -99,7 +99,7 @@ function Landing() {
             </span>
             <span className="text-xl font-bold tracking-tight text-sunu-green">Fajma</span>
           </Link>
-          <div className="hidden items-center gap-7 text-sm font-medium text-sunu-ink/70 md:flex">
+          <div className="hidden items-center gap-6 text-sm font-medium text-sunu-ink/70 lg:flex">
             <Link to="/medecins" className="hover:text-sunu-green">
               {t("nav.find")}
             </Link>
