@@ -15,6 +15,7 @@ import {
   WASH,
   WIDTH,
   drawBrandBand,
+  drawFooter,
   spacedTitle,
   type Fonts,
 } from "@/lib/pdf-common";
@@ -44,7 +45,7 @@ export async function buildMedicalRecordPdf(d: MedicalRecordExport): Promise<Uin
     bold: await pdf.embedFont(StandardFonts.HelveticaBold),
     italic: await pdf.embedFont(StandardFonts.HelveticaOblique),
   };
-  const BOTTOM = 60;
+  const BOTTOM = 90; // au-dessus du bas de page
   let page!: PDFPage;
   let y = 0;
 
@@ -287,33 +288,17 @@ export async function buildMedicalRecordPdf(d: MedicalRecordExport): Promise<Uin
     );
   for (const doc of d.documents) para(`- ${day(doc.date)} — ${doc.title} (${doc.category})`);
 
-  // Pied de page numéroté sur chaque page.
+  // Pied de page numéroté sur chaque page (bande tricolore, mention, fajma.sn · Page x/y).
   const pages = pdf.getPages();
-  pages.forEach((pg, i) => {
-    pg.drawLine({
-      start: { x: M, y: 40 },
-      end: { x: M + WIDTH, y: 40 },
-      thickness: 0.6,
-      color: LINE,
-    });
-    pg.drawText(
-      safe(`Dossier médical de ${d.patient.full_name} — confidentiel — édité via Fajma`),
-      {
-        x: M,
-        y: 28,
-        size: 7.5,
-        font: f.font,
-        color: MUTED,
-      },
-    );
-    const label = `${i + 1} / ${pages.length}`;
-    pg.drawText(label, {
-      x: M + WIDTH - f.font.widthOfTextAtSize(label, 7.5),
-      y: 28,
-      size: 7.5,
-      font: f.font,
-      color: MUTED,
-    });
-  });
+  pages.forEach((pg, i) =>
+    drawFooter(
+      pg,
+      f,
+      safe(
+        `Dossier médical de ${d.patient.full_name} : personnel et confidentiel, édité via Fajma.`,
+      ),
+      `${i + 1}/${pages.length}`,
+    ),
+  );
   return pdf.save();
 }

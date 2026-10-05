@@ -2,7 +2,7 @@
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 import type { Receipt } from "@/api/types";
 import { formatDate, formatDateTime } from "@/lib/datetime";
-import { drawBrandBand } from "@/lib/pdf-common";
+import { drawBrandBand, drawFooter } from "@/lib/pdf-common";
 
 // Vert du drapeau (#00853f).
 const BLUE = rgb(0, 0.522, 0.247);
@@ -83,8 +83,11 @@ export async function buildReceiptPdf(r: Receipt): Promise<Uint8Array> {
     BLUE,
   );
 
-  text("Ce reçu atteste du paiement de la prestation ci-dessus via Fajma.", 50, 90, 9, font, MUTED);
-  text("Il ne constitue pas une facture fiscale du praticien.", 50, 76, 9, font, MUTED);
+  drawFooter(
+    page,
+    { font, bold, italic: font },
+    "Ce reçu atteste du paiement de la prestation ci-dessus via Fajma. Il ne constitue pas une facture fiscale du praticien.",
+  );
   return pdf.save();
 }
 

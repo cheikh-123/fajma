@@ -349,18 +349,51 @@ export function drawFajmaLogo(
   return size * 1.3 + bold.widthOfTextAtSize("Fajma", textSize);
 }
 
-/** Pied de page : mentions et numéro de page. */
+/** Texte centré sur la largeur utile de la page. */
+function textCenter(
+  page: PDFPage,
+  text: string,
+  y: number,
+  size: number,
+  font: PDFFont,
+  color = INK,
+) {
+  const t = clean(text);
+  page.drawText(t, { x: M + (WIDTH - font.widthOfTextAtSize(t, size)) / 2, y, size, font, color });
+}
+
+/**
+ * Pied de page (choisi par le fondateur, « Tricolore centré ») : fine bande vert, jaune, rouge avec l'étoile,
+ * mention centrée dessous, puis « fajma.sn · Page x/y » en vert. Occupe le bas de la page jusqu'à y = 64.
+ */
 export function drawFooter(page: PDFPage, f: Fonts, text: string, pageLabel?: string) {
-  page.drawLine({
-    start: { x: M, y: 62 },
-    end: { x: M + WIDTH, y: 62 },
-    thickness: 1,
-    color: LINE,
+  const top = 62;
+  const h = 2.5;
+  const third = WIDTH / 3;
+  page.drawRectangle({ x: M, y: top, width: third, height: h, color: GREEN });
+  page.drawRectangle({ x: M + third, y: top, width: third, height: h, color: GOLD });
+  page.drawRectangle({ x: M + third * 2, y: top, width: third, height: h, color: RED });
+  // Étoile verte sur une pastille blanche, au centre de la bande jaune.
+  const cx = M + WIDTH / 2;
+  page.drawCircle({ x: cx, y: top + h / 2, size: 5.2, color: rgb(1, 1, 1) });
+  const star = 7.5;
+  page.drawSvgPath(FLAG_STAR, {
+    x: cx - star / 2,
+    y: top + h / 2 + star / 2,
+    scale: star / 24,
+    color: GREEN,
   });
-  let y = 50;
-  for (const line of wrap(text, f.font, 7.5, WIDTH - (pageLabel ? 40 : 0))) {
-    textAt(page, line, M, y, 7.5, f.font, MUTED);
-    y -= 10;
+  let y = top - 11;
+  for (const line of wrap(text, f.font, 7, WIDTH)) {
+    textCenter(page, line, y, 7, f.font, MUTED);
+    y -= 9;
   }
-  if (pageLabel) textRight(page, pageLabel, 50, 7.5, f.font, MUTED);
+  textCenter(
+    page,
+    pageLabel ? `fajma.sn · Page ${pageLabel}` : "fajma.sn",
+    y - 2,
+    7.5,
+    f.bold,
+    GREEN,
+  );
 }
