@@ -66,6 +66,7 @@ def user_dict(user: User, session=None) -> dict:
         # Compte professionnel sans double authentification : il doit l'activer avant d'aller plus loin.
         "mfa_setup_required": needs_mfa_setup(user, session),
         "has_password": user.has_usable_password(),
+        "pending_email": user.pending_email or None,
     }
 
 
@@ -259,6 +260,94 @@ def password_change(request):
             "utilisez immédiatement « Mot de passe oublié » et prévenez l'équipe Fajma.",
         )
     return Response({"ok": True})
+
+
+# ── Adresse email ────────────────────────────────────────────────────
+# Ajout ou changement en deux temps : un lien est envoyé à la nouvelle adresse, qui n'est enregistrée qu'à son
+# ouverture (pas de faute de frappe, pas d'adresse d'un autre). Mot de passe exigé s'il en existe un ; l'ancienne
+# adresse est prévenue du changement.
+
+EMAIL_CHANGE_SALT = "fajma.email-change"
+EMAIL_CHANGE_MAX_AGE = 48 * 3600
+
+
+@api_view(["POST"])
+@throttle_classes([AuthThrottle])
+def email_change(request):
+    """{email, password} : envoie le lien de confirmation à la nouvelle adresse."""
+    from django.core import signing
+    from django.core.validators import validate_email
+
+    user = require_user(request)
+    data = body(request)
+    email = (get_str(data, "email", required=True, max_len=254) or "").strip().lower()
+    try:
+        validate_email(email)
+    except ValidationError as err:
+        raise ApiError("Adresse email invalide") from err
+    if email == (user.email or ""):
+        raise ApiError("C'est déjà l'adresse de votre compte")
+    if user.has_usable_password() and not user.check_password(data.get("password") or ""):
+        audit.log(request, "email_change_failed")
+        raise ApiError("Mot de passe incorrect", 403)
+    if User.objects.filter(email=email).exclude(pk=user.pk).exists():
+        raise ApiError("Cette adresse est déjà utilisée par un autre compte")
+    user.pending_email = email
+    user.save(update_fields=["pending_email"])
+    token = signing.dumps({"u": str(user.pk), "e": email}, salt=EMAIL_CHANGE_SALT)
+    link = f"{settings.PUBLIC_SITE_URL}/confirmer-email?token={token}"
+    queue_email(
+        email,
+        "Fajma — confirmez votre adresse email",
+        f"Bonjour {user.full_name},\n\nPour utiliser cette adresse avec votre compte Fajma, ouvrez ce lien "
+        f"(valable 48 heures) :\n{link}\n\nSi vous n'êtes pas à l'origine de cette demande, ignorez ce message.",
+    )
+    audit.log(request, "email_change_requested")
+    return Response({"ok": True, "pending_email": email})
+
+
+@api_view(["POST"])
+@throttle_classes([AuthThrottle])
+def email_change_cancel(request):
+    user = require_user(request)
+    user.pending_email = None
+    user.save(update_fields=["pending_email"])
+    return Response({"ok": True})
+
+
+@api_view(["POST"])
+@throttle_classes([AuthThrottle])
+def email_change_confirm(request):
+    """{token} : ouvert depuis le lien reçu par email, connecté ou non (autre appareil)."""
+    from django.core import signing
+
+    enforce_csrf(request)
+    try:
+        payload = signing.loads(body(request).get("token") or "", salt=EMAIL_CHANGE_SALT, max_age=EMAIL_CHANGE_MAX_AGE)
+    except signing.BadSignature as err:
+        raise ApiError("Lien invalide ou expiré : refaites la demande depuis votre espace") from err
+    user = User.objects.filter(pk=payload.get("u"), is_active=True).first()
+    email = payload.get("e")
+    # Seule la dernière demande compte : un ancien lien ne peut pas remettre une adresse abandonnée.
+    if not user or not email or user.pending_email != email:
+        raise ApiError("Lien invalide ou expiré : refaites la demande depuis votre espace")
+    if User.objects.filter(email=email).exclude(pk=user.pk).exists():
+        raise ApiError("Cette adresse est déjà utilisée par un autre compte")
+    old = user.email
+    user.email, user.pending_email = email, None
+    try:
+        user.save(update_fields=["email", "pending_email"])
+    except IntegrityError as err:
+        raise ApiError("Cette adresse est déjà utilisée par un autre compte") from err
+    audit.log(request, "email_changed", user_id=str(user.pk))
+    if old:
+        queue_email(
+            old,
+            "Fajma — adresse email modifiée",
+            f"Bonjour,\n\nL'adresse de votre compte Fajma est désormais {email}. Si ce n'est pas vous, prévenez "
+            "immédiatement l'équipe Fajma (page « Aide et contact »).",
+        )
+    return Response({"ok": True, "email": email})
 
 
 # ── Profil et dossier du patient ─────────────────────────────────────

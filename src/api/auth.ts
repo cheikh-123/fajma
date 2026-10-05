@@ -53,6 +53,15 @@ export const requestPasswordReset = (email: string) =>
 export const confirmPasswordReset = (data: { uid: string; token: string; password: string }) =>
   api.post<{ ok: true }>("/auth/password-reset/confirm", data);
 
+/** Ajout ou changement d'email : lien envoyé à la nouvelle adresse (mot de passe si le compte en a un). */
+export const requestEmailChange = (data: { email: string; password?: string }) =>
+  api.post<{ ok: true; pending_email: string }>("/auth/email", data);
+
+export const cancelEmailChange = () => api.post<{ ok: true }>("/auth/email/cancel");
+
+export const confirmEmailChange = (token: string) =>
+  api.post<{ ok: true; email: string }>("/auth/email/confirm", { token });
+
 export const meQueryKey = ["me"] as const;
 
 /** Utilisateur connecté (null si déconnecté), partagé par toute l'application. */

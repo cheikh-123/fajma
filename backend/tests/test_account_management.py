@@ -288,3 +288,48 @@ class ProfilePhoneTests(ApiTestCase):
         client.post("/api/patient/profile", {"full_name": "Mariama", "phone": "78 000 00 00"}, format="json")
         user.refresh_from_db()
         self.assertEqual((user.phone, user.phone_verified), ("+221780000000", False))
+
+
+class EmailChangeTests(ApiTestCase):
+    def token(self, user, email):
+        from django.core import signing
+
+        return signing.dumps({"u": str(user.pk), "e": email}, salt="fajma.email-change")
+
+    def test_change_requires_password_and_confirmation(self):
+        client = self.client_for(self.p1)
+        url = "/api/auth/email"
+        self.assertEqual(client.post(url, {"email": "nouvelle@test.sn", "password": "faux"}, format="json").status_code, 403)
+        self.assertEqual(client.post(url, {"email": "pas-une-adresse", "password": PASSWORD}, format="json").status_code, 400)
+        self.assertEqual(client.post(url, {"email": "p2@test.sn", "password": PASSWORD}, format="json").status_code, 400)
+        res = client.post(url, {"email": "Nouvelle@Test.sn", "password": PASSWORD}, format="json")
+        self.assertEqual((res.status_code, res.data["pending_email"]), (200, "nouvelle@test.sn"))
+        self.p1.refresh_from_db()
+        self.assertEqual(self.p1.email, "p1@test.sn")  # inchangée tant que le lien n'est pas ouvert
+        self.assertEqual(client.get("/api/auth/me").data["user"]["pending_email"], "nouvelle@test.sn")
+        confirm = self.client_for().post("/api/auth/email/confirm", {"token": self.token(self.p1, "nouvelle@test.sn")}, format="json")
+        self.assertEqual(confirm.status_code, 200)
+        self.p1.refresh_from_db()
+        self.assertEqual((self.p1.email, self.p1.pending_email), ("nouvelle@test.sn", None))
+
+    def test_old_or_forged_links_are_refused(self):
+        client = self.client_for(self.p1)
+        client.post("/api/auth/email", {"email": "a@test.sn", "password": PASSWORD}, format="json")
+        client.post("/api/auth/email", {"email": "b@test.sn", "password": PASSWORD}, format="json")
+        anon = self.client_for()
+        self.assertEqual(anon.post("/api/auth/email/confirm", {"token": self.token(self.p1, "a@test.sn")}, format="json").status_code, 400)
+        self.assertEqual(anon.post("/api/auth/email/confirm", {"token": "falsifie"}, format="json").status_code, 400)
+        client.post("/api/auth/email/cancel")
+        self.assertEqual(anon.post("/api/auth/email/confirm", {"token": self.token(self.p1, "b@test.sn")}, format="json").status_code, 400)
+        self.p1.refresh_from_db()
+        self.assertEqual(self.p1.email, "p1@test.sn")
+
+    def test_sms_account_adds_email_without_password(self):
+        user = User.objects.create(phone="+221770000002", phone_verified=True, full_name="Par SMS")
+        user.set_unusable_password()
+        user.save()
+        res = self.client_for(user).post("/api/auth/email", {"email": "sms@test.sn"}, format="json")
+        self.assertEqual(res.status_code, 200)
+        self.client_for().post("/api/auth/email/confirm", {"token": self.token(user, "sms@test.sn")}, format="json")
+        user.refresh_from_db()
+        self.assertEqual(user.email, "sms@test.sn")

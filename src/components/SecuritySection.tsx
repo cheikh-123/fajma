@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { EmailSetting } from "@/components/EmailSetting";
 import { useState } from "react";
 import QRCode from "qrcode";
 import { KeyRound, Lock, MonitorSmartphone, ShieldCheck } from "lucide-react";
@@ -15,7 +16,8 @@ import {
 } from "@/api/auth";
 
 /** Sécurité du compte : double authentification (QR code, codes de secours) et mot de passe. */
-export function SecuritySection() {
+/** `showEmail` : adresse email du compte (le patient la gère déjà dans « Mes coordonnées »). */
+export function SecuritySection({ showEmail = true }: { showEmail?: boolean } = {}) {
   const qc = useQueryClient();
   const { data: me } = useMe();
   const pro = Boolean(me?.is_professional);
@@ -65,6 +67,12 @@ export function SecuritySection() {
         <ShieldCheck className="size-5 text-sunu-green" /> Sécurité du compte
       </h2>
       <div className="grid gap-4 rounded-xl border border-sunu-line bg-sunu-card p-5 text-sm">
+        {showEmail && (
+          <div className="grid gap-1.5">
+            <p className="text-xs font-semibold text-sunu-ink/60">Adresse email du compte</p>
+            <EmailSetting />
+          </div>
+        )}
         {recovery && (
           <div className="rounded-lg border border-amber-300 bg-amber-50 p-4">
             <p className="font-semibold text-amber-900">

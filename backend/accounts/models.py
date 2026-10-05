@@ -46,6 +46,8 @@ class User(AbstractUser):
     username = None
     # Facultatif : on peut créer un compte avec son seul numéro de téléphone (code SMS).
     email = models.EmailField("email", unique=True, null=True, blank=True)
+    # Nouvelle adresse demandée, enregistrée seulement quand le lien de confirmation reçu à cette adresse est ouvert.
+    pending_email = models.EmailField(null=True, blank=True)
     full_name = models.CharField(max_length=120, blank=True)
     phone = models.CharField(max_length=30, blank=True)
     phone_verified = models.BooleanField(default=False)

@@ -46,6 +46,7 @@ import {
 } from "@/api/documents";
 import type { MedicalDocument as MedicalDocumentType } from "@/api/types";
 import { SecuritySection } from "@/components/SecuritySection";
+import { EmailSetting } from "@/components/EmailSetting";
 import { MeasurementsSection } from "@/components/care/MeasurementsSection";
 import { MedicationRemindersSection } from "@/components/care/MedicationRemindersSection";
 import { LabOrdersSection } from "@/components/labs/LabOrdersSection";
@@ -168,6 +169,7 @@ function DossierPage() {
                 placeholder="Téléphone"
                 className="rounded-lg border border-sunu-line px-3 py-2.5 text-sm outline-none focus:border-sunu-green"
               />
+              <EmailSetting />
               <label className="flex items-center gap-2 rounded-lg border border-sunu-line px-3 py-2.5">
                 <MapPin className="size-4 text-sunu-green" />
                 <input
@@ -343,7 +345,7 @@ function DossierPage() {
             <CoverageSection />
             <CarnetSection />
             <PushToggle />
-            <SecuritySection />
+            <SecuritySection showEmail={false} />
             <AccessLogSection />
             <MyDataSection />
           </div>

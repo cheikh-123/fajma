@@ -26,6 +26,8 @@ export type User = {
   mfa_setup_required?: boolean;
   /** Faux pour un compte ouvert par SMS sans mot de passe. */
   has_password?: boolean;
+  /** Nouvelle adresse en attente de confirmation (lien envoyé). */
+  pending_email?: string | null;
 };
 
 export type Specialty = {
