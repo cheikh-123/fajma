@@ -5,7 +5,7 @@
 import { rgb, type PDFDocument, type PDFFont, type PDFImage, type PDFPage } from "pdf-lib";
 import QRCode from "qrcode";
 import type { DocumentIssuer } from "@/api/types";
-import { FAJMA_MARK_PATHS } from "@/lib/fajma-mark";
+import { FAJMA_MARK_LETTER, FAJMA_MARK_PATHS } from "@/lib/fajma-mark";
 import { clean, drName, frDate } from "@/lib/prescription-text";
 
 export { ageAt, clean, drName, frDate } from "@/lib/prescription-text";
@@ -211,16 +211,22 @@ export async function drawSignatureBlock(
   textAt(page, drName(issuer.full_name), x, areaTop - 112, 8, f.font, MUTED);
 }
 
-// Logo Fajma (celui du site, lib/fajma-mark.ts) : le « f » en croix médicale, en vectoriel (net à l'impression).
+// Logo Fajma (celui du site, lib/fajma-mark.ts) : bulle de consultation et « f » en croix médicale, en vectoriel.
 /**
  * Logo et nom « Fajma ». (x, y) : coin inférieur gauche du carré ; `size` : côté du carré.
  * Renvoie la largeur occupée.
  */
 export function drawFajmaLogo(page: PDFPage, bold: PDFFont, x: number, y: number, size: number) {
-  const draw = { x, y: y + size, scale: size / 32 };
-  page.drawSvgPath(FAJMA_MARK_PATHS.square, { ...draw, color: GREEN });
-  page.drawSvgPath(FAJMA_MARK_PATHS.letter, { ...draw, color: rgb(1, 1, 1) });
-  page.drawSvgPath(FAJMA_MARK_PATHS.heart, { ...draw, color: GOLD });
+  const unit = size / 32;
+  page.drawSvgPath(FAJMA_MARK_PATHS.bubble, { x, y: y + size, scale: unit, color: GREEN });
+  // « f » réduit et remonté dans la bulle (mêmes réglages que le site)
+  const letter = {
+    x: x + FAJMA_MARK_LETTER.dx * unit,
+    y: y + size - FAJMA_MARK_LETTER.dy * unit,
+    scale: unit * FAJMA_MARK_LETTER.scale,
+  };
+  page.drawSvgPath(FAJMA_MARK_PATHS.letter, { ...letter, color: rgb(1, 1, 1) });
+  page.drawSvgPath(FAJMA_MARK_PATHS.heart, { ...letter, color: GOLD });
   const textSize = size * 0.62;
   page.drawText("Fajma", {
     x: x + size + size * 0.3,
