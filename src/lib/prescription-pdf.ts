@@ -19,6 +19,7 @@ import {
   drName,
   drawFooter,
   drawIssuerHeader,
+  spacedTitle,
   drawSignatureBlock,
   frDate,
   textAt,
@@ -72,7 +73,7 @@ export async function buildPrescriptionPdf(p: PrescriptionDetail): Promise<Uint8
 
   newPage();
   // Titre et référence
-  textAt(page, "ORDONNANCE", M, y, 16, f.bold, GREEN);
+  spacedTitle(page, "ORDONNANCE", M, y, 15, f.bold);
   textRight(page, `Réf. ${reference}`, y + 4, 9, f.bold);
   textRight(page, `Délivrée le ${frDate(p.created_at)}`, y - 8, 8.5, f.font, MUTED);
   y -= 30;

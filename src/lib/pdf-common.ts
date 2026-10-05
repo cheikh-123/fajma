@@ -78,72 +78,152 @@ export function textRight(
 export const FLAG_STAR =
   "M12.00 1.10L14.70 8.88L22.94 9.05L16.37 14.02L18.76 21.90L12.00 17.20L5.24 21.90L7.63 14.02L1.06 9.05L9.30 8.88Z";
 
-/** Bande aux couleurs du drapeau en haut de page, étoile verte au centre de la bande jaune. */
-export function drawFlagStripe(page: PDFPage) {
+/** Bande aux couleurs du drapeau (haut de page par défaut), étoile verte au centre de la bande jaune. */
+export function drawFlagStripe(page: PDFPage, top = PAGE[1], h = 7) {
   const third = PAGE[0] / 3;
-  const h = 7;
-  const y = PAGE[1] - h;
+  const y = top - h;
   page.drawRectangle({ x: 0, y, width: third, height: h, color: GREEN });
   page.drawRectangle({ x: third, y, width: third, height: h, color: GOLD });
   page.drawRectangle({ x: third * 2, y, width: third + 1, height: h, color: RED });
   const star = 6.4;
   page.drawSvgPath(FLAG_STAR, {
     x: PAGE[0] / 2 - star / 2,
-    y: PAGE[1] - (h - star) / 2,
+    y: top - (h - star) / 2,
     scale: star / 24,
     color: GREEN,
   });
 }
 
+/** Phrase écrite sous le logo Fajma dans l'en-tête des documents. */
+export const FAJMA_TAGLINE = "Votre santé, simplement";
+const SOFT = rgb(0.84, 0.94, 0.87); // texte secondaire sur le bandeau vert
+const WHITE = rgb(1, 1, 1);
+
+/** Ligne de texte du bandeau : `soft` = vert pâle (secondaire), sinon blanc. */
+export type BandLine = {
+  text: string | null | undefined;
+  size: number;
+  bold?: boolean;
+  soft?: boolean;
+};
+
 /**
- * En-tête : médecin à gauche (nom, spécialité, titres, n° d'Ordre), lieu d'exercice à droite
- * (établissement, adresse, téléphone). Renvoie la hauteur disponible sous l'en-tête.
+ * En-tête des documents (choisi par le fondateur) : bandeau vert plein, logo Fajma en blanc avec sa phrase,
+ * texte blanc à gauche et à droite, bande tricolore et étoile dessous. Le logo est en haut à gauche
+ * (`logo: "top"`) ou à droite, centré (`logo: "right"`, quand la colonne de droite est vide).
+ * Renvoie l'ordonnée sous la bande tricolore.
+ */
+export function drawBrandBand(
+  page: PDFPage,
+  f: Fonts,
+  left: BandLine[],
+  right: BandLine[] = [],
+  opts: { logo?: "top" | "right" } = {},
+): number {
+  const logoAt = opts.logo ?? "top";
+  const half = WIDTH / 2 - 10;
+  const layout = (items: BandLine[], width: number) =>
+    items.flatMap((l) =>
+      l.text
+        ? wrap(l.text, l.bold ? f.bold : f.font, l.size, width).map((t) => ({ ...l, text: t }))
+        : [],
+    );
+  const L = layout(left, logoAt === "right" ? WIDTH - 130 : half);
+  const R = layout(right, half);
+  const height = (lines: BandLine[]) => lines.reduce((h, l) => h + l.size + 3.5, 0);
+  const PAD_TOP = 18;
+  const PAD_BOTTOM = 16;
+  const LOGO = 16;
+  const logoRow = logoAt === "top" ? LOGO + 18 : 0;
+  const content = Math.max(height(L), height(R), logoAt === "right" ? LOGO + 10 : 0);
+  const bandH = PAD_TOP + logoRow + content + PAD_BOTTOM;
+  const top = PAGE[1];
+  page.drawRectangle({ x: 0, y: top - bandH, width: PAGE[0], height: bandH, color: GREEN });
+
+  if (logoAt === "top") {
+    drawFajmaLogo(page, f.bold, M, top - PAD_TOP - LOGO, LOGO, { onGreen: true, tagline: f.font });
+  } else {
+    const w = LOGO * 1.3 + f.bold.widthOfTextAtSize("Fajma", LOGO * 0.62);
+    const cy = top - PAD_TOP - content / 2;
+    drawFajmaLogo(page, f.bold, M + WIDTH - w, cy - LOGO / 2 + 3, LOGO, {
+      onGreen: true,
+      tagline: f.font,
+    });
+  }
+  const write = (lines: BandLine[], align: "left" | "right") => {
+    let y = top - PAD_TOP - logoRow;
+    for (const l of lines) {
+      y -= l.size;
+      const font = l.bold ? f.bold : f.font;
+      const color = l.soft ? SOFT : WHITE;
+      if (align === "left") textAt(page, l.text!, M, y, l.size, font, color);
+      else textRight(page, l.text!, y, l.size, font, color);
+      y -= 3.5;
+    }
+  };
+  write(L, "left");
+  write(R, "right");
+  drawFlagStripe(page, top - bandH, 5);
+  return top - bandH - 5;
+}
+
+/** Titre en capitales espacées (ex. « O R D O N N A N C E » sans les espaces visibles). */
+export function spacedTitle(
+  page: PDFPage,
+  text: string,
+  x: number,
+  y: number,
+  size: number,
+  font: PDFFont,
+  color = GREEN,
+  spacing = size * 0.14,
+) {
+  let cx = x;
+  for (const ch of clean(text)) {
+    page.drawText(ch, { x: cx, y, size, font, color });
+    cx += font.widthOfTextAtSize(ch, size) + spacing;
+  }
+  return cx - spacing - x;
+}
+
+/** Largeur d'un titre espacé (pour le centrer). */
+export function spacedWidth(text: string, size: number, font: PDFFont, spacing = size * 0.14) {
+  const t = clean(text);
+  return font.widthOfTextAtSize(t, size) + spacing * Math.max(t.length - 1, 0);
+}
+
+/**
+ * En-tête : bandeau vert avec le médecin à gauche (nom, spécialité, titres, n° d'Ordre) et le lieu d'exercice
+ * à droite (établissement, adresse, téléphone). Renvoie la hauteur disponible sous l'en-tête.
  */
 export function drawIssuerHeader(page: PDFPage, issuer: DocumentIssuer, f: Fonts): number {
-  drawFlagStripe(page);
-  // Logo Fajma en haut à droite : document délivré via Fajma, vérifiable par son QR code.
-  const logoSize = 22;
-  const logoWidth = logoSize * 1.3 + f.bold.widthOfTextAtSize("Fajma", logoSize * 0.62);
-  drawFajmaLogo(page, f.bold, M + WIDTH - logoWidth, PAGE[1] - 42, logoSize);
-  let y = PAGE[1] - 70;
-  textAt(page, drName(issuer.full_name), M, y, 14, f.bold);
-  y -= 15;
-  for (const [value, color, font] of [
-    [issuer.specialty, GREEN, f.bold],
-    [issuer.title, MUTED, f.font],
+  return drawBrandBand(
+    page,
+    f,
     [
-      issuer.order_number
-        ? `N° d'inscription à l'Ordre des médecins : ${issuer.order_number}`
-        : null,
-      INK,
-      f.font,
+      { text: drName(issuer.full_name), size: 15, bold: true },
+      { text: issuer.specialty, size: 9.5, bold: true, soft: true },
+      { text: issuer.title, size: 8.5, soft: true },
+      {
+        text: issuer.order_number
+          ? `N° d'inscription à l'Ordre des médecins : ${issuer.order_number}`
+          : null,
+        size: 8.5,
+        soft: true,
+      },
+      {
+        text: issuer.replacing ? `Remplaçant du ${drName(issuer.replacing)}` : null,
+        size: 8.5,
+        bold: true,
+      },
     ],
-    [issuer.replacing ? `Remplaçant du ${drName(issuer.replacing)}` : null, INK, f.bold],
-  ] as const) {
-    if (!value) continue;
-    for (const line of wrap(value, font, 9, WIDTH / 2 - 10)) {
-      textAt(page, line, M, y, 9, font, color);
-      y -= 12;
-    }
-  }
-
-  let ry = PAGE[1] - 70;
-  const right = [
-    [issuer.practice_name, 10.5, f.bold, INK],
-    [issuer.address, 9, f.font, MUTED],
-    [issuer.city, 9, f.font, MUTED],
-    [issuer.phone ? `Tél. : ${issuer.phone}` : null, 9, f.font, MUTED],
-  ] as const;
-  for (const [value, size, font, color] of right) {
-    if (!value) continue;
-    for (const line of wrap(value, font, size, WIDTH / 2 - 10)) {
-      textRight(page, line, ry, size, font, color);
-      ry -= size + 3;
-    }
-  }
-  y = Math.min(y, ry) - 8;
-  page.drawLine({ start: { x: M, y }, end: { x: M + WIDTH, y }, thickness: 1, color: LINE });
-  return y;
+    [
+      { text: issuer.practice_name, size: 10.5, bold: true },
+      { text: issuer.address, size: 8.5, soft: true },
+      { text: issuer.city, size: 8.5, soft: true },
+      { text: issuer.phone ? `Tél. : ${issuer.phone}` : null, size: 8.5, soft: true },
+    ],
+  );
 }
 
 async function embedDataUrl(pdf: PDFDocument, dataUrl: string | null): Promise<PDFImage | null> {
@@ -226,19 +306,28 @@ export async function drawSignatureBlock(
 
 // Logo Fajma (celui du site, lib/fajma-mark.ts) : bulle de consultation et « f » en croix médicale, en vectoriel.
 /**
- * Logo et nom « Fajma ». (x, y) : coin inférieur gauche du carré ; `size` : côté du carré.
+ * Logo et nom « Fajma ». (x, y) : coin inférieur gauche du symbole ; `size` : côté du symbole.
+ * `onGreen` : version blanche pour le bandeau vert ; `tagline` : police de la phrase écrite sous le logo.
  * Renvoie la largeur occupée.
  */
-export function drawFajmaLogo(page: PDFPage, bold: PDFFont, x: number, y: number, size: number) {
+export function drawFajmaLogo(
+  page: PDFPage,
+  bold: PDFFont,
+  x: number,
+  y: number,
+  size: number,
+  opts: { onGreen?: boolean; tagline?: PDFFont } = {},
+) {
   const unit = size / 32;
-  page.drawSvgPath(FAJMA_MARK_PATHS.bubble, { x, y: y + size, scale: unit, color: GREEN });
+  const [bubble, mark, word] = opts.onGreen ? [WHITE, GREEN, WHITE] : [GREEN, WHITE, GREEN];
+  page.drawSvgPath(FAJMA_MARK_PATHS.bubble, { x, y: y + size, scale: unit, color: bubble });
   // « f » réduit et remonté dans la bulle (mêmes réglages que le site)
   const letter = {
     x: x + FAJMA_MARK_LETTER.dx * unit,
     y: y + size - FAJMA_MARK_LETTER.dy * unit,
     scale: unit * FAJMA_MARK_LETTER.scale,
   };
-  page.drawSvgPath(FAJMA_MARK_PATHS.letter, { ...letter, color: rgb(1, 1, 1) });
+  page.drawSvgPath(FAJMA_MARK_PATHS.letter, { ...letter, color: mark });
   page.drawSvgPath(FAJMA_MARK_PATHS.heart, { ...letter, color: GOLD });
   const textSize = size * 0.62;
   page.drawText("Fajma", {
@@ -246,8 +335,17 @@ export function drawFajmaLogo(page: PDFPage, bold: PDFFont, x: number, y: number
     y: y + (size - textSize * 0.72) / 2,
     size: textSize,
     font: bold,
-    color: GREEN,
+    color: word,
   });
+  if (opts.tagline) {
+    page.drawText(clean(FAJMA_TAGLINE), {
+      x,
+      y: y - size * 0.42 - 2,
+      size: Math.max(size * 0.4, 6.5),
+      font: opts.tagline,
+      color: opts.onGreen ? SOFT : MUTED,
+    });
+  }
   return size * 1.3 + bold.widthOfTextAtSize("Fajma", textSize);
 }
 

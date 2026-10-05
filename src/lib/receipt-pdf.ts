@@ -2,7 +2,7 @@
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 import type { Receipt } from "@/api/types";
 import { formatDate, formatDateTime } from "@/lib/datetime";
-import { drawFajmaLogo } from "@/lib/pdf-common";
+import { drawBrandBand } from "@/lib/pdf-common";
 
 // Vert du drapeau (#00853f).
 const BLUE = rgb(0, 0.522, 0.247);
@@ -21,25 +21,23 @@ export async function buildReceiptPdf(r: Receipt): Promise<Uint8Array> {
   const text = (s: string, x: number, y: number, size = 11, f = font, color = INK) =>
     page.drawText(clean(s), { x, y, size, font: f, color });
 
-  drawFajmaLogo(page, bold, 50, 774, 30);
-  text("Reçu de paiement", 50, 755, 14, bold);
-  if (r.receipt_number) text(`Reçu n° ${r.receipt_number}`, 380, 795, 10, bold);
-  text(`Référence : ${r.reference}`, 380, 780, 10, font, MUTED);
-  text(
-    `Payé le : ${formatDate(r.paid_at, { day: "2-digit", month: "long", year: "numeric" })}`,
-    380,
-    765,
-    10,
-    font,
-    MUTED,
+  // En-tête des documents Fajma : bandeau vert, logo à droite.
+  drawBrandBand(
+    page,
+    { font, bold, italic: font },
+    [
+      { text: "Reçu de paiement", size: 15, bold: true },
+      { text: r.receipt_number ? `Reçu n° ${r.receipt_number}` : null, size: 10, bold: true },
+      { text: `Référence : ${r.reference}`, size: 9, soft: true },
+      {
+        text: `Payé le : ${formatDate(r.paid_at, { day: "2-digit", month: "long", year: "numeric" })}`,
+        size: 9,
+        soft: true,
+      },
+    ],
+    [],
+    { logo: "right" },
   );
-
-  page.drawLine({
-    start: { x: 50, y: 735 },
-    end: { x: 545, y: 735 },
-    thickness: 1,
-    color: rgb(0.85, 0.88, 0.92),
-  });
 
   const rows: [string, string][] = [
     ["Praticien", r.doctor_name + (r.doctor_specialty ? ` — ${r.doctor_specialty}` : "")],

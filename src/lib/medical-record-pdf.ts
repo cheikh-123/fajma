@@ -14,8 +14,8 @@ import {
   PAGE,
   WASH,
   WIDTH,
-  drawFajmaLogo,
-  drawFlagStripe,
+  drawBrandBand,
+  spacedTitle,
   type Fonts,
 } from "@/lib/pdf-common";
 import { clean } from "@/lib/prescription-text";
@@ -48,18 +48,25 @@ export async function buildMedicalRecordPdf(d: MedicalRecordExport): Promise<Uin
   let page!: PDFPage;
   let y = 0;
 
+  let pageCount = 0;
   const newPage = () => {
     page = pdf.addPage(PAGE);
-    drawFlagStripe(page);
-    drawFajmaLogo(page, f.bold, M + WIDTH - 82, PAGE[1] - 40, 18);
-    page.drawText(safe(`Dossier médical de ${d.patient.full_name}`), {
-      x: M,
-      y: PAGE[1] - 32,
-      size: 9,
-      font: f.bold,
-      color: MUTED,
-    });
-    y = PAGE[1] - 64;
+    pageCount += 1;
+    // Bandeau vert : nom du patient sur chaque page (les feuilles peuvent être séparées), logo à droite.
+    const lines =
+      pageCount === 1
+        ? [
+            { text: safe(d.patient.full_name), size: 15, bold: true },
+            { text: "Dossier personnel et confidentiel", size: 9, soft: true },
+          ]
+        : [
+            {
+              text: safe(`Dossier médical de ${d.patient.full_name} (suite)`),
+              size: 10,
+              bold: true,
+            },
+          ];
+    y = drawBrandBand(page, f, lines, [], { logo: "right" }) - 28;
   };
   const ensure = (h: number) => {
     if (y - h < BOTTOM) newPage();
@@ -150,9 +157,8 @@ export async function buildMedicalRecordPdf(d: MedicalRecordExport): Promise<Uin
 
   // ── Page de garde (haut de la première page) ──
   newPage();
-  page.drawText("DOSSIER MÉDICAL", { x: M, y, size: 22, font: f.bold, color: GREEN });
-  y -= 28;
-  para(d.patient.full_name, { size: 15, font: f.bold });
+  spacedTitle(page, "DOSSIER MÉDICAL", M, y, 15, f.bold);
+  y -= 24;
   para(
     `Document établi le ${formatDateTime(d.generated_at, { dateStyle: "long", timeStyle: "short" })} à la demande du titulaire.`,
     {

@@ -11,6 +11,8 @@ import {
   drName,
   drawFooter,
   drawIssuerHeader,
+  spacedTitle,
+  spacedWidth,
   drawSignatureBlock,
   frDate,
   textAt,
@@ -53,7 +55,7 @@ export async function buildIssuedDocumentPdf(d: IssuedDocument): Promise<Uint8Ar
   textRight(page, `Réf. ${d.reference}`, y, 9, f.bold);
   y -= 34;
   const title = d.kind_label.toUpperCase();
-  textAt(page, title, M + (WIDTH - f.bold.widthOfTextAtSize(title, 15)) / 2, y, 15, f.bold, GREEN);
+  spacedTitle(page, title, M + (WIDTH - spacedWidth(title, 15, f.bold)) / 2, y, 15, f.bold);
   y -= 34;
   if (d.kind === "courrier" && d.recipient) {
     textAt(page, `À l'attention de : ${d.recipient}`, M, y, 10.5, f.bold);
