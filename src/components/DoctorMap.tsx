@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useNavigate } from "@tanstack/react-router";
+import { googleDirectionsUrl, MAP_TILES, wazeUrl } from "@/lib/directions";
 import "leaflet/dist/leaflet.css";
 
 export type MapPoint = {
@@ -25,10 +26,7 @@ export function DoctorMap({ points, height = 420 }: { points: MapPoint[]; height
     import("leaflet").then((L) => {
       if (cancelled || !box.current) return;
       map = L.map(box.current, { scrollWheelZoom: false }).setView([14.7167, -17.4677], 11);
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        maxZoom: 18,
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-      }).addTo(map);
+      L.tileLayer(MAP_TILES.url, { maxZoom: 18, attribution: MAP_TILES.attribution }).addTo(map);
       const icon = L.divIcon({
         className: "",
         html: '<span style="display:block;width:18px;height:18px;border-radius:9999px;background:#00853f;border:3px solid white;box-shadow:0 1px 4px rgba(0,0,0,.4)"></span>',
@@ -53,6 +51,20 @@ export function DoctorMap({ points, height = 420 }: { points: MapPoint[]; height
         link.style.cssText = "margin-top:6px;color:#00853f;font-weight:600;font-size:12px";
         link.onclick = () => navigate({ to: "/medecins/$id", params: { id: p.doctorId } });
         popup.append(link);
+        // Itinéraire : ouvre l'application GPS du téléphone (Google Maps ou Waze).
+        for (const [label, href] of [
+          ["Itinéraire", googleDirectionsUrl(p.lat, p.lng)],
+          ["Waze", wazeUrl(p.lat, p.lng)],
+        ]) {
+          const a = document.createElement("a");
+          a.textContent = label;
+          a.href = href;
+          a.target = "_blank";
+          a.rel = "noopener";
+          a.style.cssText =
+            "display:inline-block;margin:6px 10px 0 0;color:#00753a;font-weight:600;font-size:12px";
+          popup.append(a);
+        }
         marker.bindPopup(popup);
         bounds.push([p.lat, p.lng]);
       }

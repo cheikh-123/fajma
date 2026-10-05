@@ -1,6 +1,6 @@
 # Dossier technique et sécurité — Fajma
 
-**Version du dossier :** 3.9 — 5 octobre 2026
+**Version du dossier :** 4.0 — 5 octobre 2026
 **Périmètre :** code source du dépôt `sante-connect-main` (backend Django, frontend React, déploiement), services tiers.
 **Public visé :** acquéreurs, investisseurs, auditeurs techniques et juridiques, équipe technique reprenant le projet.
 
@@ -123,3 +123,4 @@ Ces points sont signalés **« À vérifier »**.
 | 3.7 | 05/10/2026 | Nouveau logo lié au nom : le « f » de Fajma dessine une croix médicale (vert et or du drapeau), sur le site, les PDF, l'icône d'onglet et les icônes de l'application |
 | 3.8 | 05/10/2026 | Logo définitif choisi parmi 8 propositions : bulle de consultation portant le « f » en croix médicale (site, PDF, icône d'onglet, icônes de l'application dont l'icône adaptative Android) |
 | 3.9 | 05/10/2026 | Catalogue complet de 36 spécialités installé par migration (une base neuve n'en avait aucune) et affiché sur l'accueil ; vraie carte du Sénégal sur l'accueil (contours Natural Earth, médecins à leur cabinet, villes cliquables, lisible sur téléphone) |
+| 4.0 | 05/10/2026 | Carte interactive sur l'accueil : zoom, médecins, pharmacies et pharmacies de garde, « Autour de moi » (distances, médecin le plus proche), fiche de chaque lieu avec prise de rendez-vous, itinéraire Google Maps ou Waze et appel ; itinéraires aussi sur la carte de la recherche ; fond de carte réglable pour la production |

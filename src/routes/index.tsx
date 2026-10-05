@@ -1,9 +1,15 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { getPublicStats, listDoctors, listSpecialties } from "@/api/directory";
+import {
+  getPublicStats,
+  listDoctors,
+  listPharmacies,
+  listSpecialties,
+  searchDoctors,
+} from "@/api/directory";
 import { SpecialtyIcon } from "@/components/SpecialtyIcon";
-import { SenegalMap } from "@/components/SenegalMap";
+import { InteractiveMap } from "@/components/InteractiveMap";
 import type { DoctorListItem } from "@/api/types";
 import { formatDate, formatTime, startOfDakarDay } from "@/lib/datetime";
 import { CityInput } from "@/components/CityInput";
@@ -75,6 +81,15 @@ function Landing() {
   const { data: specialties = [] } = useQuery({
     queryKey: ["specialties"],
     queryFn: listSpecialties,
+  });
+  // Carte interactive : médecins publiés (200 au plus) et pharmacies, à leur adresse.
+  const { data: mapDoctors } = useQuery({
+    queryKey: ["map-doctors"],
+    queryFn: () => searchDoctors({ data: {}, limit: 200 }),
+  });
+  const { data: mapPharmacies } = useQuery({
+    queryKey: ["map-pharmacies"],
+    queryFn: () => listPharmacies(),
   });
   const { t } = useI18n();
   const navigate = useNavigate();
@@ -460,7 +475,7 @@ function Landing() {
               </div>
             </div>
             <div className="rounded-3xl border border-sunu-line bg-sunu-card p-4 shadow-sunu-card sm:p-6">
-              <SenegalMap places={stats?.places} />
+              <InteractiveMap doctors={mapDoctors?.data ?? []} pharmacies={mapPharmacies ?? []} />
             </div>
           </div>
         </div>
