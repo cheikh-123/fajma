@@ -101,6 +101,7 @@ INSTALLED_APPS = [
     "labs",
     "support",
     "queues",
+    "family",
 ]
 
 MIDDLEWARE = [
@@ -271,6 +272,7 @@ REST_FRAMEWORK = {
         "support": "5/hour",
         "ai_notes": "60/hour",
         "queue": "30/hour",
+        "family": "40/hour",
     },
 }
 

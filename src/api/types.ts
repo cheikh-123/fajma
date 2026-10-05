@@ -2,7 +2,7 @@
 
 export type Mode = "in_person" | "teleconsultation" | "home_visit";
 export type AppointmentStatus = "pending" | "confirmed" | "cancelled" | "completed" | "no_show";
-export type PayMethod = "wave" | "orange_money" | "free_money" | "cash";
+export type PayMethod = "wave" | "orange_money" | "free_money" | "cash" | "credit" | "card";
 export type PaymentStatus = "pending" | "paid" | "failed" | "refunded";
 
 export type User = {

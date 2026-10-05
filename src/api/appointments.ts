@@ -17,6 +17,8 @@ export const createAppointment = ({
     reason?: string;
     consultation_type_id?: string;
     relative_id?: string;
+    /** Entraide familiale : réservation au nom du proche aidé. */
+    care_link_id?: string;
     coverage_id?: string;
     visit_address?: string;
     visit_landmark?: string;

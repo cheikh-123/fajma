@@ -617,6 +617,7 @@ function Landing() {
                 { label: "Assistant symptômes", to: "/assistant" },
                 { label: "Pharmacies", to: "/pharmacies" },
                 { label: "Ticket virtuel à l'hôpital", to: "/hopitaux" },
+                { label: "Aider un proche au Sénégal", to: "/famille" },
                 { label: "Aide et contact", to: "/aide" },
               ]}
             />

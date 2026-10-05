@@ -40,11 +40,20 @@ class ReceiptNumbered(models.Model):
 
 
 class Payment(ReceiptNumbered, BaseModel):
-    METHODS = [("wave", "Wave"), ("orange_money", "Orange Money"), ("free_money", "Free Money"), ("cash", "Espèces")]
+    METHODS = [
+        ("wave", "Wave"),
+        ("orange_money", "Orange Money"),
+        ("free_money", "Free Money"),
+        ("cash", "Espèces"),
+        ("card", "Carte bancaire ou mobile money"),
+        ("credit", "Crédit santé"),
+    ]
     STATUSES = [("pending", "En attente"), ("paid", "Payé"), ("failed", "Échoué"), ("refunded", "Remboursé")]
 
     appointment = models.ForeignKey("appointments.Appointment", on_delete=models.PROTECT, related_name="payments")
     patient = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="payments")
+    # Proche qui a payé pour le patient (entraide familiale, souvent depuis l'étranger) ; vide : le patient lui-même.
+    payer = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.PROTECT, related_name="payments_for_others")
     amount = models.PositiveIntegerField()
     currency = models.CharField(max_length=3, default="XOF")
     method = models.CharField(max_length=15, choices=METHODS)

@@ -26,6 +26,7 @@ import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedCliniqueRouteImport } from './routes/_authenticated/clinique'
 import { Route as AuthenticatedDossierRouteImport } from './routes/_authenticated/dossier'
 import { Route as AuthenticatedExpertiseRouteImport } from './routes/_authenticated/expertise'
+import { Route as AuthenticatedFamilleRouteImport } from './routes/_authenticated/famille'
 import { Route as AuthenticatedGuichetRouteImport } from './routes/_authenticated/guichet'
 import { Route as AuthenticatedLaboratoireRouteImport } from './routes/_authenticated/laboratoire'
 import { Route as AuthenticatedMessagesRouteImport } from './routes/_authenticated/messages'
@@ -131,6 +132,11 @@ const AuthenticatedDossierRoute = AuthenticatedDossierRouteImport.update({
 const AuthenticatedExpertiseRoute = AuthenticatedExpertiseRouteImport.update({
   id: '/expertise',
   path: '/expertise',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedFamilleRoute = AuthenticatedFamilleRouteImport.update({
+  id: '/famille',
+  path: '/famille',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedGuichetRoute = AuthenticatedGuichetRouteImport.update({
@@ -265,6 +271,7 @@ export interface FileRoutesByFullPath {
   '/clinique': typeof AuthenticatedCliniqueRoute
   '/dossier': typeof AuthenticatedDossierRoute
   '/expertise': typeof AuthenticatedExpertiseRoute
+  '/famille': typeof AuthenticatedFamilleRoute
   '/guichet': typeof AuthenticatedGuichetRoute
   '/laboratoire': typeof AuthenticatedLaboratoireRoute
   '/messages': typeof AuthenticatedMessagesRoute
@@ -305,6 +312,7 @@ export interface FileRoutesByTo {
   '/clinique': typeof AuthenticatedCliniqueRoute
   '/dossier': typeof AuthenticatedDossierRoute
   '/expertise': typeof AuthenticatedExpertiseRoute
+  '/famille': typeof AuthenticatedFamilleRoute
   '/guichet': typeof AuthenticatedGuichetRoute
   '/laboratoire': typeof AuthenticatedLaboratoireRoute
   '/messages': typeof AuthenticatedMessagesRoute
@@ -347,6 +355,7 @@ export interface FileRoutesById {
   '/_authenticated/clinique': typeof AuthenticatedCliniqueRoute
   '/_authenticated/dossier': typeof AuthenticatedDossierRoute
   '/_authenticated/expertise': typeof AuthenticatedExpertiseRoute
+  '/_authenticated/famille': typeof AuthenticatedFamilleRoute
   '/_authenticated/guichet': typeof AuthenticatedGuichetRoute
   '/_authenticated/laboratoire': typeof AuthenticatedLaboratoireRoute
   '/_authenticated/messages': typeof AuthenticatedMessagesRoute
@@ -389,6 +398,7 @@ export interface FileRouteTypes {
     | '/clinique'
     | '/dossier'
     | '/expertise'
+    | '/famille'
     | '/guichet'
     | '/laboratoire'
     | '/messages'
@@ -429,6 +439,7 @@ export interface FileRouteTypes {
     | '/clinique'
     | '/dossier'
     | '/expertise'
+    | '/famille'
     | '/guichet'
     | '/laboratoire'
     | '/messages'
@@ -470,6 +481,7 @@ export interface FileRouteTypes {
     | '/_authenticated/clinique'
     | '/_authenticated/dossier'
     | '/_authenticated/expertise'
+    | '/_authenticated/famille'
     | '/_authenticated/guichet'
     | '/_authenticated/laboratoire'
     | '/_authenticated/messages'
@@ -642,6 +654,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedExpertiseRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/famille': {
+      id: '/_authenticated/famille'
+      path: '/famille'
+      fullPath: '/famille'
+      preLoaderRoute: typeof AuthenticatedFamilleRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/guichet': {
       id: '/_authenticated/guichet'
       path: '/guichet'
@@ -804,6 +823,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedCliniqueRoute: typeof AuthenticatedCliniqueRoute
   AuthenticatedDossierRoute: typeof AuthenticatedDossierRoute
   AuthenticatedExpertiseRoute: typeof AuthenticatedExpertiseRoute
+  AuthenticatedFamilleRoute: typeof AuthenticatedFamilleRoute
   AuthenticatedGuichetRoute: typeof AuthenticatedGuichetRoute
   AuthenticatedLaboratoireRoute: typeof AuthenticatedLaboratoireRoute
   AuthenticatedMessagesRoute: typeof AuthenticatedMessagesRoute
@@ -822,6 +842,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedCliniqueRoute: AuthenticatedCliniqueRoute,
   AuthenticatedDossierRoute: AuthenticatedDossierRoute,
   AuthenticatedExpertiseRoute: AuthenticatedExpertiseRoute,
+  AuthenticatedFamilleRoute: AuthenticatedFamilleRoute,
   AuthenticatedGuichetRoute: AuthenticatedGuichetRoute,
   AuthenticatedLaboratoireRoute: AuthenticatedLaboratoireRoute,
   AuthenticatedMessagesRoute: AuthenticatedMessagesRoute,

@@ -2,6 +2,8 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { AppointmentHistory } from "@/components/AppointmentHistory";
 import { InstallApp } from "@/components/InstallApp";
 import { MyTicketsCard } from "@/components/MyTicketsCard";
+import { FamilyHelpCard } from "@/components/FamilyHelpCard";
+import { listCareLinks } from "@/api/family";
 import { QuestionnaireForm } from "@/components/QuestionnaireForm";
 import {
   useSuspenseQuery,
@@ -108,6 +110,10 @@ function MyAreaPage() {
   const { data: clinic } = useQuery({ queryKey: ["my-clinic"], queryFn: () => getMyClinic() });
   const { data: me } = useMe();
   const refresh = () => qc.invalidateQueries({ queryKey: ["my-appointments"] });
+  const { data: careLinks } = useQuery({ queryKey: ["care-links"], queryFn: listCareLinks });
+  const credit = (careLinks ?? [])
+    .filter((l) => l.role === "beneficiary" && l.status === "active")
+    .reduce((max, l) => Math.max(max, l.balance), 0);
 
   const pay = useMutation({
     mutationFn: (v: { id: string; method: PayMethod }) =>
@@ -117,7 +123,12 @@ function MyAreaPage() {
         window.location.assign(r.url);
         return;
       }
-      toast.success(`Paiement au cabinet enregistré · réf. ${r.reference}`);
+      toast.success(
+        r.kind === "paid"
+          ? `Consultation payée avec votre crédit santé · réf. ${r.reference}`
+          : `Paiement au cabinet enregistré · réf. ${r.reference}`,
+      );
+      qc.invalidateQueries({ queryKey: ["care-links"] });
       refresh();
     },
     onError: (e: Error) => toast.error(e.message),
@@ -292,6 +303,7 @@ function MyAreaPage() {
                       onPay={(method) => pay.mutate({ id: a.id, method })}
                       paying={pay.isPending}
                       onMoved={refresh}
+                      credit={credit}
                     />
                   ))}
                 </div>
@@ -339,6 +351,7 @@ function MyAreaPage() {
               </div>
             )}
             <MyTicketsCard />
+            <FamilyHelpCard />
             <RelativesPanel />
             <WaitlistPanel />
           </aside>
@@ -368,7 +381,7 @@ function NavPill({
 }
 
 type Appt = Awaited<ReturnType<typeof listMyAppointments>>[number];
-type PayMethod = "wave" | "orange_money" | "free_money" | "cash";
+type PayMethod = "wave" | "orange_money" | "free_money" | "cash" | "credit";
 
 const METHODS: { id: PayMethod; label: string }[] = [
   { id: "wave", label: "Wave" },
@@ -383,6 +396,7 @@ function ApptCard({
   paying,
   onReview,
   onMoved,
+  credit,
 }: {
   appt: Appt;
   onCancel?: (scope: "one" | "series") => void;
@@ -390,6 +404,8 @@ function ApptCard({
   paying?: boolean;
   onReview?: (rating: number, comment?: string) => void;
   onMoved?: () => void;
+  /** Crédit santé offert par un proche (entraide familiale). */
+  credit?: number;
 }) {
   const { t } = useI18n();
   const [openPay, setOpenPay] = useState(false);
@@ -558,7 +574,18 @@ function ApptCard({
               </button>
               {openPay && (
                 <div className="flex flex-wrap gap-1.5 md:justify-end">
-                  {[...METHODS, { id: "cash" as const, label: t("appt.cash") }].map((m) => (
+                  {[
+                    ...(credit && credit >= price
+                      ? [
+                          {
+                            id: "credit" as const,
+                            label: `Crédit santé (${credit.toLocaleString("fr-FR")} F)`,
+                          },
+                        ]
+                      : []),
+                    ...METHODS,
+                    { id: "cash" as const, label: t("appt.cash") },
+                  ].map((m) => (
                     <button
                       key={m.id}
                       disabled={paying}

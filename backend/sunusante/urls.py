@@ -31,6 +31,7 @@ from care import views as care
 from labs import views as labs
 from support import views as support
 from queues import views as queues
+from family import views as family
 from medical import ai_notes
 from medical import emergency, record_export, renewals
 
@@ -324,6 +325,19 @@ urlpatterns = [
     path("api/support", support.create_request),
     path("api/support/mine", support.my_requests),
     # Ticket virtuel (files d'attente des hôpitaux et centres de santé)
+    # Entraide familiale (diaspora) : proches aidés, crédit santé, paiement et suivi à distance
+    path("api/family/", include([
+        path("links", family.links),
+        path("links/<uuid:link_id>", family.detail),
+        path("links/<uuid:link_id>/confirm", family.confirm),
+        path("links/<uuid:link_id>/resend", family.resend),
+        path("links/<uuid:link_id>/accept", family.accept),
+        path("links/<uuid:link_id>/revoke", family.revoke),
+        path("links/<uuid:link_id>/settings", family.settings_view),
+        path("links/<uuid:link_id>/pay", family.pay),
+        path("links/<uuid:link_id>/topup", family.topup),
+        path("topups/<uuid:topup_id>/refresh", family.refresh_topup),
+    ])),
     path("api/queues/", include([
         path("facilities", queues.facilities),
         path("facilities/<uuid:facility_id>", queues.facility_detail),

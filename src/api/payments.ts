@@ -5,6 +5,7 @@ import type { PayMethod, PaymentStatus, Receipt } from "./types";
 export const startPayment = ({ data }: { data: { appointment_id: string; method: PayMethod } }) =>
   api.post<
     | { kind: "cash"; reference: string; amount: number }
+    | { kind: "paid"; reference: string; amount: number }
     | { kind: "redirect"; url: string; reference: string; amount: number }
   >("/payments/start", data);
 

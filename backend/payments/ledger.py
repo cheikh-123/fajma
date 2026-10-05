@@ -36,7 +36,8 @@ def _entry(**fields) -> LedgerEntry | None:
 
 def record_earning(payment: Payment) -> None:
     """Paiement en ligne encaissé : on crédite le médecin du montant moins la commission de sa formule."""
-    if payment.provider != "paydunya" or payment.status != "paid":
+    # Crédit santé : l'argent a été encaissé en ligne à la recharge ; la consultation est créditée au médecin.
+    if payment.provider not in ("paydunya", "credit") or payment.status != "paid":
         return
     doctor = payment.appointment.doctor
     percent = PLANS[effective_plan(doctor)]["commission_percent"]
@@ -58,10 +59,18 @@ def open_refund(appointment, reason: str = "") -> Refund | None:
     RDV annulé alors qu'il était payé en ligne : remboursement intégral du patient (commission comprise),
     et la part créditée au médecin lui est retirée.
     """
-    payment = appointment.payments.filter(status="paid", provider="paydunya").first()
+    payment = appointment.payments.filter(status="paid", provider__in=("paydunya", "credit")).first()
     if not payment or Refund.objects.filter(payment=payment).exists():
         return None
     refund = Refund.objects.create(payment=payment, amount=payment.amount, reason=reason[:200])
+    if payment.provider == "credit":
+        # Payé avec le crédit santé : remboursé aussitôt sur ce crédit, sans virement à faire.
+        from family.logic import refund_to_credit
+
+        refund_to_credit(payment, reason)
+        refund.status, refund.processed_at, refund.transfer_reference = "done", timezone.now(), "crédit santé"
+        refund.save(update_fields=["status", "processed_at", "transfer_reference", "updated_at"])
+        Payment.objects.filter(id=payment.id).update(status="refunded", updated_at=timezone.now())
     earning = LedgerEntry.objects.filter(payment=payment, kind="earning").first()
     if earning:
         _entry(

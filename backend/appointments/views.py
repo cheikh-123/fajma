@@ -257,6 +257,19 @@ def create_appointment(request):
         raise not_found("Médecin introuvable")
     if doctor.user_id == user.id:
         raise ApiError("Vous ne pouvez pas prendre rendez-vous avec vous-même. Utilisez votre agenda pour bloquer un horaire.")
+    sponsor = None
+    if link_id := get_uuid(data, "care_link_id", required=False):
+        # Entraide familiale : le proche autorisé réserve au nom du bénéficiaire (qui reçoit les rappels).
+        from family.models import CareLink
+
+        link = CareLink.objects.filter(id=link_id, sponsor=user, status="active", can_book=True).select_related("beneficiary").first()
+        if not link:
+            raise ApiError("Vous n'êtes pas autorisé à prendre rendez-vous pour ce proche")
+        if data.get("series") or data.get("relative_id"):
+            raise ApiError("Pour un proche aidé, réservez une consultation à la fois")
+        sponsor, user = user, link.beneficiary
+        if doctor.user_id == user.id:
+            raise ApiError("Ce médecin est votre proche lui-même")
     options = {
         "reason": get_str(data, "reason", max_len=500) or "",
         "coverage_id": get_uuid(data, "coverage_id", required=False),
@@ -284,6 +297,10 @@ def create_appointment(request):
         return Response({"id": str(same.id), "status": same.status, "already_booked": True})
     appt = book_for_patient(user, doctor, scheduled_at, **options)
     _save_answers(appt, data.get("answers"))
+    if sponsor:
+        Appointment.objects.filter(pk=appt.pk).update(booked_by=sponsor)
+        notifications.notify(user, kind="family", title=f"{sponsor.full_name} a pris un rendez-vous pour vous",
+                             body=f"{doctor.full_name}, {notifications.format_when(appt.scheduled_at)}.", link="/mon-espace", sms=True)
     return Response({"id": str(appt.id), "status": appt.status})
 
 

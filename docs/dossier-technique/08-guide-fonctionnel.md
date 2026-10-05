@@ -352,3 +352,34 @@ Pour éviter les files d'attente dès l'aube dans les hôpitaux et centres de sa
 - Tickets non utilisés expirés automatiquement le lendemain (planificateur).
 - Administration : ajout des établissements (position trouvée par quartier ou ville), rattachement du personnel
   (agent ou responsable), activation.
+
+## 8.15 Entraide familiale (« Je paie la santé de mes parents »)
+
+Pour la diaspora et les familles : un proche aide un parent au Sénégal, avec son accord.
+
+**Proche aidant** (espace « Famille », `/famille`)
+1. « Ajouter un proche » : nom, comment il l'appelle (« Maman »), numéro au Sénégal, langue du SMS et droits
+   demandés : payer ses consultations (toujours), prendre ses rendez-vous, voir ses ordonnances et comptes-rendus.
+2. Le parent reçoit un SMS qui annonce exactement ces droits et un code à 6 chiffres (valable 24 h). En le
+   donnant au téléphone, il donne son accord ; aucun smartphone n'est nécessaire. Son compte Fajma est créé si
+   besoin (connexion par code SMS) et son numéro est vérifié du même coup.
+3. Crédit santé : recharge de 10 000, 25 000, 50 000, 100 000 F ou d'un autre montant, par carte bancaire ou mobile
+   money (PayDunya), montant affiché aussi en euros (parité fixe 1 € = 655,957 F). Reçu numéroté.
+4. Paiement d'une consultation du parent avec le crédit (immédiat) ou directement par carte ; le parent est
+   prévenu qu'il n'a rien à régler au cabinet ; le reçu porte le nom du proche qui a payé.
+5. « Prendre un rendez-vous pour Maman » : recherche normale, la fiche du médecin réserve au nom du parent
+   (rappels SMS au parent, qui est prévenu).
+6. Nouvelles : rendez-vous pris, confirmé, annulé ; consultation payée ; alerte quand le crédit passe sous un
+   seuil choisi ; rappel mensuel de recharge facultatif. Comptes-rendus et ordonnances si le droit est accordé.
+
+**Parent (bénéficiaire)** : carte « Entraide familiale » de son espace : qui l'aide, crédit offert, accepter ou
+refuser une invitation, cocher / décocher chaque droit, retirer tout l'accès. Il peut aussi payer lui-même ses
+consultations avec le crédit offert (choix « Crédit santé » au paiement).
+
+**Règles**
+- Le proche ne peut que retirer un droit ; un droit nouveau est accordé par le parent depuis son espace.
+- 5 invitations par jour, 3 codes par invitation, 5 essais par code.
+- Annulation d'une consultation payée avec le crédit : le montant revient aussitôt sur le crédit (remboursement
+  enregistré, part du médecin retirée).
+- Crédit restant après l'arrêt de l'entraide : remboursé au proche sur demande à l'équipe Fajma.
+- Chaque consultation du dossier par le proche est inscrite au journal d'audit, visible du patient.

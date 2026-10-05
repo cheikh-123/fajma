@@ -73,11 +73,23 @@ def appointment_booked(appt) -> None:
     title = "Nouvelle demande de visite à domicile" if appt.mode == "home_visit" else "Nouveau rendez-vous"
     for user in _doctors(appt):
         notify(user, kind="appointment_new", title=title, body=f"{_who(appt)} — {when}.", link="/pro")
+    _family(appt, "Rendez-vous de {label}", f"{seen_by(appt)}, {when}{_where(appt)} ({'confirmé' if appt.status == 'confirmed' else 'en attente de confirmation'}).")
 
 
 def appointment_confirmed(appt) -> None:
     notify(appt.patient, kind="appointment_confirmed", title="Rendez-vous confirmé",
            body=f"{seen_by(appt)}, {format_when(appt.scheduled_at)}{_where(appt)}.", link="/mon-espace", sms=True, email=True)
+    _family(appt, "Rendez-vous de {label} confirmé", f"{seen_by(appt)}, {format_when(appt.scheduled_at)}{_where(appt)}.")
+
+
+def _family(appt, title: str, body: str) -> None:
+    """Proche aidant (entraide familiale) tenu informé des rendez-vous du bénéficiaire."""
+    try:
+        from family.logic import notify_family
+
+        notify_family(appt, title, body)
+    except Exception:  # noqa: BLE001
+        logger.exception("notification famille : échec")
 
 
 def series_booked(series, booked: list, skipped: list[str]) -> None:
@@ -162,6 +174,7 @@ def practitioner_changed(appt) -> None:
 
 def appointment_cancelled(appt) -> None:
     when = format_when(appt.scheduled_at)
+    _family(appt, "Rendez-vous de {label} annulé", f"{appt.doctor.full_name}, {when}.")
     if appt.cancelled_by == "patient":
         for user in _doctors(appt):
             notify(user, kind="appointment_cancelled", title="Rendez-vous annulé par le patient",

@@ -28,12 +28,21 @@ def start_payment(request):
     """
     user = require_user(request)
     data = body(request)
-    method = get_choice(data, "method", {"wave", "orange_money", "free_money", "cash"})
+    method = get_choice(data, "method", {"wave", "orange_money", "free_money", "cash", "credit"})
     appt = Appointment.objects.filter(id=get_uuid(data, "appointment_id"), patient=user).select_related("doctor").first()
     if not appt:
         raise not_found("Rendez-vous introuvable")
     if appt.status == "cancelled":
         raise ApiError("Ce rendez-vous est annulé")
+    if method == "credit":
+        # Crédit santé offert par un proche (entraide familiale).
+        from family.logic import credit_link_for, pay_with_credit
+
+        link = credit_link_for(user, appt.amount_due)
+        if not link:
+            raise ApiError("Crédit santé insuffisant pour cette consultation")
+        paid = pay_with_credit(appt, link, by_user=user)
+        return Response({"kind": "paid", "reference": paid.reference, "amount": paid.amount})
     existing = appt.payments.order_by("-created_at").first()
     if existing and existing.status == "paid":
         raise ApiError("Ce rendez-vous est déjà payé")
@@ -71,7 +80,9 @@ def start_payment(request):
 @api_view(["POST"])
 def refresh_payment(request, payment_id):
     user = require_user(request)
-    payment = Payment.objects.filter(id=payment_id, patient=user).first()
+    from django.db.models import Q
+
+    payment = Payment.objects.filter(Q(patient=user) | Q(payer=user), id=payment_id).first()
     if not payment:
         raise not_found("Paiement introuvable")
     status = sync_payment(payment)
@@ -105,6 +116,12 @@ def paydunya_webhook(request):
     sub_payment = SubscriptionPayment.objects.filter(provider_token=token).first()
     if sub_payment:
         return JsonResponse({"ok": True, "status": sync_subscription(sub_payment)})
+    from family.models import CreditTopUp
+    from family.views import sync_topup
+
+    topup = CreditTopUp.objects.filter(provider_token=token).select_related("link__sponsor", "link__beneficiary").first()
+    if topup:
+        return JsonResponse({"ok": True, "status": sync_topup(topup)})
     return JsonResponse({"ok": True, "status": None})
 
 
@@ -149,10 +166,10 @@ def receipt(request, payment_id):
     user = require_user(request)
     p = (
         Payment.objects.filter(id=payment_id, status="paid")
-        .select_related("appointment__doctor__specialty", "appointment__relative", "patient", "appointment__consultation_type")
+        .select_related("appointment__doctor__specialty", "appointment__relative", "patient", "payer", "appointment__consultation_type")
         .first()
     )
-    if not p or (p.patient_id != user.id and p.appointment.doctor.user_id != user.id):
+    if not p or user.id not in (p.patient_id, p.payer_id, p.appointment.doctor.user_id):
         raise not_found("Reçu introuvable")
     a = p.appointment
     return Response(
@@ -166,7 +183,7 @@ def receipt(request, payment_id):
             "appointment_at": iso(a.scheduled_at),
             "consultation": a.consultation_type.name if a.consultation_type else ("Téléconsultation" if a.mode == "teleconsultation" else "Consultation"),
             "patient_name": a.relative.full_name if a.relative else p.patient.full_name,
-            "payer_name": p.patient.full_name,
+            "payer_name": p.payer.full_name if p.payer_id else p.patient.full_name,
             "doctor_name": a.doctor.full_name,
             "doctor_specialty": a.doctor.specialty.name if a.doctor.specialty else None,
             "doctor_address": ", ".join(x for x in (a.doctor.address, a.doctor.city) if x),

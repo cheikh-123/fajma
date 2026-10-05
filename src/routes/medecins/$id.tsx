@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { getBookFor, setBookFor, type BookFor } from "@/lib/book-for";
 import {
   useSuspenseQuery,
   useQuery,
@@ -357,6 +358,9 @@ function BookingPanel({ doctor }: { doctor: Doctor }) {
   const type = types.find((ct) => ct.id === typeId) ?? types[0] ?? null;
   const [slot, setSlot] = useState<string | null>(null);
   const [relativeId, setRelativeId] = useState<string>("");
+  // Réservation pour un proche aidé (venu de l'espace Famille).
+  const [bookFor, setBookForState] = useState<BookFor | null>(null);
+  useEffect(() => setBookForState(getBookFor()), []);
   const [reason, setReason] = useState("");
   const [answers, setAnswers] = useState<Answers>({});
   // Autre motif = autres questions : les réponses repartent de zéro.
@@ -475,7 +479,8 @@ function BookingPanel({ doctor }: { doctor: Doctor }) {
           mode,
           reason: reason || undefined,
           consultation_type_id: type?.id,
-          relative_id: relativeId || undefined,
+          relative_id: bookFor ? undefined : relativeId || undefined,
+          care_link_id: bookFor?.linkId,
           coverage_id: coverage?.id,
           ...(mode === "home_visit"
             ? {
@@ -500,6 +505,11 @@ function BookingPanel({ doctor }: { doctor: Doctor }) {
       } else {
         toast.success(t(res.status === "confirmed" ? "book.confirmed" : "book.success"));
       }
+      if (bookFor) {
+        setBookFor(null);
+        navigate({ to: "/famille" });
+        return;
+      }
       navigate({ to: "/mon-espace" });
     },
     onError: (e) => {
@@ -512,6 +522,21 @@ function BookingPanel({ doctor }: { doctor: Doctor }) {
       <h2 className="flex items-center gap-2 text-lg font-bold text-sunu-dark">
         <Calendar className="size-5 text-sunu-green" /> {t("book.title")}
       </h2>
+      {bookFor && (
+        <p className="mt-3 flex items-center justify-between gap-2 rounded-xl bg-sunu-green-soft px-3 py-2 text-xs font-semibold text-sunu-green">
+          Rendez-vous pour {bookFor.label}
+          <button
+            type="button"
+            onClick={() => {
+              setBookFor(null);
+              setBookForState(null);
+            }}
+            className="text-sunu-ink/60 underline"
+          >
+            Pour moi
+          </button>
+        </p>
+      )}
 
       {modes.length > 1 && (
         <div
@@ -692,7 +717,7 @@ function BookingPanel({ doctor }: { doctor: Doctor }) {
         </div>
       )}
 
-      {loggedIn && (
+      {loggedIn && !bookFor && (
         <div className="mt-4">
           <p className="mb-2 text-xs font-bold uppercase tracking-wider text-sunu-ink/50">
             {t("book.forWhom")}
