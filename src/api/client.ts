@@ -55,7 +55,7 @@ function withQuery(path: string, query?: Query) {
 async function request<T>(
   method: "GET" | "POST",
   path: string,
-  opts: { query?: Query; body?: unknown } = {},
+  opts: { query?: Query; body?: unknown; onHeaders?: (h: Headers) => void } = {},
 ): Promise<T> {
   const headers: Record<string, string> = {
     Accept: "application/json",
@@ -78,6 +78,7 @@ async function request<T>(
   }
   // Réponse servie par le service worker depuis le cache (réseau absent) : l'interface l'indique.
   if (res.headers.get("X-Fajma-Offline")) window.dispatchEvent(new Event("fajma:offline-data"));
+  opts.onHeaders?.(res.headers);
   const text = await res.text();
   let data: unknown = null;
   try {
@@ -117,5 +118,16 @@ async function request<T>(
 
 export const api = {
   get: <T>(path: string, query?: Query) => request<T>("GET", path, { query }),
+  /** Liste paginée : données + nombre total de résultats (en-tête X-Total-Count). */
+  getPage: async <T>(path: string, query?: Query) => {
+    let total = 0;
+    const data = await request<T[]>("GET", path, {
+      query,
+      onHeaders: (h) => {
+        total = Number(h.get("X-Total-Count") ?? 0);
+      },
+    });
+    return { data, total: total || data.length };
+  },
   post: <T>(path: string, body?: unknown) => request<T>("POST", path, { body }),
 };

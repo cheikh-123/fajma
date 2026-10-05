@@ -23,9 +23,11 @@ class Appointment(BaseModel):
 
     # Patient inscrit, ou patient sans compte saisi par le secrétariat (external_*).
     patient = models.ForeignKey(
-        settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.CASCADE, related_name="appointments"
+        settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.PROTECT, related_name="appointments"
     )
-    doctor = models.ForeignKey("directory.Doctor", on_delete=models.CASCADE, related_name="appointments")
+    # PROTECT : un rendez-vous (et ce qui s'y rattache : compte-rendu, ordonnance, paiement) ne disparaît jamais
+    # avec un compte ou une fiche ; les comptes sont anonymisés, jamais supprimés (accounts/erasure.py).
+    doctor = models.ForeignKey("directory.Doctor", on_delete=models.PROTECT, related_name="appointments")
     scheduled_at = models.DateTimeField(db_index=True)
     duration_minutes = models.PositiveSmallIntegerField(default=30, validators=[MinValueValidator(5), MaxValueValidator(480)])
     ends_at = models.DateTimeField(db_index=True)
@@ -77,7 +79,11 @@ class Appointment(BaseModel):
 
     class Meta:
         ordering = ["scheduled_at"]
-        indexes = [models.Index(fields=["doctor", "scheduled_at", "status"])]
+        indexes = [
+            models.Index(fields=["doctor", "scheduled_at", "status"]),
+            # Activité par période (pilotage, rapport d'activité) : RDV pris depuis une date.
+            models.Index(fields=["created_at"], name="appointment_created_idx"),
+        ]
         constraints = [
             models.CheckConstraint(
                 condition=models.Q(patient__isnull=False) | ~models.Q(external_patient_name=""),

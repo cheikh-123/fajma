@@ -26,7 +26,7 @@ class FollowUpCase(ApiTestCase):
     def setUp(self):
         super().setUp()
         self.appt = Appointment.objects.get(id=self.book(self.p1).data["id"])
-        Appointment.objects.filter(id=self.appt.id).update(status="completed", scheduled_at=timezone.now() - timedelta(hours=2))
+        self.set_appointment(self.appt.id, status="completed", scheduled_at=timezone.now() - timedelta(hours=2))
         self.doc = self.client_for(self.doc_user)
         self.pat = self.client_for(self.p1)
 

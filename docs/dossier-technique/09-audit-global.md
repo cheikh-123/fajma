@@ -178,9 +178,32 @@ Autres contrôles : compilation de production sans erreur, aucune faille connue 
 (`npm audit`), typage TypeScript sans erreur, traductions complètes (246 textes en français, wolof et anglais pour
 les pages publiques ; espaces professionnels en français). Résultat final : **0 problème sur les 78 affichages**.
 
-## 9.18 Vérifications après correction
+## 9.18 Base de données sur un vrai PostgreSQL
 
-- 276 tests automatisés de l'API, tous au vert (SQLite ; PostgreSQL en intégration continue).
+Vérification complète de la base sur PostgreSQL 17.6 réel (sans Docker), avec un utilisateur sans droits
+d'administration, puis test de volume (200 000 rendez-vous), sauvegarde, restauration, transfert depuis SQLite
+et déménagement des fichiers. Détail des mesures et des procédures : [chapitre 4, § 4.5](04-exploitation.md).
+
+| Constat | Gravité | Correctif |
+|---|---|---|
+| **Les tests PostgreSQL de l'intégration continue échouaient depuis la première mise en ligne du code** (les étapes suivantes, contrôles de sécurité Django et failles des bibliothèques Python, ne tournaient donc jamais). Les versions précédentes de ce dossier affirmaient à tort que les tests passaient aussi sous PostgreSQL | **Bloquant** | Corrigé : 282 tests au vert sur PostgreSQL ; contrôles de sécurité Django et `pip-audit` exécutés (aucune faille, un avertissement volontaire : HSTS preload) ; nouvelle étape « migration manquante » |
+| Erreur PostgreSQL « verrou impossible sur une jointure facultative » : accepter ou refuser un remplacement et décider d'un renouvellement d'ordonnance auraient planté en production (invisible sous SQLite) | **Bloquant** | Verrous limités à la ligne concernée |
+| Suppression d'un compte ou d'une fiche médecin depuis la console technique : comptes-rendus, ordonnances, paiements, messages effacés en cascade | **Important** | Liens protégés (refus de la suppression), testé ; l'effacement légal reste l'anonymisation |
+| Secret de double authentification stocké en clair dans la base | **Important** | Chiffré (clé des fichiers, hors base et hors sauvegardes), secrets existants chiffrés par migration, testé |
+| Recherche de comptes (administration) : 404 requêtes pour 50 résultats | Important | 11 requêtes ; 424 → 40 ms |
+| Journal d'audit sans index de date (5 ans de conservation) | Important | Index ajoutés ; 312 → 33 ms |
+| Annuaire sans pagination (333 Ko pour 500 médecins, 3 Mo pour 5 000) | Important | 60 médecins par page, total affiché, bouton « Voir plus » vérifié dans le navigateur |
+| Agenda du médecin renvoyant tout l'historique (grossit chaque année) | Important | RDV à venir + 90 derniers jours (réglable) |
+| Rapport d'activité : 222 requêtes, 2,4 s | Mineur | 35 requêtes, 1,3 s, résultats identiques vérifiés |
+| Index manquants sur les dates (paiements, rendez-vous pris) | Mineur | Ajoutés |
+| Transfert SQLite → PostgreSQL : échec sur la liste des assurances, puis 20 faux événements d'historique créés par le chargement | Important | Procédure corrigée (vidage avant chargement) ; le chargement n'invente plus d'historique (testé) ; transfert vérifié objet par objet |
+| Sauvegarde une seule fois par jour (jusqu'à 24 h de données perdues) ; test de restauration non surveillé | Important | Fréquence réglable (6 h conseillé) ; test mensuel une seule fois ; alerte si aucun test réussi depuis 35 jours |
+| Six tests fermaient une connexion en cours de test, et dix utilisaient un raccourci qui fausse l'heure de fin des rendez-vous | Mineur (tests) | Corrigés |
+
+## 9.19 Vérifications après correction
+
+- 282 tests automatisés de l'API, tous au vert sur SQLite **et sur PostgreSQL 17** (vérifié en local ; l'intégration
+  continue exécute les deux).
 - Typage TypeScript et analyse ESLint sans erreur ; 0 violation d'accessibilité WCAG AA sur les 9 pages contrôlées ;
   recette de l'interface de production : 0 problème sur 78 affichages (§ 9.17).
 - Points restant hors code : test d'intrusion par un prestataire externe, test de charge, durées légales de

@@ -57,7 +57,7 @@ class QuestionnaireTests(ApiTestCase):
         appt_id = self.book(self.p1, consultation_type_id=str(ctype.id)).data["id"]
         appt = Appointment.objects.get(id=appt_id)
         self.assertEqual(appt.questionnaire[0]["label"], "Carnet de vaccination apporté ?")
-        Appointment.objects.filter(id=appt_id).update(scheduled_at=timezone.now() - timedelta(hours=1))
+        self.set_appointment(appt_id, scheduled_at=timezone.now() - timedelta(hours=1))
         res = self.client_for(self.p1).post(f"/api/appointments/{appt_id}/questionnaire", {"answers": {"q1": True}}, format="json")
         self.assertEqual(res.status_code, 400)
 

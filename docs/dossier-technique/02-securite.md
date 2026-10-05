@@ -97,6 +97,8 @@ Chaque règle ci-dessus est couverte par au moins un test automatisé qui tente 
 | Clic détourné (clickjacking) | `frame-ancestors 'none'` et `X-Frame-Options: DENY`, sauf le module de réservation intégrable, qui ne contient ni connexion ni paiement |
 | Abus et force brute | Limites de débit : connexion 10/min, codes SMS 10/h, réservations 20/h, assistant IA 15/min, recherches publiques 30/min ; **verrou par compte** : après 10 mots de passe faux en 15 minutes sur un même email (même depuis des adresses différentes), connexion refusée pendant 15 minutes ; codes SMS limités à 3 par numéro et par 10 minutes |
 | Serveur de production lancé en mode développement | Sans réglage, le mode développement (pages de débogage, accès démo) n'est actif que pour les commandes `manage.py` sur un poste ; le serveur de production (gunicorn) démarre toujours en mode sécurisé et docker-compose impose `DJANGO_DEBUG=false` |
+| Copie de la base ou d'une sauvegarde volée | Fichiers chiffrés, **secrets de double authentification chiffrés** (même clé `FILE_ENCRYPTION_KEYS`, conservée hors de la base et des sauvegardes) : la base seule ne permet ni de lire les documents ni de générer les codes des professionnels ; mots de passe et codes de secours hachés |
+| Suppression accidentelle (console technique, intervention manuelle) | Rendez-vous, comptes-rendus, ordonnances, certificats, analyses, messages, notes et paiements **protégés** : la suppression d'un compte ou d'une fiche médecin qui en possède est refusée par l'application (les comptes sont anonymisés, jamais effacés) |
 | Contestation d'un rendez-vous (« je n'ai jamais annulé ») | Historique inaltérable de chaque rendez-vous : auteur, date, ancien et nouvel horaire, motif d'annulation |
 | Messages répétés par Twilio ou l'opérateur USSD | Réponse mémorisée par identifiant de message / saisie : aucune double réservation |
 | Sondage d'annuaire | La recherche de doublons en clinique ne révèle jamais l'existence d'un compte pour une personne inconnue de la clinique |
@@ -132,7 +134,7 @@ exécuté par l'intégration continue.
 
 ## 2.8 Tests de sécurité réalisés
 
-- **276 tests automatisés de l'API**, dont les tentatives d'accès interdites de la matrice § 2.4 (y compris
+- **282 tests automatisés de l'API**, dont les tentatives d'accès interdites de la matrice § 2.4 (y compris
   pour un remplaçant, une secrétaire, un médecin sans lien avec le patient), les manipulations de prix et de
   parts, les fichiers piégés, les doubles réservations, les webhooks non signés, les secrets USSD invalides, la
   réutilisation de session USSD par un autre numéro, les doubles notifications de paiement, le blocage des

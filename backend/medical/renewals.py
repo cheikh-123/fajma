@@ -130,7 +130,7 @@ def pro_decide_renewal(request, renewal_id):
     message = get_str(data, "message", max_len=500) or ""
     with transaction.atomic():
         r = (
-            PrescriptionRenewal.objects.select_for_update()
+            PrescriptionRenewal.objects.select_for_update(of=("self",))  # verrou sur cette ligne seulement (jointures facultatives)
             .filter(id=renewal_id, doctor=doctor, status="pending")
             .select_related("prescription__appointment__location", "prescription__relative", "patient")
             .first()

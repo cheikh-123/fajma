@@ -95,7 +95,6 @@ class DocumentShareTests(ApiTestCase):
         self.client_for(self.p1).post(f"/api/documents/{doc.id}/share", {"doctor_id": str(self.doctor.id)}, format="json")
         res = self.client_for(self.doc_user).get(url)
         self.assertEqual(res.status_code, 200)
-        res.close()
         self.assertEqual(len(self.client_for(self.doc_user).get(f"/api/pro/patients/{self.p1.id}").data["documents"]), 1)
         self.client_for(self.p1).post(f"/api/documents/{doc.id}/share", {"doctor_id": str(self.doctor.id), "shared": False}, format="json")
         self.assertEqual(self.client_for(self.doc_user).get(url).status_code, 404)

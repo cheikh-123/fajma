@@ -52,8 +52,8 @@ class LabOrder(BaseModel):
 
     reference = models.CharField(max_length=16, unique=True, default=new_lab_reference)
     appointment = models.ForeignKey("appointments.Appointment", null=True, blank=True, on_delete=models.SET_NULL, related_name="lab_orders")
-    doctor = models.ForeignKey("directory.Doctor", on_delete=models.CASCADE, related_name="lab_orders")
-    patient = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="lab_orders")
+    doctor = models.ForeignKey("directory.Doctor", on_delete=models.PROTECT, related_name="lab_orders")
+    patient = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="lab_orders")
     relative = models.ForeignKey("accounts.Relative", null=True, blank=True, on_delete=models.SET_NULL, related_name="+")
     tests = models.TextField(max_length=2000)
     instructions = models.CharField(max_length=300, blank=True, help_text="Ex. à jeun depuis 12 h")

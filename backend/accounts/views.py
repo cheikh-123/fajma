@@ -578,44 +578,64 @@ def admin_retry_sms(request):
     return Response({"ok": True})
 
 
-def _roles(user: User) -> list[str]:
+def admin_user_dicts(users: list[User]) -> list[dict]:
+    """Fiches de la recherche de comptes : rôles, double authentification, fiche médecin et RDV à venir chargés
+    en une requête par information pour TOUS les comptes affichés (pas une série de requêtes par compte)."""
+    from django.db.models import Count
+
     from clinics.models import ClinicStaff
+    from labs.models import LaboratoryMember
     from pharmacy.models import PharmacyMember
 
-    roles = []
-    if user.is_staff:
-        roles.append("admin")
-    if Doctor.objects.filter(user=user).exists():
-        roles.append("doctor")
-    if PharmacyMember.objects.filter(user=user).exists():
-        roles.append("pharmacist")
-    if user.lab_memberships.exists():
-        roles.append("lab")
-    if Clinic.objects.filter(owner=user).exists():
-        roles.append("clinic_owner")
-    if ClinicStaff.objects.filter(user=user).exists():
-        roles.append("clinic_staff")
-    return roles or ["patient"]
+    ids = [u.id for u in users]
+    doctors = {d.user_id: d for d in Doctor.objects.filter(user_id__in=ids)}
+    pharmacists = set(PharmacyMember.objects.filter(user_id__in=ids).values_list("user_id", flat=True))
+    labs = set(LaboratoryMember.objects.filter(user_id__in=ids).values_list("user_id", flat=True))
+    owners = set(Clinic.objects.filter(owner_id__in=ids).values_list("owner_id", flat=True))
+    staff = set(ClinicStaff.objects.filter(user_id__in=ids).values_list("user_id", flat=True))
+    mfa = set(TwoFactor.objects.filter(user_id__in=ids, enabled=True).values_list("user_id", flat=True))
+    upcoming = dict(
+        Appointment.objects.filter(patient_id__in=ids, status__in=("pending", "confirmed"), scheduled_at__gte=timezone.now())
+        .values("patient_id")
+        .annotate(n=Count("id"))
+        .values_list("patient_id", "n")
+    )
+    out = []
+    for u in users:
+        doctor = doctors.get(u.id)
+        roles = [
+            role
+            for role, ok in (
+                ("admin", u.is_staff),
+                ("doctor", doctor is not None),
+                ("pharmacist", u.id in pharmacists),
+                ("lab", u.id in labs),
+                ("clinic_owner", u.id in owners),
+                ("clinic_staff", u.id in staff),
+            )
+            if ok
+        ]
+        out.append(
+            {
+                "id": str(u.id),
+                "full_name": u.full_name or None,
+                "email": u.email or None,
+                "phone": u.phone or None,
+                "city": u.city or None,
+                "roles": roles or ["patient"],
+                "is_active": u.is_active,
+                "mfa_enabled": u.id in mfa,
+                "date_joined": iso(u.date_joined),
+                "last_login": iso(u.last_login),
+                "doctor": {"id": str(doctor.id), "full_name": doctor.full_name, "is_verified": doctor.is_verified} if doctor else None,
+                "upcoming_appointments": upcoming.get(u.id, 0),
+            }
+        )
+    return out
 
 
 def admin_user_dict(u: User) -> dict:
-    doctor = Doctor.objects.filter(user=u).first()
-    return {
-        "id": str(u.id),
-        "full_name": u.full_name or None,
-        "email": u.email or None,
-        "phone": u.phone or None,
-        "city": u.city or None,
-        "roles": _roles(u),
-        "is_active": u.is_active,
-        "mfa_enabled": TwoFactor.objects.filter(user=u, enabled=True).exists(),
-        "date_joined": iso(u.date_joined),
-        "last_login": iso(u.last_login),
-        "doctor": {"id": str(doctor.id), "full_name": doctor.full_name, "is_verified": doctor.is_verified} if doctor else None,
-        "upcoming_appointments": Appointment.objects.filter(
-            patient=u, status__in=("pending", "confirmed"), scheduled_at__gte=timezone.now()
-        ).count(),
-    }
+    return admin_user_dicts([u])[0]
 
 
 DELETED_SUFFIX = "@invalid.fajma"  # comptes supprimés par leur titulaire (anonymisés)
@@ -639,7 +659,7 @@ def admin_users(request):
         qs = qs.filter(is_active=False)
     if q:
         audit.log(request, "admin_user_search", query=q[:60])
-    return Response([admin_user_dict(u) for u in qs[:50]])
+    return Response(admin_user_dicts(list(qs[:50])))
 
 
 @api_view(["POST"])
@@ -780,7 +800,7 @@ def login_mfa(request):
     if not tf or not tf.user.is_active:
         raise ApiError("Session expirée, reconnectez-vous", 401)
     code = (body(request).get("code") or "").strip()
-    step = totp.verify(tf.secret, code, tf.last_used_step)
+    step = totp.verify(tf.totp_secret, code, tf.last_used_step)
     if step is not None:
         tf.last_used_step = step
         tf.save(update_fields=["last_used_step"])
@@ -809,12 +829,16 @@ def mfa_setup(request):
         if tf and tf.enabled:
             raise ApiError("La double authentification est déjà activée")
         secret = totp.new_secret()
-        TwoFactor.objects.update_or_create(user=user, defaults={"secret": secret, "enabled": False, "recovery_codes": [], "last_used_step": 0})
+        from sunusante.uploads import seal_text
+
+        TwoFactor.objects.update_or_create(
+            user=user, defaults={"secret": seal_text(secret), "enabled": False, "recovery_codes": [], "last_used_step": 0}
+        )
         return Response({"secret": secret, "otpauth_uri": totp.provisioning_uri(secret, user.email)})
     if action == "confirm":
         if not tf or tf.enabled:
             raise ApiError("Commencez par générer un code QR")
-        step = totp.verify(tf.secret, data.get("code") or "")
+        step = totp.verify(tf.totp_secret, data.get("code") or "")
         if step is None:
             raise ApiError("Code incorrect : vérifiez l'heure de votre téléphone et réessayez")
         plain, hashed = totp.new_recovery_codes()

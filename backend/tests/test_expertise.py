@@ -43,7 +43,6 @@ class ExpertiseTests(ApiTestCase):
         self.assertEqual(detail["patient"]["full_name"], self.p1.full_name)
         res = expert.get(detail["documents"][0]["url"])
         self.assertEqual(res.status_code, 200)
-        res.close()
         # Document non joint : toujours inaccessible à l'expert.
         self.assertEqual(expert.get(f"/api/documents/{self.private_doc.id}/download").status_code, 404)
         log = self.client_for(self.p1).get("/api/patient/access-log").data

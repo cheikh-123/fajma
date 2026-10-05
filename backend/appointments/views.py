@@ -723,13 +723,19 @@ def doctor_appointment_dict(a: Appointment) -> dict:
 
 @api_view(["GET"])
 def doctor_appointments(request):
-    """Agenda du médecin : ses rendez-vous, et ceux qu'il assure comme remplaçant d'un confrère."""
+    """
+    Agenda du médecin : ses rendez-vous, et ceux qu'il assure comme remplaçant d'un confrère.
+    Tous les RDV à venir + l'historique récent (?past_days=, 90 jours par défaut, 730 au plus) : la réponse
+    ne grossit pas avec les années d'activité. L'historique complet d'un patient est sur sa fiche.
+    """
     user = require_user(request)
     doctor = Doctor.objects.filter(user=user).first()
     if not doctor:
         return Response([])
+    past_days = get_int(request.query_params, "past_days", default=90, min_value=1, max_value=730)
+    since = timezone.now() - timedelta(days=past_days)
     appts = (
-        Appointment.objects.filter(involves(doctor))
+        Appointment.objects.filter(involves(doctor), scheduled_at__gte=since)
         .select_related("patient", "relative", "consultation_type", "doctor", "practitioner", "series")
         .prefetch_related("payments")
     )

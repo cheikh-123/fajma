@@ -160,6 +160,7 @@ const fr = {
   "search.specialties": "Spécialités",
   "search.all": "Toutes",
   "search.doctorsCount": "{n} médecin(s)",
+  "search.more": "Voir plus de médecins ({n} restants)",
   "search.display": "Affichage",
   "search.list": "Liste",
   "search.map": "Carte",

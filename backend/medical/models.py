@@ -9,9 +9,9 @@ from sunusante.models import BaseModel
 class MedicalRecord(BaseModel):
     """Compte-rendu de consultation rédigé par le médecin (un par rendez-vous)."""
 
-    appointment = models.OneToOneField("appointments.Appointment", on_delete=models.CASCADE, related_name="record")
-    patient = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="medical_records")
-    doctor = models.ForeignKey("directory.Doctor", on_delete=models.CASCADE, related_name="medical_records")
+    appointment = models.OneToOneField("appointments.Appointment", on_delete=models.PROTECT, related_name="record")
+    patient = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="medical_records")
+    doctor = models.ForeignKey("directory.Doctor", on_delete=models.PROTECT, related_name="medical_records")
     summary = models.TextField(max_length=3000)
     diagnosis = models.TextField(blank=True, max_length=2000)
     treatment = models.TextField(blank=True, max_length=3000)
@@ -32,11 +32,11 @@ class Prescription(BaseModel):
     l'émission : un changement d'adresse ou de signature ultérieur ne modifie pas une ordonnance déjà remise.
     """
 
-    appointment = models.ForeignKey("appointments.Appointment", on_delete=models.CASCADE, related_name="prescriptions")
+    appointment = models.ForeignKey("appointments.Appointment", on_delete=models.PROTECT, related_name="prescriptions")
     # Titulaire du compte (accès au dossier) ; relative = l'enfant ou le proche réellement soigné.
-    patient = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="prescriptions")
+    patient = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="prescriptions")
     relative = models.ForeignKey("accounts.Relative", null=True, blank=True, on_delete=models.SET_NULL, related_name="+")
-    doctor = models.ForeignKey("directory.Doctor", on_delete=models.CASCADE, related_name="prescriptions")
+    doctor = models.ForeignKey("directory.Doctor", on_delete=models.PROTECT, related_name="prescriptions")
     # Texte lisible de la prescription (généré depuis items ; saisi librement pour les anciennes ordonnances).
     content = models.TextField(max_length=4000)
     # Médicaments : [{name, dosage, posology, duration, quantity, non_substitutable}]
@@ -59,7 +59,7 @@ class MedicalDocument(BaseModel):
     CATEGORIES = [("analyse", "Analyse"), ("imagerie", "Imagerie"), ("ordonnance", "Ordonnance"), ("autre", "Autre")]
 
     patient = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="documents")
-    uploaded_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="+")
+    uploaded_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="+")
     appointment = models.ForeignKey("appointments.Appointment", null=True, blank=True, on_delete=models.SET_NULL)
     title = models.CharField(max_length=160)
     category = models.CharField(max_length=12, choices=CATEGORIES, default="autre")
@@ -95,8 +95,8 @@ class HealthProfile(BaseModel):
 class PatientNote(BaseModel):
     """Note privée d'un médecin sur un patient (jamais visible par le patient)."""
 
-    doctor = models.ForeignKey("directory.Doctor", on_delete=models.CASCADE, related_name="patient_notes")
-    patient = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="+")
+    doctor = models.ForeignKey("directory.Doctor", on_delete=models.PROTECT, related_name="patient_notes")
+    patient = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="+")
     content = models.TextField(max_length=4000)
 
     class Meta:
@@ -140,10 +140,10 @@ class IssuedDocument(BaseModel):
         ("courrier", "Courrier à un confrère"),
     ]
 
-    appointment = models.ForeignKey("appointments.Appointment", on_delete=models.CASCADE, related_name="issued_documents")
-    patient = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="issued_documents")
+    appointment = models.ForeignKey("appointments.Appointment", on_delete=models.PROTECT, related_name="issued_documents")
+    patient = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="issued_documents")
     relative = models.ForeignKey("accounts.Relative", null=True, blank=True, on_delete=models.SET_NULL, related_name="+")
-    doctor = models.ForeignKey("directory.Doctor", on_delete=models.CASCADE, related_name="issued_documents")
+    doctor = models.ForeignKey("directory.Doctor", on_delete=models.PROTECT, related_name="issued_documents")
     kind = models.CharField(max_length=15, choices=KINDS)
     body = models.TextField(max_length=4000, blank=True)
     start_date = models.DateField(null=True, blank=True)

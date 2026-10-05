@@ -161,6 +161,7 @@ const en: Dict = {
   "search.specialties": "Specialties",
   "search.all": "All",
   "search.doctorsCount": "{n} doctor(s)",
+  "search.more": "Show more doctors ({n} left)",
   "search.display": "Display",
   "search.list": "List",
   "search.map": "Map",

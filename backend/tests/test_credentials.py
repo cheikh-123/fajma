@@ -45,8 +45,6 @@ class CredentialTests(ApiTestCase):
         for user, expected in ((self.doc_user, 200), (self.admin, 200), (self.p1, 404)):
             res = self.client_for(user).get(f"/api/pro/credentials/{cred_id}/file")
             self.assertEqual(res.status_code, expected)
-            if expected == 200:
-                res.close()
         self.assertEqual(self.client_for(self.p1).get("/api/admin/credentials").status_code, 403)
         self.assertEqual(self.client_for(self.p1).post("/api/pro/credentials", {"kind": "ordre"}, format="json").status_code, 404)
 

@@ -29,6 +29,8 @@ jobs:
           cache: pip
           cache-dependency-path: backend/requirements.txt
       - run: pip install -r requirements.txt
+      - name: Aucune modification de la base oubliée (migration manquante)
+        run: python manage.py makemigrations --check --dry-run
       - name: Tests (SQLite)
         run: python manage.py test
       - name: Tests (PostgreSQL, comme en production)

@@ -63,7 +63,14 @@ class AuditEvent(BaseModel):
 
     class Meta:
         ordering = ["-created_at"]
-        indexes = [models.Index(fields=["patient", "created_at"]), models.Index(fields=["actor", "created_at"])]
+        indexes = [
+            models.Index(fields=["patient", "created_at"]),
+            models.Index(fields=["actor", "created_at"]),
+            # Journal de l'administration (du plus récent au plus ancien) et filtre par type d'action
+            # (dont le verrou anti-force brute : échecs de connexion des 15 dernières minutes).
+            models.Index(fields=["-created_at"], name="audit_recent_idx"),
+            models.Index(fields=["action", "-created_at"], name="audit_action_recent_idx"),
+        ]
 
     def save(self, *args, **kwargs):
         if not self._state.adding:

@@ -7,9 +7,9 @@ from sunusante.models import BaseModel
 class Message(BaseModel):
     """Message d'un fil patient ↔ médecin (un fil = un couple médecin, patient)."""
 
-    doctor = models.ForeignKey("directory.Doctor", on_delete=models.CASCADE, related_name="messages")
-    patient = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="patient_messages")
-    sender = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="sent_messages")
+    doctor = models.ForeignKey("directory.Doctor", on_delete=models.PROTECT, related_name="messages")
+    patient = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="patient_messages")
+    sender = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="sent_messages")
     body = models.TextField(max_length=4000, blank=True)
     read_at = models.DateTimeField(null=True, blank=True)
     # Pièce jointe facultative (photo ou PDF), stockée hors du dossier public.

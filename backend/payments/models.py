@@ -43,8 +43,8 @@ class Payment(ReceiptNumbered, BaseModel):
     METHODS = [("wave", "Wave"), ("orange_money", "Orange Money"), ("free_money", "Free Money"), ("cash", "Espèces")]
     STATUSES = [("pending", "En attente"), ("paid", "Payé"), ("failed", "Échoué"), ("refunded", "Remboursé")]
 
-    appointment = models.ForeignKey("appointments.Appointment", on_delete=models.CASCADE, related_name="payments")
-    patient = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="payments")
+    appointment = models.ForeignKey("appointments.Appointment", on_delete=models.PROTECT, related_name="payments")
+    patient = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="payments")
     amount = models.PositiveIntegerField()
     currency = models.CharField(max_length=3, default="XOF")
     method = models.CharField(max_length=15, choices=METHODS)
@@ -58,6 +58,8 @@ class Payment(ReceiptNumbered, BaseModel):
 
     class Meta:
         ordering = ["-created_at"]
+        # Derniers paiements (administration) et encaissements par période (pilotage, rapport d'activité).
+        indexes = [models.Index(fields=["-created_at"], name="payment_recent_idx"), models.Index(fields=["paid_at"], name="payment_paid_at_idx")]
 
 
 class Refund(BaseModel):

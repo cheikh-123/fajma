@@ -28,7 +28,7 @@ class PrescriptionTests(ApiTestCase):
         super().setUp()
         self.appt = Appointment.objects.get(id=self.book(self.p1).data["id"])
         # Consultation qui vient d'avoir lieu.
-        Appointment.objects.filter(id=self.appt.id).update(status="confirmed", scheduled_at=timezone.now() - timedelta(hours=1))
+        self.set_appointment(self.appt.id, status="confirmed", scheduled_at=timezone.now() - timedelta(hours=1))
         self.doc = self.client_for(self.doc_user)
 
     def header(self, **data):
@@ -85,7 +85,7 @@ class PrescriptionTests(ApiTestCase):
         self.assertTrue(Notification.objects.filter(user=self.p1, kind="prescription", link="/dossier").exists())
         # Compte-rendu seul, sur une autre consultation : notification « compte-rendu », une seule fois.
         other = Appointment.objects.get(id=self.book(self.p1, when=self.slot + timedelta(hours=1)).data["id"])
-        Appointment.objects.filter(id=other.id).update(status="confirmed", scheduled_at=timezone.now() - timedelta(hours=2))
+        self.set_appointment(other.id, status="confirmed", scheduled_at=timezone.now() - timedelta(hours=2))
         self.write(appt=other, items=[])
         self.write(appt=other, items=[], diagnosis="Angine")
         self.assertEqual(Notification.objects.filter(user=self.p1, kind="record").count(), 1)

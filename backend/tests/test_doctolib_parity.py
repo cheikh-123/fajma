@@ -197,7 +197,7 @@ class ReplacementTests(ApiTestCase):
         rid = self.propose().data["id"]
         self.substitute.post(f"/api/pro/replacements/{rid}/respond", {"accept": True}, format="json")
         # La consultation a lieu (ordonnance interdite avant l'heure).
-        Appointment.objects.filter(id=appt_id).update(status="confirmed", scheduled_at=timezone.now() - timedelta(minutes=5))
+        self.set_appointment(appt_id, status="confirmed", scheduled_at=timezone.now() - timedelta(minutes=5))
         item = {"name": "Amoxicilline", "dosage": "1 g", "posology": "1 cp matin et soir", "duration": "7 jours", "quantity": "1 boîte"}
         res = self.substitute.post(
             f"/api/pro/appointments/{appt_id}/record", {"summary": "Angine bactérienne.", "items": [item]}, format="json"

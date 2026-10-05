@@ -160,7 +160,7 @@ class DirectoryAndThreadsTests(ApiTestCase):
 
     def test_my_doctors(self):
         appt_id = self.book(self.p1).data["id"]
-        Appointment.objects.filter(id=appt_id).update(status="completed", scheduled_at=timezone.now() - timedelta(days=3))
+        self.set_appointment(appt_id, status="completed", scheduled_at=timezone.now() - timedelta(days=3))
         mine = self.client_for(self.p1).get("/api/patient/my-doctors").data
         self.assertEqual((mine[0]["full_name"], mine[0]["visits"]), ("Dr Test", 1))
         self.assertIsNotNone(mine[0]["next_slot"])

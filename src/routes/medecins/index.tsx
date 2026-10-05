@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import { DoctorMap } from "@/components/DoctorMap";
 import { CityInput } from "@/components/CityInput";
-import { listDoctors, listSpecialties, type DoctorFilters } from "@/api/directory";
+import { listSpecialties, searchDoctors, type DoctorFilters } from "@/api/directory";
 import { formatDateTime } from "@/lib/datetime";
 import { listInsurers } from "@/api/insurance";
 import { LanguageSwitcher, useI18n } from "@/lib/i18n";
@@ -38,7 +38,11 @@ const searchSchema = z.object({
   prix: z.coerce.number().int().positive().optional(),
   tri: z.enum(["availability", "price", "rating"]).optional(),
   vue: z.enum(["liste", "carte"]).optional(),
+  // Nombre de pages de 60 médecins déjà affichées (« Voir plus »).
+  pages: z.coerce.number().int().min(1).max(20).optional(),
 });
+
+const PAGE_SIZE = 60;
 type Search = z.infer<typeof searchSchema>;
 
 function toFilters(s: Search): DoctorFilters {
@@ -61,7 +65,8 @@ function toFilters(s: Search): DoctorFilters {
 const doctorsQO = ({ vue: _vue, ...search }: Search) =>
   queryOptions({
     queryKey: ["doctors", search],
-    queryFn: () => listDoctors({ data: toFilters(search) }),
+    queryFn: () =>
+      searchDoctors({ data: toFilters(search), limit: PAGE_SIZE * (search.pages ?? 1) }),
   });
 
 const specialtiesQO = queryOptions({
@@ -104,7 +109,9 @@ function MedecinsPage() {
   const { t } = useI18n();
   const { data: insurers } = useQuery({ queryKey: ["insurers"], queryFn: listInsurers });
   const navigate = useNavigate();
-  const { data: doctors } = useSuspenseQuery(doctorsQO(search));
+  const {
+    data: { data: doctors, total },
+  } = useSuspenseQuery(doctorsQO(search));
   const { data: specialties } = useSuspenseQuery(specialtiesQO);
   const [q, setQ] = useState(search.q ?? "");
   const [city, setCity] = useState(search.city ?? (search.lat != null ? t("search.nearMe") : ""));
@@ -313,9 +320,7 @@ function MedecinsPage() {
 
         <section className="min-w-0">
           <div className="mb-4 flex items-center justify-between">
-            <p className="text-sm text-sunu-ink/60">
-              {t("search.doctorsCount", { n: doctors.length })}
-            </p>
+            <p className="text-sm text-sunu-ink/60">{t("search.doctorsCount", { n: total })}</p>
             <div
               className="inline-flex rounded-lg border border-sunu-line bg-sunu-card p-0.5"
               role="group"
@@ -465,6 +470,16 @@ function MedecinsPage() {
                 </div>
               </Link>
             ))}
+            {doctors.length < total && (
+              <Link
+                to="."
+                search={(prev: Search) => ({ ...prev, pages: (prev.pages ?? 1) + 1 })}
+                resetScroll={false}
+                className="mx-auto rounded-full border border-sunu-line bg-sunu-card px-6 py-2.5 text-sm font-semibold text-sunu-green hover:border-sunu-green"
+              >
+                {t("search.more", { n: total - doctors.length })}
+              </Link>
+            )}
           </div>
         </section>
       </main>

@@ -128,6 +128,24 @@ def decrypt(raw: bytes) -> bytes:
         raise OSError("fichier chiffré illisible (clé absente ou fichier altéré)") from err
 
 
+SEALED_PREFIX = "fernet:"
+
+
+def seal_text(text: str) -> str:
+    """Petit secret stocké en base (ex. secret de double authentification), chiffré avec la clé des fichiers :
+    une copie volée de la base ou d'une sauvegarde ne suffit pas à le lire."""
+    return SEALED_PREFIX + _cipher().encrypt(text.encode()).decode()
+
+
+def unseal_text(value: str) -> str:
+    if not value.startswith(SEALED_PREFIX):
+        return value  # valeur enregistrée avant le chiffrement
+    try:
+        return _cipher().decrypt(value[len(SEALED_PREFIX) :].encode()).decode()
+    except InvalidToken as err:
+        raise ValueError("secret chiffré illisible (clé FILE_ENCRYPTION_KEYS absente ou différente)") from err
+
+
 def storage_path(relative: str) -> Path:
     root = Path(settings.PRIVATE_MEDIA_ROOT).resolve()
     path = (root / relative).resolve()

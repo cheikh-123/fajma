@@ -48,6 +48,14 @@ class ApiTestCase(TestCase):
     def make_user(self, email, name, **extra):
         return User.objects.create_user(email=email, password=PASSWORD, full_name=name, **extra)
 
+    def set_appointment(self, appt_id, **fields):
+        """Modifie un RDV directement en base en recalculant l'heure de fin (comme save()), sinon PostgreSQL
+        refuse le chevauchement apparent avec les autres RDV (contrainte appointment_no_overlap)."""
+        appt = Appointment.objects.get(id=appt_id)
+        if "scheduled_at" in fields:
+            fields["ends_at"] = fields["scheduled_at"] + timedelta(minutes=fields.get("duration_minutes", appt.duration_minutes))
+        Appointment.objects.filter(id=appt_id).update(**fields)
+
     def client_for(self, user=None) -> APIClient:
         client = APIClient()
         if user:
@@ -239,7 +247,6 @@ class PrivacyTests(ApiTestCase):
         res = self.client_for(self.p1).get(url)
         self.assertEqual(res.status_code, 200)
         self.assertEqual(res.content, b"%PDF-1.4 test")
-        res.close()
         self.assertEqual(self.client_for(self.p2).get(url).status_code, 404)
         # Médecin : accès seulement avec un rendez-vous confirmé.
         appt_id = self.book(self.p1).data["id"]
@@ -250,7 +257,6 @@ class PrivacyTests(ApiTestCase):
         self.client_for(self.p1).post(f"/api/documents/{doc.id}/share", {"doctor_id": str(self.doctor.id)}, format="json")
         res = self.client_for(self.doc_user).get(url)
         self.assertEqual(res.status_code, 200)
-        res.close()
         self.assertEqual(self.client_for(self.p1).post(f"/api/documents/{doc.id}/delete").status_code, 200)
         self.assertFalse(MedicalDocument.objects.exists())
 
@@ -310,4 +316,3 @@ class UploadSafetyTests(ApiTestCase):
         res = self.client_for(self.p1).get(f"/api/documents/{doc.id}/download")
         self.assertEqual(res["Content-Type"], "image/png")
         self.assertIn("sandbox", res["Content-Security-Policy"])
-        res.close()

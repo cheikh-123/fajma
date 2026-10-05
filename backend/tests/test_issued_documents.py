@@ -18,7 +18,7 @@ class IssuedDocumentTests(ApiTestCase):
         self.appt_id = self.book(self.p1).data["id"]
         # Consultation qui vient d'avoir lieu (un document ne se rédige pas avant la consultation).
         self.seen_at = timezone.now() - timedelta(hours=1)
-        Appointment.objects.filter(id=self.appt_id).update(status="confirmed", scheduled_at=self.seen_at)
+        self.set_appointment(self.appt_id, status="confirmed", scheduled_at=self.seen_at)
         self.day = timezone.localtime(self.seen_at).date()
 
     def issue(self, user=None, **data):
@@ -56,7 +56,7 @@ class IssuedDocumentTests(ApiTestCase):
         self.assertEqual(self.issue(kind="courrier", recipient="Dr Sy, cardiologue", body="Cher confrère, je vous adresse ma patiente.").status_code, 200)
 
     def test_not_before_the_consultation(self):
-        Appointment.objects.filter(id=self.appt_id).update(scheduled_at=timezone.now() + timedelta(days=2))
+        self.set_appointment(self.appt_id, scheduled_at=timezone.now() + timedelta(days=2))
         res = self.issue(kind="certificat", body="Certifie avoir examiné ce jour le patient.")
         self.assertEqual(res.status_code, 400)
         self.assertIn("pas encore eu lieu", str(res.data))

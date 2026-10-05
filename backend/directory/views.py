@@ -127,7 +127,13 @@ def list_doctors(request):
         results.sort(key=lambda r: r["consultation_price"])
     elif center:  # par défaut, les plus proches d'abord
         results.sort(key=lambda r: r["distance_km"] if r["distance_km"] is not None else 1e9)
-    return Response(results)
+    # Pagination : 60 médecins par page (?limit=, 200 au plus ; ?offset=). Le nombre total de résultats est
+    # dans l'en-tête X-Total-Count : la réponse reste légère même avec des milliers de médecins.
+    limit = get_int(request.query_params, "limit", default=60, min_value=1, max_value=200)
+    offset = get_int(request.query_params, "offset", default=0, min_value=0)
+    response = Response(results[offset : offset + limit])
+    response["X-Total-Count"] = str(len(results))
+    return response
 
 
 @api_view(["GET"])

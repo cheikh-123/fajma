@@ -26,21 +26,28 @@ export type DoctorFilters = {
   lng?: number;
 };
 
+const doctorQuery = (data: DoctorFilters) => ({
+  city: data.city,
+  specialty: data.specialty,
+  query: data.query,
+  teleconsultation: data.teleconsultation ? "1" : undefined,
+  home_visit: data.home_visit ? "1" : undefined,
+  language: data.language,
+  available: data.available,
+  max_price: data.max_price,
+  insurer: data.insurer,
+  sort: data.sort,
+  lat: data.lat,
+  lng: data.lng,
+});
+
+/** Première page (60 médecins) ; pour la recherche complète avec « Voir plus », voir searchDoctors. */
 export const listDoctors = ({ data }: { data: DoctorFilters }) =>
-  api.get<DoctorListItem[]>("/directory/doctors", {
-    city: data.city,
-    specialty: data.specialty,
-    query: data.query,
-    teleconsultation: data.teleconsultation ? "1" : undefined,
-    home_visit: data.home_visit ? "1" : undefined,
-    language: data.language,
-    available: data.available,
-    max_price: data.max_price,
-    insurer: data.insurer,
-    sort: data.sort,
-    lat: data.lat,
-    lng: data.lng,
-  });
+  api.get<DoctorListItem[]>("/directory/doctors", doctorQuery(data));
+
+/** Recherche paginée : `limit` premiers résultats et nombre total de médecins trouvés. */
+export const searchDoctors = ({ data, limit }: { data: DoctorFilters; limit: number }) =>
+  api.getPage<DoctorListItem>("/directory/doctors", { ...doctorQuery(data), limit });
 
 /** Villes et quartiers du Sénégal correspondant au début de la saisie. */
 export const listLocalities = (q: string) =>

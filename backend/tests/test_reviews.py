@@ -18,7 +18,7 @@ class ReviewModerationTests(ApiTestCase):
         Appointment.objects.filter(id=appt_id).update(status="completed")
         res = self.client_for(user).post("/api/patient/reviews", {"appointment_id": appt_id, "rating": rating, "comment": comment}, format="json")
         self.assertEqual(res.status_code, 200, res.data)
-        Appointment.objects.filter(id=appt_id).update(scheduled_at=self.slot.replace(year=self.slot.year - 1))  # libère le créneau
+        self.set_appointment(appt_id, scheduled_at=self.slot.replace(year=self.slot.year - 1))  # libère le créneau
         return Review.objects.get(appointment_id=appt_id)
 
     def public(self):

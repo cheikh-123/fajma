@@ -162,6 +162,7 @@ const wo: Dict = {
   "search.specialties": "Xeeti doktoor",
   "search.all": "Yépp",
   "search.doctorsCount": "{n} doktoor",
+  "search.more": "Wone yeneen doktoor ({n} des na)",
   "search.display": "Wone",
   "search.list": "Lim",
   "search.map": "Kart",

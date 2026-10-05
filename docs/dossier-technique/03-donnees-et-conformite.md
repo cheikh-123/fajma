@@ -92,6 +92,8 @@ Purge automatique chaque nuit (`purge_data`, durées réglables par variables d'
 | Données de paiement et journal comptable | Aucune purge automatique | Obligations comptables à fixer ⚖️ |
 
 Un compte supprimé par son titulaire est anonymisé immédiatement (documents déposés effacés, identité remplacée).
+Les données médicales et comptables sont protégées au niveau de la base : aucune suppression de compte ou de
+fiche médecin ne peut les emporter « en cascade ».
 
 ## 3.6 Points d'attention dans l'application
 

@@ -10,7 +10,8 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 
-from django.db.models import Avg, Count, Sum
+from django.db.models import Avg, Count, Q, Sum
+from django.db.models.functions import TruncMonth
 from django.utils import timezone
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -61,36 +62,45 @@ def patients_qs():
     return User.objects.filter(is_staff=False, doctor__isnull=True).exclude(id__in=pros)
 
 
+def _by_month(qs, field: str, value=None, start=None, end=None) -> dict:
+    """{date du 1er du mois: valeur} en UNE requête (regroupement par mois) au lieu d'une requête par mois."""
+    qs = qs.filter(**{f"{field}__gte": start, f"{field}__lt": end})
+    rows = qs.annotate(m=TruncMonth(field, tzinfo=UTC)).values("m").annotate(v=value or Count("id")).values_list("m", "v")
+    return {m.date(): v or 0 for m, v in rows}
+
+
 def build_report(months: int) -> dict:
     starts = _month_starts(months)
     period_start, period_end = starts[0], _next(starts[-1])
+    span = {"start": period_start, "end": period_end}
+    # Chaque indicateur : une requête pour toute la période, regroupée par mois (≈ 15 requêtes au total).
+    held = Appointment.objects.all()
+    per_month = {
+        "new_patients": _by_month(patients_qs(), "date_joined", **span),
+        "active_patients": _by_month(
+            held.exclude(status="cancelled").exclude(patient=None), "scheduled_at", Count("patient", distinct=True), **span
+        ),
+        "new_doctors": _by_month(Doctor.objects.filter(is_verified=True), "created_at", **span),
+        "appointments_booked": _by_month(Appointment.objects.all(), "created_at", **span),
+        "appointments_completed": _by_month(held, "scheduled_at", Count("id", filter=Q(status="completed")), **span),
+        "teleconsultations": _by_month(
+            held, "scheduled_at", Count("id", filter=Q(status="completed", mode="teleconsultation")), **span
+        ),
+        "no_shows": _by_month(held, "scheduled_at", Count("id", filter=Q(status="no_show")), **span),
+        "prescriptions": _by_month(Prescription.objects.all(), "created_at", **span),
+        "pharmacy_orders": _by_month(PrescriptionOrder.objects.all(), "created_at", **span),
+        "lab_orders": _by_month(LabOrder.objects.all(), "created_at", **span),
+        "online_volume": _by_month(Payment.objects.filter(status="paid", provider="paydunya"), "paid_at", Sum("amount"), **span),
+        "commission": _by_month(LedgerEntry.objects.filter(kind="earning"), "created_at", Sum("commission"), **span),
+        "subscriptions": _by_month(SubscriptionPayment.objects.filter(status="paid"), "paid_at", Sum("amount"), **span),
+    }
     rows = []
     for start in starts:
-        end = _next(start)
-        in_month = {"scheduled_at__gte": start, "scheduled_at__lt": end}
-        held = Appointment.objects.filter(**in_month)
-        commission = LedgerEntry.objects.filter(kind="earning", created_at__gte=start, created_at__lt=end).aggregate(s=Sum("commission"))["s"] or 0
-        subscriptions = SubscriptionPayment.objects.filter(status="paid", paid_at__gte=start, paid_at__lt=end).aggregate(s=Sum("amount"))["s"] or 0
-        rows.append(
-            {
-                "month": start.date().isoformat(),
-                "label": f"{MONTHS_FR[start.month - 1]} {start.year}",
-                "new_patients": patients_qs().filter(date_joined__gte=start, date_joined__lt=end).count(),
-                "active_patients": held.exclude(status="cancelled").exclude(patient=None).values("patient").distinct().count(),
-                "new_doctors": Doctor.objects.filter(is_verified=True, created_at__gte=start, created_at__lt=end).count(),
-                "appointments_booked": Appointment.objects.filter(created_at__gte=start, created_at__lt=end).count(),
-                "appointments_completed": held.filter(status="completed").count(),
-                "teleconsultations": held.filter(status="completed", mode="teleconsultation").count(),
-                "no_shows": held.filter(status="no_show").count(),
-                "prescriptions": Prescription.objects.filter(created_at__gte=start, created_at__lt=end).count(),
-                "pharmacy_orders": PrescriptionOrder.objects.filter(created_at__gte=start, created_at__lt=end).count(),
-                "lab_orders": LabOrder.objects.filter(created_at__gte=start, created_at__lt=end).count(),
-                "online_volume": Payment.objects.filter(status="paid", provider="paydunya", paid_at__gte=start, paid_at__lt=end).aggregate(s=Sum("amount"))["s"] or 0,
-                "commission": commission,
-                "subscriptions": subscriptions,
-                "revenue": commission + subscriptions,
-            }
-        )
+        key = start.date()
+        row = {"month": key.isoformat(), "label": f"{MONTHS_FR[start.month - 1]} {start.year}"}
+        row.update({name: values.get(key, 0) for name, values in per_month.items()})
+        row["revenue"] = row["commission"] + row["subscriptions"]
+        rows.append(row)
 
     # Fidélité : parmi les patients ayant eu au moins une consultation, part de ceux qui en ont eu plusieurs.
     completed_by_patient = (

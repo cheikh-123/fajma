@@ -32,7 +32,7 @@ class CrossAccessSweep(ApiTestCase):
         super().setUp()
         # Données du patient A (p1) chez le médecin A (self.doctor).
         self.appt = Appointment.objects.get(id=self.book(self.p1).data["id"])
-        Appointment.objects.filter(id=self.appt.id).update(status="confirmed", scheduled_at=timezone.now() - timedelta(hours=1))
+        self.set_appointment(self.appt.id, status="confirmed", scheduled_at=timezone.now() - timedelta(hours=1))
         self.future = Appointment.objects.get(id=self.book(self.p1, when=self.slot + timedelta(minutes=30)).data["id"])
         doc = self.client_for(self.doc_user)
         doc.post("/api/pro/prescription-header", {"order_number": "ONMS 1", "practice_name": "Cabinet", "city": "Dakar"}, format="json")

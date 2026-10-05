@@ -98,10 +98,17 @@ class TwoFactor(BaseModel):
     """Double authentification par application (Google Authenticator, Authy…), codes de secours hachés."""
 
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="two_factor")
-    secret = models.CharField(max_length=64)
+    # Chiffré en base (sunusante.uploads.seal_text) avec la clé FILE_ENCRYPTION_KEYS ; lire via totp_secret.
+    secret = models.CharField(max_length=255)
     enabled = models.BooleanField(default=False)
     recovery_codes = models.JSONField(default=list)
     last_used_step = models.BigIntegerField(default=0)
+
+    @property
+    def totp_secret(self) -> str:
+        from sunusante.uploads import unseal_text
+
+        return unseal_text(self.secret)
 
 
 class OtpCode(BaseModel):

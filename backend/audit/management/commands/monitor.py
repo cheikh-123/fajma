@@ -57,6 +57,14 @@ def run_checks() -> dict[str, str | None]:
             results["sauvegarde"] = (
                 f"dernière sauvegarde vieille de {int(age // 3600)} h" if too_old else "dernière sauvegarde vide ou tronquée" if tiny else None
             )
+            # Une sauvegarde n'a de valeur que si on sait la relire : test de restauration réussi depuis moins de 35 jours.
+            marker = folder / ".last-restore-test-ok"
+            oldest = now.timestamp() - backups[0].stat().st_mtime
+            if not marker.exists():
+                results["test de restauration"] = "jamais réussi" if oldest > 35 * 86400 else None
+            else:
+                days = (now.timestamp() - marker.stat().st_mtime) / 86400
+                results["test de restauration"] = f"dernier succès il y a {int(days)} jours" if days > 35 else None
 
     if settings.CLAMAV_ADDRESS:
         from sunusante.uploads import _clamd_scan

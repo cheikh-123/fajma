@@ -42,9 +42,9 @@ def current_actor():
 
 
 @receiver(pre_save, sender=Appointment)
-def _remember_previous(sender, instance: Appointment, update_fields=None, **kwargs):
+def _remember_previous(sender, instance: Appointment, update_fields=None, raw=False, **kwargs):
     instance._history_previous = None
-    if instance._state.adding or (update_fields is not None and not TRACKED & set(update_fields)):
+    if raw or instance._state.adding or (update_fields is not None and not TRACKED & set(update_fields)):
         return
     instance._history_previous = (
         Appointment.objects.filter(pk=instance.pk).values("status", "scheduled_at", "duration_minutes", "arrived_at").first()
@@ -52,7 +52,11 @@ def _remember_previous(sender, instance: Appointment, update_fields=None, **kwar
 
 
 @receiver(post_save, sender=Appointment)
-def _record_change(sender, instance: Appointment, created: bool, **kwargs):
+def _record_change(sender, instance: Appointment, created: bool, raw=False, **kwargs):
+    # raw : chargement de données (transfert, restauration de fixtures) — l'historique d'origine est chargé
+    # tel quel, rien n'est inventé.
+    if raw:
+        return
     try:
         actor = current_actor()
         if created:

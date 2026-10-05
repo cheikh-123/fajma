@@ -138,7 +138,7 @@ def respond_replacement(request, replacement_id):
     accept = bool(body(request).get("accept"))
     with transaction.atomic():
         r = (
-            Replacement.objects.select_for_update()
+            Replacement.objects.select_for_update(of=("self",))  # verrou sur cette ligne seulement (jointures facultatives)
             .filter(id=replacement_id, replacement=doctor)
             .select_related("doctor__user", "replacement__user")
             .first()
@@ -171,7 +171,7 @@ def cancel_replacement(request, replacement_id):
     doctor = my_doctor(user)
     with transaction.atomic():
         r = (
-            Replacement.objects.select_for_update()
+            Replacement.objects.select_for_update(of=("self",))  # verrou sur cette ligne seulement (jointures facultatives)
             .filter(Q(doctor=doctor) | Q(replacement=doctor), id=replacement_id)
             .select_related("doctor__user", "replacement__user")
             .first()
