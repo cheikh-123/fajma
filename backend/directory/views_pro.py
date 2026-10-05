@@ -617,11 +617,12 @@ def my_onboarding(request):
     from accounts.security import mfa_enabled
     from medical.issuer import missing_mentions
 
-    from .models import DoctorCredential
+    from .credentials import missing_required
 
     user = require_user(request)
     doctor = my_doctor(user)
-    creds = DoctorCredential.objects.filter(doctor=doctor)
+    kinds = set(doctor.credentials.values_list("kind", flat=True))
+    still_missing = missing_required("doctor", doctor)
     missing = missing_mentions(doctor)
     steps = [
         {
@@ -633,10 +634,10 @@ def my_onboarding(request):
         },
         {
             "id": "credential",
-            "title": "Déposer mon inscription à l'Ordre des médecins",
-            "hint": "Obligatoire pour que l'équipe Fajma publie votre fiche.",
+            "title": "Déposer mes justificatifs (Ordre des médecins, pièce d'identité)",
+            "hint": "Obligatoires pour que l'équipe Fajma publie votre fiche.",
             "tab": "profil",
-            "done": creds.exists(),
+            "done": {"ordre", "identite"} <= kinds or not still_missing,
         },
         {
             "id": "schedule",

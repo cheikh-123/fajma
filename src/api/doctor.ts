@@ -330,31 +330,7 @@ export const replyToReview = ({ data }: { data: { id: string; reply: string } })
 export const reportReview = ({ data }: { data: { id: string; reason: string } }) =>
   api.post<import("./types").ProReview>(`/pro/reviews/${data.id}/report`, { reason: data.reason });
 
-export type Credential = {
-  id: string;
-  kind: "ordre" | "diplome" | "identite" | "autre";
-  kind_label: string;
-  title: string | null;
-  mime_type: string;
-  size_bytes: number;
-  status: "pending" | "accepted" | "rejected";
-  review_note: string | null;
-  created_at: string;
-  reviewed_at: string | null;
-  file_url: string;
-};
-
-export const getMyCredentials = () =>
-  api.get<{ is_verified: boolean; credentials: Credential[] }>("/pro/credentials");
-
-export const uploadCredential = ({
-  data,
-}: {
-  data: { kind: Credential["kind"]; title?: string; file_name: string; content_base64: string };
-}) => api.post<{ is_verified: boolean; credentials: Credential[] }>("/pro/credentials", data);
-
-export const deleteCredential = (id: string) =>
-  api.post<{ ok: true }>(`/pro/credentials/${id}/delete`);
+export type { Credential } from "./credentials";
 
 export type OnboardingStep = {
   id: string;

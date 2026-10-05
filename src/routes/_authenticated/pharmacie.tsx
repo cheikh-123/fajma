@@ -20,6 +20,7 @@ import { HelpLink } from "@/components/HelpLink";
 import { DutyControl, PharmacyEditor } from "@/components/PharmacyEditor";
 import { WEEK } from "@/lib/weekdays";
 import { SecuritySection } from "@/components/SecuritySection";
+import { CredentialsPanel } from "@/components/pro/CredentialsPanel";
 import { MedicineQuestions } from "@/components/pharmacy/MedicineQuestions";
 import { formatDate, formatDateTime } from "@/lib/datetime";
 import { ageAt } from "@/lib/prescription-text";
@@ -83,6 +84,16 @@ function PharmacyPage() {
       </header>
       <main className="mx-auto max-w-7xl px-6 py-8">
         <MyPharmacies />
+        <div className="mt-6 grid gap-4 lg:grid-cols-2">
+          {data.pharmacies.map((p) => (
+            <CredentialsPanel
+              key={p.id}
+              ownerType="pharmacy"
+              ownerId={p.id}
+              title={`Justificatifs · ${p.name}`}
+            />
+          ))}
+        </div>
         <MedicineQuestions questions={data.medicine_questions ?? []} />
         <h1 className="mt-8 text-2xl font-bold text-sunu-dark">Ordonnances reçues</h1>
         <div className="mt-6 grid gap-4 lg:grid-cols-3">

@@ -520,6 +520,8 @@ export type Clinic = {
   phone: string | null;
   description: string | null;
   is_verified: boolean;
+  /** « clinic » : établissement de l'annuaire ; « practice » : cabinet d'un médecin seul. */
+  kind?: "clinic" | "practice";
   access: ClinicAccess;
   members: {
     id: string;

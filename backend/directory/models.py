@@ -4,6 +4,8 @@ from django.db import models
 
 from sunusante.models import BaseModel
 
+from .requirements import KIND_LABELS
+
 
 class Specialty(BaseModel):
     slug = models.SlugField(unique=True)
@@ -181,6 +183,8 @@ class Pharmacy(BaseModel):
     address = models.CharField(max_length=200)
     phone = models.CharField(max_length=30, blank=True)
     is_on_duty = models.BooleanField(default=False)
+    # Partenaire en ligne (reçoit les ordonnances) seulement après contrôle de ses justificatifs par Fajma.
+    is_verified = models.BooleanField(default=False)
     on_duty_until = models.DateTimeField(null=True, blank=True, help_text="Fin de la garde (vide = jusqu'à nouvel ordre)")
     opens_at = models.TimeField(default="08:00")
     closes_at = models.TimeField(default="20:00")
@@ -240,19 +244,21 @@ def refresh_doctor_rating(doctor: Doctor) -> None:
     )
 
 
-class DoctorCredential(BaseModel):
-    """Justificatif déposé par le médecin (diplôme, inscription à l'Ordre, pièce d'identité), contrôlé par l'administration."""
+class Credential(BaseModel):
+    """
+    Justificatif d'un professionnel ou d'un établissement (inscription à l'Ordre, pièce d'identité, autorisation
+    d'exploitation, agrément…), contrôlé par l'administration avant publication. Appartient à un seul titulaire :
+    médecin, clinique, pharmacie ou laboratoire. Pièces exigées : directory/requirements.py.
+    """
 
-    KINDS = [
-        ("ordre", "Inscription à l'Ordre des médecins"),
-        ("diplome", "Diplôme de médecine / spécialité"),
-        ("identite", "Pièce d'identité"),
-        ("autre", "Autre justificatif"),
-    ]
+    KINDS = list(KIND_LABELS.items())
     STATUSES = [("pending", "En cours de vérification"), ("accepted", "Accepté"), ("rejected", "Refusé")]
 
-    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE, related_name="credentials")
-    kind = models.CharField(max_length=10, choices=KINDS)
+    doctor = models.ForeignKey(Doctor, null=True, blank=True, on_delete=models.CASCADE, related_name="credentials")
+    clinic = models.ForeignKey("clinics.Clinic", null=True, blank=True, on_delete=models.CASCADE, related_name="credentials")
+    pharmacy = models.ForeignKey(Pharmacy, null=True, blank=True, on_delete=models.CASCADE, related_name="credentials")
+    laboratory = models.ForeignKey("labs.Laboratory", null=True, blank=True, on_delete=models.CASCADE, related_name="credentials")
+    kind = models.CharField(max_length=24, choices=KINDS)
     title = models.CharField(max_length=160, blank=True)
     file_path = models.CharField(max_length=300)
     mime_type = models.CharField(max_length=60)
@@ -260,9 +266,33 @@ class DoctorCredential(BaseModel):
     status = models.CharField(max_length=10, choices=STATUSES, default="pending")
     review_note = models.CharField(max_length=300, blank=True)
     reviewed_at = models.DateTimeField(null=True, blank=True)
+    reviewed_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name="+")
+    # Fin de validité (pièce d'identité, autorisation, agrément) et dernier rappel d'échéance envoyé.
+    expires_at = models.DateField(null=True, blank=True)
+    expiry_reminded_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         ordering = ["-created_at"]
+        constraints = [
+            models.CheckConstraint(
+                condition=(
+                    models.Q(doctor__isnull=False, clinic__isnull=True, pharmacy__isnull=True, laboratory__isnull=True)
+                    | models.Q(doctor__isnull=True, clinic__isnull=False, pharmacy__isnull=True, laboratory__isnull=True)
+                    | models.Q(doctor__isnull=True, clinic__isnull=True, pharmacy__isnull=False, laboratory__isnull=True)
+                    | models.Q(doctor__isnull=True, clinic__isnull=True, pharmacy__isnull=True, laboratory__isnull=False)
+                ),
+                name="credential_single_owner",
+            )
+        ]
+        indexes = [models.Index(fields=["status", "created_at"], name="credential_queue_idx")]
+
+    @property
+    def owner_type(self) -> str:
+        return "doctor" if self.doctor_id else "clinic" if self.clinic_id else "pharmacy" if self.pharmacy_id else "laboratory"
+
+    @property
+    def owner(self):
+        return self.doctor or self.clinic or self.pharmacy or self.laboratory
 
 
 def new_feed_token() -> str:

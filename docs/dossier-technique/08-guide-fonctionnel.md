@@ -100,10 +100,11 @@ internet).
 1. Créer son compte, puis sa fiche dans l'espace médecin (nom, spécialité, ville, tarif). La double
    authentification est activée à la première connexion.
 2. Le guide **« Bien démarrer sur Fajma »** affiche 7 étapes, avec un bouton qui ouvre le bon onglet :
-   compléter sa fiche publique (photo, présentation, adresse) ; déposer son inscription à l'Ordre ; définir son
+   compléter sa fiche publique (photo, présentation, adresse) ; déposer ses justificatifs (Ordre, pièce d'identité) ; définir son
    emploi du temps ; vérifier ses motifs et tarifs ; compléter l'en-tête des ordonnances ; sécuriser son compte ;
    attendre la validation. Il disparaît quand tout est fait.
-3. L'équipe Fajma vérifie le justificatif et publie la fiche ; le médecin est prévenu par SMS et email.
+3. L'équipe Fajma vérifie les justificatifs et publie la fiche ; le médecin est prévenu par SMS et email
+   (pièces exigées : § 8.12).
 
 **Onglet « Emploi du temps »**
 
@@ -146,7 +147,8 @@ internet).
 ## 8.4 Secrétariat et clinique
 
 - **Responsable** : crée l'établissement, invite les médecins et la secrétaire, modifie les informations,
-  retire un médecin qui part. La clinique est publiée après vérification par Fajma.
+  retire un médecin qui part, dépose les justificatifs de l'établissement (§ 8.12). La clinique est publiée
+  après vérification par Fajma.
 - **Secrétaire** : agenda de tous les médecins par semaine, prise de RDV au guichet ou au téléphone (même pour
   un patient sans compte, avec son téléphone pour les rappels), créneaux libres proposés, déplacement,
   annulation, « venu », séances, fichier patients avec détection et fusion des doublons, export de l'agenda.
@@ -159,18 +161,26 @@ internet).
   prévenu par SMS quand son ordonnance est prête ou indisponible.
 - Répondre aux demandes de disponibilité d'un médicament.
 - Gérer ses horaires, jours d'ouverture et la **garde** (avec date de fin).
+- **Justificatifs de l'officine** (§ 8.12) : tant qu'ils ne sont pas validés, la pharmacie ne reçoit ni
+  ordonnances ni demandes de disponibilité.
 
 ## 8.6 Laboratoire
 
 - Demandes d'analyses reçues : patients attendus, « prélèvement effectué », dépôt des résultats (PDF ou image,
   avec commentaire). Les résultats rejoignent le dossier du patient ; patient et médecin prescripteur sont
   prévenus. Recherche par référence ou par nom.
+- **Justificatifs du laboratoire** (§ 8.12) : tant qu'ils ne sont pas validés, le laboratoire n'est pas
+  proposé aux patients.
 
 ## 8.7 Administration Fajma
 
-- Bandeau **« À traiter »** : médecins et établissements à valider, justificatifs, avis signalés, virements et
+- Bandeau **« À traiter »** : médecins et établissements à valider, justificatifs à vérifier, justificatifs
+  expirés ou qui expirent dans les 30 jours, avis signalés, virements et
   remboursements, demandes d'aide, SMS en échec.
-- Validation des médecins (après contrôle de l'inscription à l'Ordre) et des établissements.
+- **Justificatifs** : une seule liste (filtre médecins, cliniques, pharmacies, laboratoires), ouvrir la pièce,
+  la vérifier à la source, valider ou refuser avec un motif envoyé au professionnel.
+- Validation des médecins, cliniques, pharmacies et laboratoires : refusée tant qu'une pièce obligatoire
+  manque, est en attente, refusée ou expirée (le message indique laquelle).
 - **Comptes** : recherche, suspension (sessions coupées) ou réactivation, réinitialisation de la double
   authentification, avec motif journalisé.
 - **Support** : demandes reçues par la page « Aide et contact », réponse par email ou téléphone, puis
@@ -251,3 +261,29 @@ internet).
 | QR code | Code à scanner (vérification d'ordonnance, fiche d'urgence) |
 | Tiers payant | Le patient ne paie que sa part ; le médecin facture le reste à l'organisme |
 | USSD | Menu par code (`#…#`) utilisable sur tout téléphone, sans internet |
+
+## 8.12 Pièces justificatives exigées
+
+Aucun professionnel n'est publié (fiche médecin réservable, clinique dans l'annuaire, pharmacie qui reçoit des
+ordonnances, laboratoire proposé aux patients) sans **toutes ses pièces obligatoires validées par l'équipe Fajma
+et en cours de validité**.
+
+| Professionnel | Pièces obligatoires | Pièces facultatives |
+|---|---|---|
+| Médecin (y compris indépendant) | Inscription à l'Ordre des médecins ; pièce d'identité* | Diplôme de médecine ou de spécialité ; autre |
+| Clinique, centre de santé | Autorisation d'ouverture et d'exploitation du ministère de la Santé* ; NINEA et RCCM ; pièce d'identité du responsable* ; désignation du médecin responsable (directeur médical) | Autre |
+| Pharmacie | Autorisation d'exploitation de l'officine* ; inscription du pharmacien titulaire à l'Ordre des pharmaciens | NINEA ; autre |
+| Laboratoire | Agrément du laboratoire d'analyses médicales* ; inscription du biologiste responsable à son Ordre | NINEA ; autre |
+
+\* Pièce à durée limitée : sa date de fin de validité est demandée au dépôt (une pièce déjà expirée est
+refusée). Rappel au professionnel (notification, email) 30 jours avant l'échéance puis après l'échéance ;
+une pièce expirée ne compte plus et apparaît dans « À traiter ». Une fiche déjà publiée n'est pas retirée
+automatiquement : l'administration voit ce qui manque et décide.
+
+- Dépôt : PDF ou image, chiffré, analysé par l'antivirus ; visible du seul titulaire et de l'administration.
+  Une pièce validée ne peut plus être supprimée par le professionnel.
+- Le cabinet d'un médecin seul ne demande pas de pièces d'établissement : ce sont celles du médecin qui comptent.
+- Pharmacies et laboratoires déjà partenaires avant cette règle restent en ligne ; leurs pièces sont à
+  demander.
+- La liste est à faire valider par un juriste et les Ordres professionnels ; elle se modifie en un seul endroit
+  (`backend/directory/requirements.py`), écrans et contrôles suivent automatiquement.

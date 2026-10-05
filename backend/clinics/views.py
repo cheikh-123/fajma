@@ -38,6 +38,7 @@ def clinic_dict(clinic: Clinic, access: str) -> dict:
         "phone": clinic.phone or None,
         "description": clinic.description or None,
         "is_verified": clinic.is_verified,
+        "kind": clinic.kind,
         "access": access,
         "members": [
             {

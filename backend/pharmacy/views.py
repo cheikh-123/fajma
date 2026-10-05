@@ -99,7 +99,7 @@ def my_orders(request):
     pharmacy = Pharmacy.objects.filter(id=get_uuid(data, "pharmacy_id")).first()
     if not pharmacy:
         raise not_found("Pharmacie introuvable")
-    if not pharmacy.members.exists():
+    if not pharmacy.members.exists() or not pharmacy.is_verified:
         raise ApiError("Cette pharmacie ne reçoit pas encore les ordonnances en ligne")
     try:
         with transaction.atomic():
@@ -132,7 +132,7 @@ def receiving_pharmacies(request):
     """Pharmacies qui reçoivent les ordonnances en ligne (au moins un pharmacien inscrit)."""
     require_user(request)
     city = get_str(request.query_params, "city", max_len=80)
-    qs = Pharmacy.objects.filter(members__isnull=False).distinct()
+    qs = Pharmacy.objects.filter(members__isnull=False, is_verified=True).distinct()
     if city:
         qs = qs.filter(city__iexact=city)
     return Response(
@@ -254,7 +254,7 @@ def my_medicine_queries(request):
         ids = data.get("pharmacy_ids")
         if not isinstance(ids, list) or not 1 <= len(ids) <= MAX_PHARMACIES_PER_QUERY:
             raise ApiError(f"Choisissez de 1 à {MAX_PHARMACIES_PER_QUERY} pharmacies")
-        pharmacies = list(Pharmacy.objects.filter(id__in=ids, members__isnull=False).distinct())
+        pharmacies = list(Pharmacy.objects.filter(id__in=ids, members__isnull=False, is_verified=True).distinct())
         if not pharmacies:
             raise ApiError("Ces pharmacies ne reçoivent pas encore de demandes en ligne")
         query = MedicineQuery.objects.create(

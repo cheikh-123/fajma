@@ -13,6 +13,8 @@ class Laboratory(BaseModel):
     address = models.CharField(max_length=200)
     phone = models.CharField(max_length=30, blank=True)
     opening_hours = models.CharField(max_length=160, blank=True, help_text="Ex. lun.–sam. 7 h 30 – 18 h, prélèvements jusqu'à 11 h")
+    # Reçoit les demandes d'analyses en ligne seulement après contrôle de ses justificatifs par Fajma.
+    is_verified = models.BooleanField(default=False)
     latitude = models.FloatField(null=True, blank=True)
     longitude = models.FloatField(null=True, blank=True)
 

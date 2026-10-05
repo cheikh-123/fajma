@@ -78,7 +78,7 @@ class LabTests(ApiTestCase):
     def setUp(self):
         super().setUp()
         self.lab_user = self.make_user("lab@test.sn", "Biologiste")
-        self.lab = Laboratory.objects.create(name="Labo Dakar", city="Dakar", address="Rue 1")
+        self.lab = Laboratory.objects.create(name="Labo Dakar", city="Dakar", address="Rue 1", is_verified=True)
         LaboratoryMember.objects.create(laboratory=self.lab, user=self.lab_user)
         self.appt_id = self.book(self.p1).data["id"]
         Appointment.objects.filter(id=self.appt_id).update(status="confirmed")
@@ -127,7 +127,7 @@ class LabTests(ApiTestCase):
 class MedicineQueryTests(ApiTestCase):
     def test_patient_asks_pharmacies_and_gets_answers(self):
         pharmacist = self.make_user("ph@test.sn", "Pharmacien")
-        p1 = Pharmacy.objects.create(name="Officine A", city="Dakar", address="Rue 1", latitude=14.7, longitude=-17.4)
+        p1 = Pharmacy.objects.create(name="Officine A", city="Dakar", address="Rue 1", latitude=14.7, longitude=-17.4, is_verified=True)
         p2 = Pharmacy.objects.create(name="Sans pharmacien", city="Dakar", address="Rue 2", latitude=14.7, longitude=-17.4)
         PharmacyMember.objects.create(pharmacy=p1, user=pharmacist)
         client = self.client_for(self.p1)

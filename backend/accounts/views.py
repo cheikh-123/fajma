@@ -19,7 +19,8 @@ from rest_framework.response import Response
 
 from appointments.models import Appointment
 from clinics.models import Clinic
-from directory.models import Doctor, Review
+from directory.models import Doctor, Pharmacy, Review
+from labs.models import Laboratory
 from medical.models import MedicalRecord, Prescription
 from notifications.models import SmsReminder
 from payments.models import Payment
@@ -481,7 +482,17 @@ def admin_overview(request):
             ],
             "clinics": [
                 {"id": str(c.id), "name": c.name, "city": c.city, "is_verified": c.is_verified, "created_at": iso(c.created_at)}
-                for c in Clinic.objects.order_by("-created_at")
+                for c in Clinic.objects.filter(kind="clinic").order_by("-created_at")
+            ],
+            # Pharmacies et laboratoires partenaires (avec au moins un compte rattaché) : à valider avant de recevoir
+            # des ordonnances ou des demandes d'analyses en ligne.
+            "pharmacies": [
+                {"id": str(p.id), "name": p.name, "city": p.city, "is_verified": p.is_verified, "created_at": iso(p.created_at)}
+                for p in Pharmacy.objects.filter(members__isnull=False).distinct().order_by("-created_at")
+            ],
+            "laboratories": [
+                {"id": str(lab.id), "name": lab.name, "city": lab.city, "is_verified": lab.is_verified, "created_at": iso(lab.created_at)}
+                for lab in Laboratory.objects.filter(members__isnull=False).distinct().order_by("-created_at")
             ],
             "payments": [
                 {"id": str(p.id), "amount": p.amount, "status": p.status, "currency": p.currency, "created_at": iso(p.created_at)}
@@ -494,7 +505,7 @@ def admin_overview(request):
 @api_view(["GET"])
 def admin_todo(request):
     """Compteurs de la file de travail de l'administration (bandeau « À traiter »)."""
-    from directory.models import DoctorCredential
+    from directory.models import Credential
     from payments.models import Payout, Refund
     from support.models import SupportRequest
 
@@ -502,8 +513,14 @@ def admin_todo(request):
     return Response(
         {
             "doctors_to_verify": Doctor.objects.filter(is_verified=False, user__is_active=True).count(),
-            "credentials_pending": DoctorCredential.objects.filter(status="pending").count(),
-            "clinics_to_verify": Clinic.objects.filter(is_verified=False, kind="clinic").count(),
+            "credentials_pending": Credential.objects.filter(status="pending").count(),
+            # Pièces validées arrivées à échéance (à faire renouveler) ou qui expirent dans les 30 jours.
+            "credentials_expiring": Credential.objects.filter(
+                status="accepted", expires_at__lte=timezone.localdate() + timedelta(days=30)
+            ).count(),
+            "clinics_to_verify": Clinic.objects.filter(is_verified=False, kind="clinic").count()
+            + Pharmacy.objects.filter(is_verified=False, members__isnull=False).distinct().count()
+            + Laboratory.objects.filter(is_verified=False, members__isnull=False).distinct().count(),
             "reviews_reported": Review.objects.filter(status="reported").count(),
             "payouts_requested": Payout.objects.filter(status="requested").count(),
             "refunds_pending": Refund.objects.filter(status="pending").count(),
@@ -517,18 +534,19 @@ def admin_todo(request):
 def admin_set_verification(request):
     require_admin(request)
     data = body(request)
-    kind = get_choice(data, "kind", {"doctor", "clinic"})
-    model = Doctor if kind == "doctor" else Clinic
+    kind = get_choice(data, "kind", {"doctor", "clinic", "pharmacy", "laboratory"})
+    model = {"doctor": Doctor, "clinic": Clinic, "pharmacy": Pharmacy, "laboratory": Laboratory}[kind]
     target_id = get_uuid(data, "id")
-    if kind == "doctor" and data.get("verified"):
-        from directory.credentials import has_accepted_registration
-
-        doctor = Doctor.objects.filter(id=target_id).first()
-        if doctor and not has_accepted_registration(doctor):
-            raise ApiError("Validez d'abord le justificatif d'inscription à l'Ordre des médecins de ce praticien")
     target = model.objects.filter(id=target_id).first()
     if not target:
         raise not_found("Introuvable")
+    if data.get("verified"):
+        # Publication seulement avec toutes les pièces obligatoires validées et en cours de validité.
+        from directory.credentials import verification_blocker
+
+        blocker = verification_blocker(kind, target)
+        if blocker:
+            raise ApiError(blocker)
     verified = bool(data.get("verified"))
     was = target.is_verified
     model.objects.filter(id=target_id).update(is_verified=verified)
@@ -543,6 +561,12 @@ def admin_set_verification(request):
         elif kind == "clinic":
             notify(target.owner, kind="verification", title="Établissement vérifié",
                    body=f"{target.name} est vérifié et apparaît dans l'annuaire des établissements.", link="/clinique", email=True)
+        else:
+            link = "/pharmacie" if kind == "pharmacy" else "/laboratoire"
+            what = "les ordonnances" if kind == "pharmacy" else "les demandes d'analyses"
+            for m in target.members.select_related("user"):
+                notify(m.user, kind="verification", title=f"{target.name} est vérifié",
+                       body=f"Vos justificatifs sont validés : vous recevez désormais {what} en ligne.", link=link, email=True)
     return Response({"ok": True})
 
 

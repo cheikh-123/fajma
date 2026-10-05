@@ -51,7 +51,7 @@ Tous les rôles autres que « patient » exigent la double authentification (§ 
 | Ordonnance | Les siennes | Celles qu'il a rédigées | — | Uniquement celle transmise à son officine, tant qu'elle est en cours | — |
 | Carnet de vaccination | Le sien et celui de ses enfants | Inscription d'une dose lors d'un RDV confirmé | — | — | — |
 | RDV | Les siens | Son agenda | Agenda de ses médecins | — | — |
-| Justificatifs du médecin | — | Les siens | — | — | — (administration seulement) |
+| Justificatifs (médecin, clinique, pharmacie, laboratoire) | — | Les siens | — | Le responsable de la clinique, les membres de la pharmacie ou du laboratoire, pour leur établissement | — (administration seulement ; chaque ouverture de fichier journalisée) |
 | Fiche d'urgence (QR code) | Activation et choix des informations | — | — | — | Toute personne qui scanne le QR code : nom, âge et seulement les informations choisies ; consultation journalisée, patient prévenu |
 | Demande de renouvellement | Les siennes | Celles adressées à lui (médecin prescripteur) | — | — | — |
 | Dossier médical complet (export PDF) | Le sien et celui de ses proches, à la demande (journalisé) | — | — | — | — |
@@ -134,7 +134,7 @@ exécuté par l'intégration continue.
 
 ## 2.8 Tests de sécurité réalisés
 
-- **284 tests automatisés de l'API**, dont les tentatives d'accès interdites de la matrice § 2.4 (y compris
+- **292 tests automatisés de l'API**, dont les tentatives d'accès interdites de la matrice § 2.4 (y compris
   pour un remplaçant, une secrétaire, un médecin sans lien avec le patient), les manipulations de prix et de
   parts, les fichiers piégés, les doubles réservations, les webhooks non signés, les secrets USSD invalides, la
   réutilisation de session USSD par un autre numéro, les doubles notifications de paiement, le blocage des

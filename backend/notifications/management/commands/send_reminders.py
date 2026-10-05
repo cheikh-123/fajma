@@ -38,10 +38,13 @@ class Command(BaseCommand):
         from medical.renewals import send_renewal_reminders
 
         renewals = send_renewal_reminders(now)
+        from directory.credentials import send_expiry_reminders
+
+        expiring = send_expiry_reminders(now)
         self.stdout.write(
             f"rappels : {queued} planifiés, {sent} envoyés, {failed} en échec ; {recalls} rappels patients ; "
             f"{vaccines} rappels vaccins ; {prenatal} rappels prénataux ; {medications} rappels de médicaments ; "
-            f"{renewals} rappels de renouvellement"
+            f"{renewals} rappels de renouvellement ; {expiring} justificatifs à renouveler"
         )
 
     def send_recalls(self, now) -> int:

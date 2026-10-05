@@ -8,6 +8,7 @@ import { NotificationBell } from "@/components/NotificationBell";
 import { LogoutButton } from "@/components/LogoutButton";
 import { HelpLink } from "@/components/HelpLink";
 import { SecuritySection } from "@/components/SecuritySection";
+import { CredentialsPanel } from "@/components/pro/CredentialsPanel";
 import { ThemeToggle } from "@/lib/theme";
 import { formatDate, formatDateTime } from "@/lib/datetime";
 import { ageAt } from "@/lib/prescription-text";
@@ -109,6 +110,16 @@ function LabPage() {
               </section>
             );
           })}
+        </div>
+        <div className="mt-10 grid gap-4 lg:grid-cols-2">
+          {data.laboratories.map((l) => (
+            <CredentialsPanel
+              key={l.id}
+              ownerType="laboratory"
+              ownerId={l.id}
+              title={`Justificatifs · ${l.name}`}
+            />
+          ))}
         </div>
         <div className="mt-10">
           <SecuritySection />

@@ -18,8 +18,8 @@ from .test_security import PASSWORD, ApiTestCase
 class PharmacyOrderTests(ApiTestCase):
     def setUp(self):
         super().setUp()
-        self.pharmacy = Pharmacy.objects.create(name="Pharmacie Guigon", city="Dakar", address="Plateau", latitude=14.6, longitude=-17.4)
-        self.other_pharmacy = Pharmacy.objects.create(name="Pharmacie Ailleurs", city="Thiès", address="x", latitude=14.7, longitude=-16.9)
+        self.pharmacy = Pharmacy.objects.create(name="Pharmacie Guigon", city="Dakar", address="Plateau", latitude=14.6, longitude=-17.4, is_verified=True)
+        self.other_pharmacy = Pharmacy.objects.create(name="Pharmacie Ailleurs", city="Thiès", address="x", latitude=14.7, longitude=-16.9, is_verified=True)
         self.pharmacist = User.objects.create_user(email="ph@test.sn", password=PASSWORD, full_name="Pharmacien")
         self.other_pharmacist = User.objects.create_user(email="ph2@test.sn", password=PASSWORD, full_name="Autre pharmacien")
         PharmacyMember.objects.create(pharmacy=self.pharmacy, user=self.pharmacist)

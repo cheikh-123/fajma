@@ -93,7 +93,7 @@ bloquants et importants relevés ont été corrigés (volets 1 à 6 : version 3.
 
 | Question | Constat |
 |---|---|
-| N'importe qui peut-il se déclarer médecin ? | Non. Une fiche médecin créée reste **invisible et non réservable** tant que l'administration ne l'a pas vérifiée (justificatif d'inscription à l'Ordre des médecins du Sénégal, n° d'Ordre) ; même règle pour pharmacies, laboratoires et cliniques. Nom et spécialité figés après vérification ; suspension = fiche retirée. (RPPS et Adeli sont des identifiants français ; l'équivalent sénégalais est le n° d'inscription à l'Ordre.) |
+| N'importe qui peut-il se déclarer médecin ? | Non. Une fiche médecin créée reste **invisible et non réservable** tant que l'administration ne l'a pas vérifiée (justificatif d'inscription à l'Ordre des médecins du Sénégal, n° d'Ordre) ; même règle pour les cliniques (autorisation du ministère, NINEA/RCCM, responsable, médecin responsable), les pharmacies (autorisation, pharmacien titulaire inscrit à l'Ordre) et les laboratoires (agrément, biologiste responsable) : publication impossible sans toutes leurs pièces obligatoires validées et en cours de validité (§ 8.12). Une pièce d'identité est aussi exigée du médecin. Nom et spécialité figés après vérification ; suspension = fiche retirée. (RPPS et Adeli sont des identifiants français ; l'équivalent sénégalais est le n° d'inscription à l'Ordre.) |
 | Un médecin peut-il être patient d'un confrère ? | Oui : un seul compte, le rôle « médecin » s'ajoute au rôle « patient » sans conflit (rendez-vous et dossier patient d'un côté, agenda de l'autre). **Ajouté** : un médecin ne peut pas prendre rendez-vous avec lui-même (il bloque un horaire dans son agenda). Tests `tests/test_audit_part2.py` |
 
 ## 9.10 Volet 9 — Paiement, facturation et remboursements
@@ -186,7 +186,7 @@ et déménagement des fichiers. Détail des mesures et des procédures : [chapit
 
 | Constat | Gravité | Correctif |
 |---|---|---|
-| **Les tests PostgreSQL de l'intégration continue échouaient depuis la première mise en ligne du code** (les étapes suivantes, contrôles de sécurité Django et failles des bibliothèques Python, ne tournaient donc jamais). Les versions précédentes de ce dossier affirmaient à tort que les tests passaient aussi sous PostgreSQL | **Bloquant** | Corrigé : 284 tests au vert sur PostgreSQL ; contrôles de sécurité Django et `pip-audit` exécutés (aucune faille, un avertissement volontaire : HSTS preload) ; nouvelle étape « migration manquante » |
+| **Les tests PostgreSQL de l'intégration continue échouaient depuis la première mise en ligne du code** (les étapes suivantes, contrôles de sécurité Django et failles des bibliothèques Python, ne tournaient donc jamais). Les versions précédentes de ce dossier affirmaient à tort que les tests passaient aussi sous PostgreSQL | **Bloquant** | Corrigé : 292 tests au vert sur PostgreSQL ; contrôles de sécurité Django et `pip-audit` exécutés (aucune faille, un avertissement volontaire : HSTS preload) ; nouvelle étape « migration manquante » |
 | Erreur PostgreSQL « verrou impossible sur une jointure facultative » : accepter ou refuser un remplacement et décider d'un renouvellement d'ordonnance auraient planté en production (invisible sous SQLite) | **Bloquant** | Verrous limités à la ligne concernée |
 | Suppression d'un compte ou d'une fiche médecin depuis la console technique : comptes-rendus, ordonnances, paiements, messages effacés en cascade | **Important** | Liens protégés (refus de la suppression), testé ; l'effacement légal reste l'anonymisation |
 | Secret de double authentification stocké en clair dans la base | **Important** | Chiffré (clé des fichiers, hors base et hors sauvegardes), secrets existants chiffrés par migration, testé |
@@ -202,7 +202,7 @@ et déménagement des fichiers. Détail des mesures et des procédures : [chapit
 
 ## 9.19 Vérifications après correction
 
-- 284 tests automatisés de l'API, tous au vert sur SQLite **et sur PostgreSQL 17** (vérifié en local ; l'intégration
+- 292 tests automatisés de l'API, tous au vert sur SQLite **et sur PostgreSQL 17** (vérifié en local ; l'intégration
   continue exécute les deux).
 - Typage TypeScript et analyse ESLint sans erreur ; 0 violation d'accessibilité WCAG AA sur les 9 pages contrôlées ;
   recette de l'interface de production : 0 problème sur 78 affichages (§ 9.17).

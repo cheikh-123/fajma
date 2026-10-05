@@ -266,7 +266,7 @@ class Command(BaseCommand):
         from pharmacy.models import PrescriptionOrder
         from sunusante.uploads import store
 
-        from directory.models import DoctorCredential, Review
+        from directory.models import Credential, Review
 
         patient = User.objects.get(email="patient@fajma.local")
         if Relative.objects.filter(owner=patient, full_name="Ibou Ndiaye").exists():
@@ -287,11 +287,29 @@ class Command(BaseCommand):
         DoctorInsurer.objects.get_or_create(doctor=doctor, insurer=ipm, defaults={"tiers_payant": True})
 
         # Médecins : justificatif validé, questionnaire.
+        from directory.requirements import REQUIRED
+
+        def accepted(owner_type, owner):
+            for kind in REQUIRED[owner_type]:
+                Credential.objects.create(
+                    **{owner_type: owner}, kind=kind, title="Pièce de démonstration",
+                    file_path=store(f"credentials/{owner_type}/{owner.id}", f"{kind}.pdf", pdf),
+                    mime_type="application/pdf", size_bytes=len(pdf), status="accepted", reviewed_at=now,
+                )
+
         for d in (doctor, cardio):
-            DoctorCredential.objects.create(
-                doctor=d, kind="ordre", title="Inscription à l'Ordre (démonstration)", file_path=store(f"credentials/{d.id}", "ordre.pdf", pdf),
-                mime_type="application/pdf", size_bytes=len(pdf), status="accepted", reviewed_at=now,
-            )
+            accepted("doctor", d)
+        from clinics.models import Clinic
+        from labs.models import Laboratory
+
+        for c in Clinic.objects.filter(kind="clinic"):
+            accepted("clinic", c)
+        for p in Pharmacy.objects.filter(members__isnull=False).distinct():
+            accepted("pharmacy", p)
+            Pharmacy.objects.filter(pk=p.pk).update(is_verified=True)
+        for lab in Laboratory.objects.filter(members__isnull=False).distinct():
+            accepted("laboratory", lab)
+            Laboratory.objects.filter(pk=lab.pk).update(is_verified=True)
         doctor.questionnaire = [
             {"id": "q1", "label": "Avez-vous de la fièvre ?", "type": "yesno", "required": True},
             {"id": "q2", "label": "Traitements en cours", "type": "text", "required": False},

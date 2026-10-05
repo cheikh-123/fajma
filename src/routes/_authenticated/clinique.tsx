@@ -48,6 +48,7 @@ import {
   updateClinic,
 } from "@/api/clinic";
 import { SecuritySection } from "@/components/SecuritySection";
+import { CredentialsPanel } from "@/components/pro/CredentialsPanel";
 import { listDoctorSlots } from "@/api/directory";
 import type { Mode } from "@/api/types";
 import { MoveAppointmentForm } from "@/components/MoveAppointmentForm";
@@ -258,6 +259,15 @@ function ClinicDashboard({ clinic }: { clinic: Clinic }) {
           <Team clinic={clinic} />
         )}
       </div>
+      {isOwner && clinic.kind !== "practice" && (
+        <div className="mt-10 max-w-2xl">
+          <CredentialsPanel
+            ownerType="clinic"
+            ownerId={clinic.id}
+            title="Justificatifs de l'établissement"
+          />
+        </div>
+      )}
       <div className="mt-10">
         <SecuritySection />
       </div>

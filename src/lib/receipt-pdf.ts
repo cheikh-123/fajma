@@ -21,7 +21,7 @@ export async function buildReceiptPdf(r: Receipt): Promise<Uint8Array> {
   const text = (s: string, x: number, y: number, size = 11, f = font, color = INK) =>
     page.drawText(clean(s), { x, y, size, font: f, color });
 
-  // En-tête des documents Fajma : bandeau vert, logo à droite.
+  // En-tête des documents Fajma : bande tricolore, logo à droite.
   drawBrandBand(
     page,
     { font, bold, italic: font },

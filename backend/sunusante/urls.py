@@ -303,6 +303,10 @@ urlpatterns = [
     path("api/clinics/", include(clinic_urls)),
     path("api/admin/", include(admin_urls)),
     path("api/notifications/twilio-status", notifications.twilio_status),
+    # Justificatifs des établissements (cliniques, pharmacies, laboratoires) et accès aux fichiers
+    path("api/credentials/<str:owner_type>/<uuid:owner_id>", credentials.owner_credentials),
+    path("api/credentials/<uuid:credential_id>/delete", credentials.delete_credential),
+    path("api/credentials/<uuid:credential_id>/file", credentials.credential_file),
     path("api/notifications/twilio-inbound", notifications.twilio_inbound_sms),
     path("api/notifications/push/key", push.push_key),
     path("api/notifications/push/subscribe", push.push_subscribe),

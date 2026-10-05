@@ -53,7 +53,7 @@ export async function buildMedicalRecordPdf(d: MedicalRecordExport): Promise<Uin
   const newPage = () => {
     page = pdf.addPage(PAGE);
     pageCount += 1;
-    // Bandeau vert : nom du patient sur chaque page (les feuilles peuvent être séparées), logo à droite.
+    // En-tête : nom du patient sur chaque page (les feuilles peuvent être séparées), logo à droite.
     const lines =
       pageCount === 1
         ? [

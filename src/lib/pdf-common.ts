@@ -108,10 +108,30 @@ export type BandLine = {
 };
 
 /**
- * En-tête des documents (choisi par le fondateur) : bandeau vert plein, logo Fajma en blanc avec sa phrase,
- * texte blanc à gauche et à droite, bande tricolore et étoile dessous. Le logo est en haut à gauche
- * (`logo: "top"`) ou à droite, centré (`logo: "right"`, quand la colonne de droite est vide).
- * Renvoie l'ordonnée sous la bande tricolore.
+ * Fine bande vert, jaune, rouge sur la largeur utile, étoile verte sur une pastille blanche au centre
+ * (utilisée en haut et en bas des documents).
+ */
+export function drawTricolorRule(page: PDFPage, y: number, h = 2.5) {
+  const third = WIDTH / 3;
+  page.drawRectangle({ x: M, y, width: third, height: h, color: GREEN });
+  page.drawRectangle({ x: M + third, y, width: third, height: h, color: GOLD });
+  page.drawRectangle({ x: M + third * 2, y, width: third, height: h, color: RED });
+  const cx = M + WIDTH / 2;
+  page.drawCircle({ x: cx, y: y + h / 2, size: 5.2, color: WHITE });
+  const star = 7.5;
+  page.drawSvgPath(FLAG_STAR, {
+    x: cx - star / 2,
+    y: y + h / 2 + star / 2,
+    scale: star / 24,
+    color: GREEN,
+  });
+}
+
+/**
+ * En-tête des documents (choisi par le fondateur, sobre, assorti au bas de page) : fond blanc, logo Fajma vert
+ * avec sa phrase, texte à gauche et à droite, puis fine bande tricolore avec l'étoile pour souligner l'en-tête.
+ * Le logo est en haut à gauche (`logo: "top"`) ou à droite, centré (`logo: "right"`, quand la colonne de droite
+ * est vide). Renvoie l'ordonnée sous l'en-tête.
  */
 export function drawBrandBand(
   page: PDFPage,
@@ -131,31 +151,29 @@ export function drawBrandBand(
   const L = layout(left, logoAt === "right" ? WIDTH - 130 : half);
   const R = layout(right, half);
   const height = (lines: BandLine[]) => lines.reduce((h, l) => h + l.size + 3.5, 0);
-  const PAD_TOP = 18;
+  const PAD_TOP = 30;
   const PAD_BOTTOM = 16;
   const LOGO = 16;
   const logoRow = logoAt === "top" ? LOGO + 18 : 0;
   const content = Math.max(height(L), height(R), logoAt === "right" ? LOGO + 10 : 0);
   const bandH = PAD_TOP + logoRow + content + PAD_BOTTOM;
   const top = PAGE[1];
-  page.drawRectangle({ x: 0, y: top - bandH, width: PAGE[0], height: bandH, color: GREEN });
+  // Fond blanc (sobre, inspiré du bas de page) ; la bande tricolore souligne l'en-tête.
 
   if (logoAt === "top") {
-    drawFajmaLogo(page, f.bold, M, top - PAD_TOP - LOGO, LOGO, { onGreen: true, tagline: f.font });
+    drawFajmaLogo(page, f.bold, M, top - PAD_TOP - LOGO, LOGO, { tagline: f.font });
   } else {
     const w = LOGO * 1.3 + f.bold.widthOfTextAtSize("Fajma", LOGO * 0.62);
     const cy = top - PAD_TOP - content / 2;
-    drawFajmaLogo(page, f.bold, M + WIDTH - w, cy - LOGO / 2 + 3, LOGO, {
-      onGreen: true,
-      tagline: f.font,
-    });
+    drawFajmaLogo(page, f.bold, M + WIDTH - w, cy - LOGO / 2 + 3, LOGO, { tagline: f.font });
   }
   const write = (lines: BandLine[], align: "left" | "right") => {
     let y = top - PAD_TOP - logoRow;
     for (const l of lines) {
       y -= l.size;
       const font = l.bold ? f.bold : f.font;
-      const color = l.soft ? SOFT : WHITE;
+      // Nom en noir, spécialité en vert, détails en gris.
+      const color = l.soft ? (l.bold ? GREEN : MUTED) : INK;
       if (align === "left") textAt(page, l.text!, M, y, l.size, font, color);
       else textRight(page, l.text!, y, l.size, font, color);
       y -= 3.5;
@@ -163,7 +181,7 @@ export function drawBrandBand(
   };
   write(L, "left");
   write(R, "right");
-  drawFlagStripe(page, top - bandH, 5);
+  drawTricolorRule(page, top - bandH);
   return top - bandH - 5;
 }
 
@@ -193,7 +211,7 @@ export function spacedWidth(text: string, size: number, font: PDFFont, spacing =
 }
 
 /**
- * En-tête : bandeau vert avec le médecin à gauche (nom, spécialité, titres, n° d'Ordre) et le lieu d'exercice
+ * En-tête : le médecin à gauche (nom, spécialité, titres, n° d'Ordre) et le lieu d'exercice
  * à droite (établissement, adresse, téléphone). Renvoie la hauteur disponible sous l'en-tête.
  */
 export function drawIssuerHeader(page: PDFPage, issuer: DocumentIssuer, f: Fonts): number {
@@ -397,21 +415,7 @@ function textCenter(
  */
 export function drawFooter(page: PDFPage, f: Fonts, text: string, pageLabel?: string) {
   const top = 62;
-  const h = 2.5;
-  const third = WIDTH / 3;
-  page.drawRectangle({ x: M, y: top, width: third, height: h, color: GREEN });
-  page.drawRectangle({ x: M + third, y: top, width: third, height: h, color: GOLD });
-  page.drawRectangle({ x: M + third * 2, y: top, width: third, height: h, color: RED });
-  // Étoile verte sur une pastille blanche, au centre de la bande jaune.
-  const cx = M + WIDTH / 2;
-  page.drawCircle({ x: cx, y: top + h / 2, size: 5.2, color: rgb(1, 1, 1) });
-  const star = 7.5;
-  page.drawSvgPath(FLAG_STAR, {
-    x: cx - star / 2,
-    y: top + h / 2 + star / 2,
-    scale: star / 24,
-    color: GREEN,
-  });
+  drawTricolorRule(page, top);
   let y = top - 11;
   for (const line of wrap(text, f.font, 7, WIDTH)) {
     textCenter(page, line, y, 7, f.font, MUTED);

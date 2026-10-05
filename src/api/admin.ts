@@ -1,5 +1,14 @@
-/** Back-office : validation des médecins et cliniques, supervision des rappels SMS. */
+/** Back-office : validation des médecins et établissements, supervision des rappels SMS. */
 import { api } from "./client";
+
+export type VerifiableEstablishment = {
+  id: string;
+  name: string;
+  city: string;
+  is_verified: boolean;
+  created_at: string;
+};
+export type VerificationKind = "doctor" | "clinic" | "pharmacy" | "laboratory";
 
 export const getAdminOverview = () =>
   api.get<{
@@ -11,7 +20,9 @@ export const getAdminOverview = () =>
       created_at: string;
     }[];
     appointments: { id: string; status: string; mode: string; scheduled_at: string }[];
-    clinics: { id: string; name: string; city: string; is_verified: boolean; created_at: string }[];
+    clinics: VerifiableEstablishment[];
+    pharmacies: VerifiableEstablishment[];
+    laboratories: VerifiableEstablishment[];
     payments: {
       id: string;
       amount: number;
@@ -53,6 +64,7 @@ export const adminUserAction = (
 export type AdminTodo = {
   doctors_to_verify: number;
   credentials_pending: number;
+  credentials_expiring: number;
   clinics_to_verify: number;
   reviews_reported: number;
   payouts_requested: number;
@@ -65,7 +77,7 @@ export const getAdminTodo = () => api.get<AdminTodo>("/admin/todo");
 export const setVerification = ({
   data,
 }: {
-  data: { kind: "doctor" | "clinic"; id: string; verified: boolean };
+  data: { kind: VerificationKind; id: string; verified: boolean };
 }) => api.post<{ ok: true }>("/admin/verification", data);
 
 export const listSmsReminders = () =>
@@ -97,9 +109,13 @@ export const listReviewsToModerate = () => api.get<ReviewToModerate[]>("/admin/r
 export const moderateReview = ({ data }: { data: { id: string; decision: "publish" | "hide" } }) =>
   api.post<{ ok: true }>(`/admin/reviews/${data.id}`, { decision: data.decision });
 
-export type AdminCredential = import("./doctor").Credential & {
-  doctor_id: string;
-  doctor_name: string;
+export type AdminCredential = import("./credentials").Credential & {
+  owner_type: VerificationKind;
+  owner_type_label: string;
+  owner_id: string;
+  owner_name: string;
+  doctor_id: string | null;
+  doctor_name: string | null;
 };
 
 export const listCredentials = () => api.get<AdminCredential[]>("/admin/credentials");

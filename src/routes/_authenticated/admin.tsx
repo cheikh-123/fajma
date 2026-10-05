@@ -31,6 +31,7 @@ import {
   getAdminOverview,
   getAdminTodo,
   setVerification,
+  type VerificationKind,
   listSmsReminders,
   retrySmsReminder,
 } from "@/api/admin";
@@ -77,7 +78,7 @@ function AdminPage() {
   const { data } = useSuspenseQuery(adminQO);
   const { data: sms } = useQuery(smsQO);
   const verify = useMutation({
-    mutationFn: (v: { kind: "doctor" | "clinic"; id: string; verified: boolean }) =>
+    mutationFn: (v: { kind: VerificationKind; id: string; verified: boolean }) =>
       setVerification({ data: v }),
     onSuccess: () => {
       toast.success("Statut mis à jour");
@@ -191,6 +192,44 @@ function AdminPage() {
               </p>
             )}
           </Panel>
+          <Panel title="Validation des pharmacies partenaires">
+            {data.pharmacies.length ? (
+              data.pharmacies.map((p) => (
+                <Row
+                  key={p.id}
+                  title={p.name}
+                  sub={p.city}
+                  verified={p.is_verified}
+                  onToggle={() =>
+                    verify.mutate({ kind: "pharmacy", id: p.id, verified: !p.is_verified })
+                  }
+                />
+              ))
+            ) : (
+              <p className="py-8 text-center text-sm text-sunu-ink/50">
+                Aucune pharmacie avec un compte pharmacien.
+              </p>
+            )}
+          </Panel>
+          <Panel title="Validation des laboratoires partenaires">
+            {data.laboratories.length ? (
+              data.laboratories.map((l) => (
+                <Row
+                  key={l.id}
+                  title={l.name}
+                  sub={l.city}
+                  verified={l.is_verified}
+                  onToggle={() =>
+                    verify.mutate({ kind: "laboratory", id: l.id, verified: !l.is_verified })
+                  }
+                />
+              ))
+            ) : (
+              <p className="py-8 text-center text-sm text-sunu-ink/50">
+                Aucun laboratoire avec un compte rattaché.
+              </p>
+            )}
+          </Panel>
         </div>
         <div id="comptes" className="mt-6 scroll-mt-20">
           <UsersAdmin />
@@ -273,6 +312,7 @@ function AdminTodoBar() {
     ["support", "demande(s) d'aide", data.support_open],
     ["validation", "médecin(s) à valider", data.doctors_to_verify],
     ["justificatifs", "justificatif(s) à vérifier", data.credentials_pending],
+    ["justificatifs", "justificatif(s) expiré(s) ou bientôt", data.credentials_expiring ?? 0],
     ["validation", "établissement(s) à valider", data.clinics_to_verify],
     ["avis", "avis signalé(s)", data.reviews_reported],
     ["finances", "virement(s) demandé(s)", data.payouts_requested],

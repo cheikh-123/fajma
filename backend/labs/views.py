@@ -119,7 +119,7 @@ def my_lab_orders(request):
 def laboratories(request):
     """Laboratoires partenaires (au moins un compte rattaché), filtrables par ville."""
     require_user(request)
-    qs = Laboratory.objects.filter(members__isnull=False).distinct()
+    qs = Laboratory.objects.filter(members__isnull=False, is_verified=True).distinct()
     if city := (request.query_params.get("city") or "").strip():
         qs = qs.filter(city__icontains=city)
     return Response([lab_dict(lab) for lab in qs[:200]])
@@ -134,7 +134,11 @@ def send_to_lab(request, order_id):
         raise not_found("Prescription introuvable")
     if order.status not in ("prescribed", "sent"):
         raise ApiError("Le prélèvement a déjà été effectué : le laboratoire ne peut plus être changé")
-    lab = Laboratory.objects.filter(id=get_uuid(body(request), "laboratory_id"), members__isnull=False).distinct().first()
+    lab = (
+        Laboratory.objects.filter(id=get_uuid(body(request), "laboratory_id"), members__isnull=False, is_verified=True)
+        .distinct()
+        .first()
+    )
     if not lab:
         raise not_found("Laboratoire introuvable")
     order.laboratory, order.status, order.sent_at = lab, "sent", timezone.now()
