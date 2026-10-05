@@ -1,6 +1,6 @@
 # Dossier technique et sécurité — Fajma
 
-**Version du dossier :** 3.0 — 5 octobre 2026
+**Version du dossier :** 3.1 — 5 octobre 2026
 **Périmètre :** code source du dépôt `sante-connect-main` (backend Django, frontend React, déploiement), services tiers.
 **Public visé :** acquéreurs, investisseurs, auditeurs techniques et juridiques, équipe technique reprenant le projet.
 
@@ -27,7 +27,7 @@ ni à Supabase.
 | Téléconsultation | Jitsi Meet (serveur public au démarrage, auto-hébergeable) |
 | Assistant IA | Fournisseur configurable via une API compatible OpenAI (Google Gemini par défaut) |
 | Qualité | 251 tests automatisés de l'API ; parcours de bout en bout dans un navigateur réel pour chaque rôle ; intégration continue GitHub Actions |
-| Taille du code | ≈ 13 200 lignes Python (hors tests et migrations), ≈ 3 200 lignes de tests, ≈ 28 500 lignes TypeScript/React |
+| Taille du code | ≈ 14 900 lignes Python (hors tests et migrations), ≈ 3 900 lignes de tests, ≈ 32 600 lignes TypeScript/React |
 
 ## 2. Contenu du dossier
 
@@ -40,6 +40,7 @@ ni à Supabase.
 | 5 | [Risques et plan d'action](05-risques-et-plan-action.md) | Points ouverts, gravité, actions avant commercialisation |
 | 6 | [Informations pour une cession](06-cession.md) | Propriété, licences des composants, dépendances aux prestataires, coûts, reprise par une autre équipe |
 | 7 | [Inventaire des licences](07-licences.md) | Licence de chaque composant libre (serveur, application, outils), analyse et obligations ; annexe CSV |
+| 8 | [Guide fonctionnel de A à Z](08-guide-fonctionnel.md) | Ce que fait chaque utilisateur, étape par étape (patient, médecin, secrétariat, pharmacie, laboratoire, administration, secours), automatismes, règles de fonctionnement, glossaire |
 
 ## 3. Synthèse pour la direction
 
@@ -111,3 +112,4 @@ Ces points sont signalés **« À vérifier »**.
 | 2.8 | 01/10/2026 | Renouvellement d'ordonnance à la demande du patient (rappel avant échéance des traitements longs, décision du médecin) ; fiche d'urgence publique par QR code (informations choisies, lien révocable, consultations journalisées) ; alertes aux médecins sur les mesures à domicile dangereuses ou répétées ; animations modernisées ; logo Fajma en tête des ordonnances |
 | 2.9 | 05/10/2026 | Chapitre 7 « Inventaire des licences » (outil `tools/inventaire_licences.py`, annexe CSV : aucun composant sous copyleft fort, composants livrés aux navigateurs tous sous licence permissive) ; rapport d'activité mensuel dans l'administration (tableur, impression PDF, sans donnée nominative) ; comptage des patients corrigé (comptes professionnels exclus) |
 | 3.0 | 05/10/2026 | Questionnaire du médecin visible dès la réservation sur sa fiche, réponses toujours facultatives (plus de question obligatoire) ; dossier médical complet téléchargeable en PDF par le patient (export journalisé) |
+| 3.1 | 05/10/2026 | Dossier complété de A à Z : chapitre 1 mis à jour avec toutes les fonctionnalités (emploi du temps, agenda en glisser-déposer, questionnaire, renouvellements, fiche d'urgence, alertes, assistant de notes, aide et support, tarifs, rapport d'activité, dossier en PDF), tables et intégrations (antivirus) ; nouveau chapitre 8 « Guide fonctionnel de A à Z » (parcours de chaque rôle, automatismes, règles, glossaire) ; chiffres du code actualisés |

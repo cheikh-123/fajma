@@ -21,22 +21,25 @@
           « worker » : SMS, WhatsApp, emails, push ──────┘
           « scheduler » : rappels et supervision toutes les 10 minutes, purge nocturne
           « backup » : sauvegarde quotidienne chiffrée, test de restauration mensuel
+          « clamav » : analyse antivirus de chaque fichier déposé avant stockage
 ```
 
 Services externes : PayDunya (paiement), Twilio (SMS, WhatsApp), service push des navigateurs, Jitsi
-(vidéo), fournisseur d'IA (assistant d'orientation), agrégateur USSD, fournisseur SMTP (emails).
+(vidéo), fournisseur d'IA (assistant d'orientation ; assistant de prise de notes, désactivé par défaut en
+production), agrégateur USSD, fournisseur SMTP (emails). Les fichiers sont chiffrés par l'application avant
+d'être écrits sur le disque (clé conservée hors des sauvegardes).
 
 ## 1.2 Organisation du code
 
 | Dossier | Rôle |
 |---|---|
-| `backend/sunusante/` | Configuration, routes de l'API, outils communs (validation des entrées, fichiers déposés), tableau de pilotage |
-| `backend/accounts/` | Comptes, connexion (mot de passe, code SMS, double authentification), profil, proches, export et suppression des données |
-| `backend/directory/` | Annuaire, fiches médecin, créneaux, avis et modération, justificatifs (diplômes), espace médecin, référencement |
+| `backend/sunusante/` | Configuration, routes de l'API, outils communs (validation des entrées ; fichiers déposés : contrôle du type, antivirus, chiffrement), tableau de pilotage, rapport d'activité, exports tableur |
+| `backend/accounts/` | Comptes, connexion (mot de passe, code SMS, double authentification), déconnexion après inactivité, alerte « nouvel appareil », profil, proches, export et suppression des données, outils d'administration |
+| `backend/directory/` | Annuaire, fiches médecin, emploi du temps (plages, absences), guide de démarrage, avis et modération, justificatifs (diplômes), remplacements, référencement |
 | `backend/appointments/` | Rendez-vous, calcul des créneaux, questionnaire avant consultation, liste d'attente, téléconsultation |
 | `backend/payments/` | Paiements PayDunya, journal comptable des médecins, virements, remboursements, abonnements |
 | `backend/insurance/` | Organismes (IPM, CMU, assureurs), couvertures des patients, tiers payant |
-| `backend/medical/` | Comptes-rendus, ordonnances, certificats et arrêts de travail, documents, profil de santé, rappels |
+| `backend/medical/` | Comptes-rendus, ordonnances (en-tête, signature), certificats et arrêts de travail, documents, profil de santé, rappels, renouvellements d'ordonnance, fiche d'urgence (QR code), assistant de prise de notes, export du dossier en PDF |
 | `backend/carnet/` | Carnet de vaccination (calendrier PEV), suivi de grossesse (CPN), rappels |
 | `backend/pharmacy/` | Pharmacies partenaires, ordonnances transmises et leur préparation |
 | `backend/clinics/` | Cliniques, secrétariat, agenda partagé, fichier patients et doublons |
@@ -44,13 +47,17 @@ Services externes : PayDunya (paiement), Twilio (SMS, WhatsApp), service push de
 | `backend/messaging/` | Messagerie patient ↔ médecin |
 | `backend/bots/` | Menu WhatsApp et USSD (moteur commun, textes en trois langues) |
 | `backend/notifications/` | SMS/WhatsApp, emails, notifications push, tâches en arrière-plan, rappels planifiés |
-| `backend/care/` | Suivi à domicile (mesures, repères indicatifs) et rappels de prise de médicaments |
+| `backend/care/` | Suivi à domicile (mesures, repères indicatifs, alertes aux médecins) et rappels de prise de médicaments |
 | `backend/labs/` | Laboratoires d'analyses : prescription, choix du laboratoire, prélèvement, dépôt des résultats |
-| `backend/audit/` | Journal d'audit inaltérable ; commandes d'exploitation `monitor` (supervision) et `purge_data` (conservation) |
+| `backend/support/` | Demandes d'aide envoyées depuis la page « Aide et contact », suivies par l'administration |
+| `backend/audit/` | Journal d'audit inaltérable ; commandes d'exploitation `monitor` (supervision), `purge_data` (conservation), `encrypt_files` (chiffrement et rotation de clé) |
 | `backend/tests/` | Tests automatisés de l'API |
 | `src/` | Interface React : `api/` (appels à l'API), `routes/` (pages), `components/`, `lib/` (traductions, dates, PDF) |
 | `public/` | Manifeste PWA, service worker (hors ligne, notifications), icônes |
-| `deploy/` | Docker Compose, images, nginx, politique CSP, variables de production |
+| `deploy/` | Docker Compose, images, nginx, politique CSP, variables de production, sauvegarde et test de restauration |
+| `tools/` | `inventaire_licences.py` : inventaire des licences des composants (chapitre 7) |
+| `docs/dossier-technique/` | Ce dossier (Markdown), son PDF et l'annexe des licences |
+| `Lancer-Fajma.bat` | Lancement local en un double-clic (serveur et interface), pour une démonstration sous Windows |
 
 ## 1.3 Fonctionnalités
 
@@ -61,16 +68,19 @@ Services externes : PayDunya (paiement), Twilio (SMS, WhatsApp), service push de
 | Visites à domicile | Plages horaires dédiées (trajet compris), supplément de déplacement, zone desservie, adresse + repère + position GPS facultative, itinéraire pour le médecin |
 | Séries de séances | Motif réservable en série (kiné, pansements : 2 à 20 séances, tous les 1/2/3/7/14 jours), aperçu des dates libres, un seul message récapitulatif, annulation de la suite de la série ; le médecin ou le secrétariat peut ajouter des séances à tout rendez-vous |
 | Remplacements | Le titulaire propose une période à un confrère vérifié, qui accepte ; l'agenda reste ouvert, le remplaçant reçoit les patients, accède au dossier pendant la période et signe à son nom (mention « remplaçant du Dr X ») ; paiements versés au titulaire |
-| Après réservation | Déplacement, annulation (délai fixé par le médecin), fichier agenda `.ics`, rappels 24 h et 2 h, liste d'attente avec alerte, questionnaire avant consultation |
+| Questionnaire | Chaque médecin rédige ses questions (oui/non, choix, texte libre), par défaut ou propres à un motif ; le patient les voit dans le panneau de réservation de la fiche et y répond s'il le souhaite — **jamais obligatoire** —, ou plus tard depuis son espace ; réponses dans l'agenda du médecin |
+| Après réservation | Déplacement, annulation (délai fixé par le médecin), fichier agenda `.ics`, rappels 24 h et 2 h, liste d'attente avec alerte |
 | Téléconsultation | Salle d'attente, prépaiement optionnel, salle vidéo au nom aléatoire ouverte par le médecin |
-| Dossier patient | Profil de santé, documents (PDF, images), partage explicite avec un médecin, comptes-rendus, ordonnances, certificats, journal des accès, export et suppression du compte |
+| Dossier patient | Profil de santé, documents (PDF, images), partage explicite avec un médecin, comptes-rendus, ordonnances, certificats, journal des accès (« qui a consulté mon dossier »), **dossier complet téléchargeable en PDF**, export des données (JSON) et suppression du compte |
+| Renouvellement d'ordonnance | Le patient demande le renouvellement d'une ordonnance de moins d'un an (message facultatif) ; rappel SMS 7 jours avant la fin des traitements longs ; le médecin prescripteur renouvelle (nouvelle ordonnance signée, mêmes médicaments) ou refuse avec un motif |
+| Fiche d'urgence | Activée par le patient, qui choisit les informations visibles (groupe sanguin, allergies, traitements, antécédents, personne à prévenir) ; QR code à mettre en fond d'écran ; page publique pour les secours avec appel du SAMU ; lien révocable ; consultations journalisées et signalées au patient |
 | Documents médicaux | Ordonnances, certificats, arrêts de travail, courriers : PDF signé électroniquement avec QR de vérification publique (sans contenu médical ni identité complète) |
 | Carnet de santé | Calendrier vaccinal PEV de chaque enfant (statuts à faire / en retard / fait, dose vérifiée par le médecin), suivi de grossesse (terme, 8 consultations prénatales), déclaration de naissance qui crée le carnet du bébé, rappels SMS |
 | Argent | Paiement mobile ou au cabinet ; commission selon l'abonnement du médecin ; solde et demandes de virement ; remboursement automatique en cas d'annulation d'un RDV payé ; reçu servant de feuille de soins |
 | Assurances | Couvertures du patient (numéro, taux, validité, pour un proche) ; organismes acceptés par le médecin, avec ou sans tiers payant ; part patient calculée et figée à la réservation |
 | Pharmacies | Envoi d'une ordonnance à une pharmacie partenaire, préparation (reçue → en préparation → prête / indisponible → retirée), montant, notification du patient |
 | Clinique | Équipe médicale, secrétariat, agenda partagé, RDV au guichet (même sans compte), fichier patients, détection et fusion des doublons, rattachement au compte du patient ; le responsable modifie les informations de l'établissement et retire un médecin qui part |
-| Suivi à domicile | Le patient note tension, glycémie (g/L, à jeun ou après repas) et poids, pour lui ou un proche ; courbe, repères indicatifs (tension ≥ 180/110 : conseil d'appeler le 1515 ; hypoglycémie < 0,7 g/L) ; les médecins qui le suivent voient la courbe dans la fiche patient |
+| Suivi à domicile | Le patient note tension, glycémie (g/L, à jeun ou après repas) et poids, pour lui ou un proche ; courbe, repères indicatifs (tension ≥ 180/110 : conseil d'appeler le 1515 ; hypoglycémie < 0,7 g/L) ; les médecins qui le suivent voient la courbe dans la fiche patient et **sont alertés** d'une valeur dangereuse ou élevée 3 fois en 7 jours (3 médecins au plus, une alerte par 24 h, désactivable par le patient) |
 | Rappels de médicaments | Heures de prise (1 à 6 par jour), durée du traitement, pour soi ou un proche, à partir d'une ordonnance ou en saisie libre ; notification gratuite, SMS/WhatsApp en option ; envoi par le planificateur, sans doublon |
 | Laboratoires | Le médecin prescrit des analyses pendant la consultation ; le patient choisit un laboratoire partenaire ; le laboratoire enregistre le prélèvement et dépose les résultats (PDF), qui rejoignent le dossier du patient et sont partagés avec le prescripteur ; patient et médecin prévenus |
 | Disponibilité des médicaments | « Avez-vous ce médicament ? » : le patient interroge jusqu'à 5 pharmacies partenaires (5 demandes par jour), qui répondent sous 24 h (disponible, prix, indisponible) sans connaître son identité |
@@ -78,14 +88,20 @@ Services externes : PayDunya (paiement), Twilio (SMS, WhatsApp), service push de
 | Agenda tenu par le cabinet | Le médecin (ou son secrétariat) saisit un RDV pris au téléphone ou au cabinet, pour un patient connu ou sans compte, et **déplace** un RDV (patient prévenu par SMS) ; hors plages en ligne autorisé, jamais sur un autre RDV ni pendant une absence |
 | Exports | Tableur (CSV pour Excel) : rendez-vous, **bordereau de tiers payant** par organisme, revenus ; agenda de la clinique ; chaque export est journalisé |
 | Messagerie | Patient ↔ médecin, y compris le remplaçant qui l'a reçu ; texte et **pièces jointes** (photo ou PDF, type réel contrôlé, 6 Mo), accessibles aux seuls participants du fil |
-| Espace médecin | Fiche publique modifiable (présentation, tarif, langues, téléconsultation, adresse) et photo ; nom et spécialité figés après vérification ; « Mon secrétariat » : un médecin seul donne l'accès à son agenda à sa secrétaire par simple email |
+| Espace médecin | Organisé en onglets : Rendez-vous, Emploi du temps, Profil et cabinet, Ordonnances, Secrétariat et remplacements, Finances, Sécurité. Fiche publique modifiable (présentation, tarif, langues, téléconsultation, adresse) et photo ; nom et spécialité figés après vérification ; « Mon secrétariat » : un médecin seul donne l'accès à son agenda à sa secrétaire par simple email ; **guide « Bien démarrer »** en 7 étapes |
+| Emploi du temps | Semaine type visuelle ; plage ajoutée à plusieurs jours d'un coup ; clic sur une plage pour la modifier ou la supprimer ; chevauchements refusés ; plages « visites à domicile » ; absences ; aperçu des créneaux réellement proposés aux patients |
+| Agenda en glisser-déposer | Vue semaine : un rendez-vous se déplace (autre jour, autre heure) ou change de durée à la souris ou au doigt, par pas de 5 minutes, après confirmation ; contrôle du serveur et patient prévenu ; couleur par motif (palette validée pour les daltoniens), « à confirmer » en pointillés |
+| Rédaction médicale | En-tête d'ordonnance (n° d'Ordre, cabinet, signature tracée, cachet) obligatoire avant toute ordonnance ; aperçu d'une ordonnance spécimen ; **assistant de prise de notes** : dictée vocale et brouillon de compte-rendu (IA si autorisée, sinon mise en forme locale), toujours relu par le médecin |
 | Espace pharmacie | Horaires, jours d'ouverture, coordonnées et **garde** (avec date de fin, retrait automatique de la liste des pharmacies de garde) gérés par le pharmacien |
-| Administration | Validation des médecins et établissements, justificatifs, modération, finances (virements, remboursements), rattachement des pharmaciens, **recherche de comptes, suspension/réactivation, réinitialisation de la double authentification, ajout et correction des pharmacies**, rappels SMS, journal d'audit |
+| Administration | Bandeau « À traiter » ; validation des médecins et établissements, justificatifs, modération, finances (virements, remboursements), rattachement des pharmaciens et laboratoires, recherche de comptes, suspension/réactivation, réinitialisation de la double authentification, ajout et correction des pharmacies, **demandes d'aide (support)**, rappels SMS, journal d'audit, **rapport d'activité mensuel** (tableur, PDF) |
+| Aide et contact | Page publique : numéros d'urgence, 20 questions fréquentes par profil avec recherche, formulaire de contact (limité contre les abus) ; lien « Aide » dans chaque espace |
+| Pages publiques | Accueil (médecins réellement disponibles, sans données inventées), recherche, fiche médecin (itinéraire, assurances, avis, questionnaire), spécialités, cliniques, pharmacies (ouverte/fermée, garde), **tarifs des professionnels**, vérification d'ordonnance, aide, mentions légales, CGU, confidentialité |
 | Médecins entre eux | Télé-expertise avec dossier et documents partagés (patient informé), messagerie |
 | Confiance | Avis après consultation, réponse du médecin, signalement, modération ; publication d'un médecin conditionnée à la validation de son inscription à l'Ordre |
 | Canaux | WhatsApp, USSD, notifications push, messages et alertes en temps réel (Server-Sent Events), application installable, mode hors ligne, module de réservation intégrable au site du médecin |
 | Agenda du médecin | Abonnement privé à ses RDV depuis Google Agenda / Outlook / iPhone (initiales seulement) ; import de ses occupations personnelles (adresse iCal secrète), qui bloquent les créneaux |
-| Pilotage | Activité hebdomadaire, taux d'absence, part de téléconsultation, canaux, spécialités et villes, volumes financiers |
+| Pilotage | Activité hebdomadaire, taux d'absence, part de téléconsultation, canaux, spécialités et villes, volumes financiers ; rapport mensuel pour un acquéreur ou un investisseur (patients, consultations, chiffre d'affaires, fidélité), sans donnée nominative |
+| Interface | Mode clair et sombre, français / wolof / anglais, animations sobres (fondu entre les pages, désactivées si l'appareil le demande), affichage adapté au téléphone, logo Fajma sur tous les documents |
 | Référencement | Plan du site, pages HTML pour les robots, données structurées schema.org |
 
 ## 1.4 Modèle de données (principales tables)
@@ -93,7 +109,7 @@ Services externes : PayDunya (paiement), Twilio (SMS, WhatsApp), service push de
 | Table | Contenu |
 |---|---|
 | `accounts_user`, `accounts_relative` | Comptes (email et/ou téléphone vérifié, langue), proches |
-| `accounts_twofactor`, `accounts_otpcode` | Double authentification, codes SMS (empreintes uniquement) |
+| `accounts_twofactor`, `accounts_otpcode`, `accounts_knowndevice` | Double authentification, codes SMS (empreintes uniquement), navigateurs déjà utilisés (jeton haché) |
 | `directory_doctor`, `…_doctorlocation`, `…_doctoravailability`, `…_timeoff`, `…_consultationtype` | Fiches (photo, visites à domicile), lieux, plages (cabinet ou domicile), absences, motifs, tarifs, séries, questionnaires |
 | `directory_replacement` | Remplacements entre médecins (période, statut) |
 | `directory_pharmacy` | Officines (horaires, jours d'ouverture, garde et fin de garde) |
@@ -101,7 +117,7 @@ Services externes : PayDunya (paiement), Twilio (SMS, WhatsApp), service push de
 | `appointments_appointment`, `…_appointmentseries`, `…_waitlistentry` | Rendez-vous (canal, assurance figée, questionnaire, adresse de visite, médecin remplaçant, rang dans une série), séries de séances, liste d'attente |
 | `payments_payment`, `…_refund`, `…_payout`, `…_ledgerentry`, `…_subscription`, `…_subscriptionpayment` | Paiements, remboursements, virements, journal comptable, abonnements |
 | `insurance_insurer`, `…_patientcoverage`, `…_doctorinsurer` | Organismes, couvertures, organismes acceptés |
-| `medical_*` | Comptes-rendus, ordonnances, documents, partages, profils de santé, notes privées, rappels, documents rédigés |
+| `medical_*` | Comptes-rendus, ordonnances, documents, partages, profils de santé (dont réglages de la fiche d'urgence et des alertes), notes privées, rappels, documents rédigés, demandes de renouvellement |
 | `carnet_*` | Doses de vaccin, rappels envoyés, grossesses, consultations prénatales |
 | `pharmacy_*` | Pharmaciens rattachés, ordonnances transmises |
 | `clinics_*`, `expertise_*`, `messaging_*` | Cliniques et personnel, télé-expertise, messages |
@@ -110,6 +126,7 @@ Services externes : PayDunya (paiement), Twilio (SMS, WhatsApp), service push de
 | `care_measurement`, `care_medicationreminder` | Mesures à domicile, rappels de médicaments |
 | `labs_laboratory`, `…_laboratorymember`, `…_laborder` | Laboratoires, personnel rattaché, prescriptions d'analyses et résultats |
 | `pharmacy_medicinequery`, `…_medicineanswer` | Demandes de disponibilité d'un médicament et réponses des pharmacies |
+| `support_supportrequest` | Demandes d'aide (nom, contact, sujet, message, statut, note interne) |
 | `audit_auditevent` | Journal d'audit (aucune modification ni suppression possible par l'application) |
 
 Identifiants : UUID aléatoires (aucun identifiant séquentiel devinable dans les URL). Montants : entiers en francs CFA.
@@ -125,11 +142,14 @@ Heures : stockées en UTC, affichées à l'heure de Dakar (UTC+0 toute l'année)
 | Web Push | Notifications sur le téléphone | Clés VAPID ; abonnements expirés supprimés | Fonction masquée |
 | Jitsi | Vidéo | Nom de salle aléatoire, lien visible seulement pour le médecin et son patient | — |
 | Agenda personnel du médecin (iCal) | Import des occupations | HTTPS uniquement, adresses internes refusées (y compris après redirection), 2 Mo et 15 s maximum, horaires seuls conservés | Fonction inactive |
-| IA (compatible OpenAI) | Assistant d'orientation | Clé serveur ; limite de débit ; aucun stockage des symptômes | Message « non configuré » |
+| IA (compatible OpenAI) | Assistant d'orientation ; assistant de prise de notes | Clé serveur ; limite de débit ; aucun stockage des symptômes ; notes envoyées sans identité du patient, seulement si `AI_NOTES_ENABLED` | Orientation : « non configuré » ; notes : mise en forme locale sans IA |
+| ClamAV (service `clamav`) | Antivirus des fichiers déposés | Analyse avant stockage ; fichier refusé s'il est infecté ou si l'antivirus est injoignable | Pas d'analyse (développement) |
 | SMTP | Emails | Identifiants serveur | Emails affichés dans la console (développement) |
 
 ## 1.6 Dépendances principales
 
 Backend (`backend/requirements.txt`) : Django 6.1, djangorestframework, django-tasks-db, psycopg 3,
-gunicorn, whitenoise, sentry-sdk, python-dotenv, pywebpush. Frontend (`package.json`) : React 19,
-TanStack Router/Start/Query, Tailwind CSS 4, Radix UI, Leaflet, Recharts, pdf-lib, qrcode, zod.
+gunicorn, whitenoise, cryptography (chiffrement des fichiers), sentry-sdk, python-dotenv, pywebpush,
+icalendar. Frontend livré aux navigateurs : React 19, TanStack Router/Start/Query, Leaflet, Recharts, pdf-lib,
+qrcode, lucide-react, sonner, zod (49 composants au total) ; construction : Vite, TypeScript, Tailwind CSS 4.
+Inventaire complet et licences : [chapitre 7](07-licences.md).
