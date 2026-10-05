@@ -143,12 +143,12 @@ function MedecinsPage() {
             </span>
             <span className="text-xl font-bold text-sunu-green">Fajma</span>
           </Link>
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex items-center gap-1.5 sm:gap-3">
             <ThemeToggle />
             <LanguageSwitcher />
             <Link
               to="/auth"
-              className="rounded-full bg-sunu-green px-4 py-2 text-sm font-semibold text-white hover:bg-sunu-green/90"
+              className="whitespace-nowrap rounded-full bg-sunu-green px-3 py-2 text-sm font-semibold text-white hover:bg-sunu-green/90 sm:px-4"
             >
               {t("nav.login")}
             </Link>

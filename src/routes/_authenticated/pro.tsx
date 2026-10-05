@@ -529,7 +529,7 @@ function DoctorDashboard({ profile }: { profile: Profile }) {
           <RenewalsPanel />
           <StatsStrip />
           <section className="mt-6">
-            <div className="mb-3 flex items-center justify-between">
+            <div className="mb-3 flex flex-wrap items-center justify-between gap-y-2">
               <h2 className="text-sm font-bold uppercase tracking-wider text-sunu-ink/50">
                 Aujourd'hui et à venir
               </h2>

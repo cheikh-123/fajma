@@ -5,7 +5,9 @@ import { CheckCircle2, Clock, Heart, Loader2, XCircle } from "lucide-react";
 import { refreshPayment } from "@/api/payments";
 
 export const Route = createFileRoute("/_authenticated/paiement/retour")({
-  validateSearch: (s) => z.object({ payment: z.string().uuid() }).parse(s),
+  // Lien abîmé ou ouvert sans paramètre : pas d'erreur technique, la page affiche « Paiement introuvable ».
+  validateSearch: (s) =>
+    z.object({ payment: z.string().uuid().optional().catch(undefined) }).parse(s),
   head: () => ({
     meta: [{ title: "Paiement — Fajma" }, { name: "robots", content: "noindex" }],
   }),
@@ -17,7 +19,8 @@ function PaymentReturnPage() {
   // PayDunya peut mettre quelques secondes à confirmer : on revérifie tant que c'est en attente.
   const { data, isLoading, error } = useQuery({
     queryKey: ["payment-status", payment],
-    queryFn: () => refreshPayment({ data: { payment_id: payment } }),
+    queryFn: () => refreshPayment({ data: { payment_id: payment! } }),
+    enabled: Boolean(payment),
     refetchInterval: (q) =>
       q.state.data?.status === "pending" && q.state.dataUpdateCount < 10 ? 4000 : false,
   });
@@ -31,7 +34,14 @@ function PaymentReturnPage() {
           </span>
           <span className="text-xl font-bold text-sunu-green">Fajma</span>
         </Link>
-        {isLoading ? (
+        {!payment ? (
+          <Result
+            icon={XCircle}
+            tone="text-red-600"
+            title="Paiement introuvable"
+            body="Ce lien de paiement est incomplet. Retrouvez vos rendez-vous et vos paiements dans votre espace."
+          />
+        ) : isLoading ? (
           <Loader2 className="mx-auto mt-8 size-10 animate-spin text-sunu-green" />
         ) : error ? (
           <Result

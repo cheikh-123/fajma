@@ -17,7 +17,7 @@ import {
   Pill,
   FlaskConical,
 } from "lucide-react";
-import { MeasurementsChart } from "@/components/care/MeasurementsChart";
+import { LazyMeasurementsChart as MeasurementsChart } from "@/components/care/LazyMeasurementsChart";
 import { formatMeasurement } from "@/lib/measurements";
 import type { Measurement, MeasurementKind } from "@/api/care";
 import { toast } from "sonner";

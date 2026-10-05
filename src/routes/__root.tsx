@@ -7,8 +7,9 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { markHydrated } from "@/lib/first-load";
+import { NotFoundPage } from "@/components/NotFoundPage";
 import { Toaster } from "@/components/ui/sonner";
 import { OfflineBanner } from "@/components/OfflineBanner";
 import { LanguageProvider } from "@/lib/i18n";
@@ -18,25 +19,11 @@ import appCss from "../styles.css?url";
 import { reportError } from "@/lib/error-reporting";
 
 function NotFoundComponent() {
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <div className="max-w-md text-center">
-        <h1 className="text-7xl font-bold text-foreground">404</h1>
-        <h2 className="mt-4 text-xl font-semibold text-foreground">Page introuvable</h2>
-        <p className="mt-2 text-sm text-muted-foreground">
-          La page demandée n'existe pas ou a été déplacée.
-        </p>
-        <div className="mt-6">
-          <Link
-            to="/"
-            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
-          >
-            Revenir à l'accueil
-          </Link>
-        </div>
-      </div>
-    </div>
-  );
+  // La page servie est un squelette vide commun à toutes les adresses : on affiche le 404 juste après la
+  // reprise par React, sinon React constate un contenu différent du squelette (erreur #418) et redessine tout.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  return mounted ? <NotFoundPage /> : null;
 }
 
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {

@@ -3,7 +3,7 @@ import { FileDown, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { getMedicalRecord } from "@/api/followup";
-import { downloadPdf } from "@/lib/receipt-pdf";
+import { downloadPdf } from "@/lib/download";
 
 export function MedicalRecordPdfButton() {
   const [busy, setBusy] = useState(false);

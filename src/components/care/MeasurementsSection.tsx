@@ -14,7 +14,7 @@ import { listMyRelatives } from "@/api/patient";
 import { formatDateTime } from "@/lib/datetime";
 import { formatMeasurement } from "@/lib/measurements";
 import { getEmergencySettings, updateEmergencySettings } from "@/api/followup";
-import { MeasurementsChart } from "./MeasurementsChart";
+import { LazyMeasurementsChart as MeasurementsChart } from "./LazyMeasurementsChart";
 
 const TABS: { kind: MeasurementKind; label: string }[] = [
   { kind: "blood_pressure", label: "Tension" },

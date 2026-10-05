@@ -1,4 +1,5 @@
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { lazy, Suspense } from "react";
 import { ThemeToggle } from "@/lib/theme";
 import { redirectBeforeHydration } from "@/lib/first-load";
 import { LogoutButton } from "@/components/LogoutButton";
@@ -39,7 +40,10 @@ import { FinanceAdmin } from "@/components/admin/FinanceAdmin";
 import { PharmacyMembersAdmin } from "@/components/admin/PharmacyMembersAdmin";
 import { ReviewModeration } from "@/components/admin/ReviewModeration";
 import { CredentialsAdmin } from "@/components/admin/CredentialsAdmin";
-import { AnalyticsDashboard } from "@/components/admin/AnalyticsDashboard";
+// Tableau de pilotage (graphiques, bibliothèque lourde) chargé seulement quand on l'ouvre.
+const AnalyticsDashboard = lazy(() =>
+  import("@/components/admin/AnalyticsDashboard").then((m) => ({ default: m.AnalyticsDashboard })),
+);
 import { UsersAdmin } from "@/components/admin/UsersAdmin";
 import { LabsAdmin } from "@/components/admin/LabsAdmin";
 import { PharmaciesAdmin } from "@/components/admin/PharmaciesAdmin";
@@ -147,7 +151,9 @@ function AdminPage() {
           <Stat icon={MessageSquare} label="SMS en échec" value={smsFailed.toString()} />
         </div>
         <div id="pilotage" className="mt-6 scroll-mt-20">
-          <AnalyticsDashboard />
+          <Suspense fallback={<div className="h-64 animate-pulse rounded-xl bg-sunu-surface" />}>
+            <AnalyticsDashboard />
+          </Suspense>
         </div>
         <div id="rapport" className="mt-6 scroll-mt-20">
           <ActivityReport />

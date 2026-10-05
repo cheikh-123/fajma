@@ -507,7 +507,7 @@ function SlotsPreview({
       ) : (
         <ul className="mt-3 grid gap-2 sm:grid-cols-2">
           {[...byDay].map(([day, times]) => (
-            <li key={day} className="rounded-lg bg-sunu-surface px-3 py-2 text-sm">
+            <li key={day} className="min-w-0 rounded-lg bg-sunu-surface px-3 py-2 text-sm">
               <span className="font-semibold capitalize text-sunu-dark">{day}</span>
               <span className="ml-1 text-xs text-sunu-ink/55">
                 · {times.length} créneau{times.length > 1 ? "x" : ""}

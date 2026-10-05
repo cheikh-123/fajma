@@ -90,11 +90,4 @@ export async function buildReceiptPdf(r: Receipt): Promise<Uint8Array> {
   return pdf.save();
 }
 
-export function downloadPdf(bytes: Uint8Array, fileName: string) {
-  const url = URL.createObjectURL(new Blob([bytes as BlobPart], { type: "application/pdf" }));
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = fileName;
-  link.click();
-  URL.revokeObjectURL(url);
-}
+export { downloadPdf } from "./download";

@@ -4,8 +4,7 @@ import { useState } from "react";
 import { FileSignature, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { issueDocument, type IssuedDocumentKind } from "@/api/documents";
-import { downloadPdf } from "@/lib/receipt-pdf";
-import { buildIssuedDocumentPdf } from "@/lib/medical-doc-pdf";
+import { downloadPdf } from "@/lib/download";
 
 const KINDS: { value: IssuedDocumentKind; label: string; template: string }[] = [
   {
@@ -50,6 +49,7 @@ export function IssueDocumentAction({ appointmentId }: { appointmentId: string }
       }),
     onSuccess: async (doc) => {
       toast.success(`${doc.kind_label} enregistré : le patient le retrouve dans son dossier.`);
+      const { buildIssuedDocumentPdf } = await import("@/lib/medical-doc-pdf");
       downloadPdf(await buildIssuedDocumentPdf(doc), `${doc.kind}-${doc.reference}.pdf`);
       setOpen(false);
     },

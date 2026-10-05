@@ -158,9 +158,30 @@ contrôle de mise en page sur portable 13" (1280 × 800), tablette (1024 × 768)
 | Tâches lentes ? | SMS, emails et notifications passent par une file de tâches traitée par un service à part (`worker`) ; les PDF (ordonnances, reçus, dossier, rapports) sont fabriqués dans le navigateur, sans charge pour le serveur ; le flux temps réel tourne sur un serveur asynchrone séparé | `TASK_BACKEND`, service `events` |
 | En-têtes de sécurité et CORS ? | nginx : CSP stricte (empreintes des scripts, sans `unsafe-inline` pour les scripts), HSTS 1 an, `X-Frame-Options: DENY`, `nosniff`, `Referrer-Policy`, `Permissions-Policy` ; Django ajoute redirection HTTPS et cookies sécurisés. Aucun CORS ouvert : l'API ne répond qu'au site lui-même (même origine) | `deploy/security-headers.conf` |
 
-## 9.17 Vérifications après correction
+## 9.17 Recette de l'interface (version de production)
+
+La version compilée pour la production, servie comme en ligne, a été parcourue page par page : 19 pages publiques
+(dont page inconnue, lien de vérification invalide, fiche d'urgence invalide) et toutes les pages des 7 rôles
+(patient, médecin et ses 7 onglets, secrétariat, clinique, pharmacie, laboratoire, administration), sur téléphone
+(375 px) et sur ordinateur (1366 px), soit 78 affichages. Relevés : erreurs JavaScript et console, appels à l'API
+en échec, débordement horizontal, page vide, texte non traduit, poids du JavaScript chargé.
+
+| Constat | Gravité | Correctif |
+|---|---|---|
+| Page blanche au rechargement répété d'une page de l'espace connecté (7 fois sur 16) : le flux temps réel, ouvert dès le démarrage, occupait des connexions dont le navigateur avait besoin pour charger un morceau de l'application (limite de 6 connexions par site en HTTP/1.1) | **Important** | Flux ouvert 2,5 s après l'affichage et fermé explicitement au départ de la page : 0 page blanche sur 30 rechargements ; alerte de nouveau message toujours reçue en temps réel. Recommandation : HTTP/2 sur le point d'entrée HTTPS |
+| Page « introuvable » (404) : erreur React #418 au premier chargement | Mineur | Page 404 rendue comme une page ordinaire (route attrape-tout), titre et `noindex` |
+| Retour de paiement ouvert sans référence : erreur technique dans la console | Mineur | Message « Paiement introuvable » avec lien vers l'espace |
+| Débordements sur téléphone (recherche de médecins, agenda du médecin, aperçu des créneaux) | Mineur | Mises en page corrigées |
+| Poids : la bibliothèque PDF et celle des graphiques étaient chargées à l'ouverture des pages, même sans téléchargement | Important (réseau 3G) | Chargées seulement au clic ou à l'affichage d'une courbe : dossier patient 483 → 309 Ko, espace médecin 413 → 238 Ko (JavaScript compressé) ; accueil 172 Ko |
+
+Autres contrôles : compilation de production sans erreur, aucune faille connue dans les bibliothèques
+(`npm audit`), typage TypeScript sans erreur, traductions complètes (246 textes en français, wolof et anglais pour
+les pages publiques ; espaces professionnels en français). Résultat final : **0 problème sur les 78 affichages**.
+
+## 9.18 Vérifications après correction
 
 - 276 tests automatisés de l'API, tous au vert (SQLite ; PostgreSQL en intégration continue).
-- Typage TypeScript et analyse ESLint sans erreur ; 0 violation d'accessibilité WCAG AA sur les 9 pages contrôlées.
+- Typage TypeScript et analyse ESLint sans erreur ; 0 violation d'accessibilité WCAG AA sur les 9 pages contrôlées ;
+  recette de l'interface de production : 0 problème sur 78 affichages (§ 9.17).
 - Points restant hors code : test d'intrusion par un prestataire externe, test de charge, durées légales de
   conservation (comptes inactifs, données médicales) à fixer ⚖️ (voir [chapitre 5](05-risques-et-plan-action.md)).

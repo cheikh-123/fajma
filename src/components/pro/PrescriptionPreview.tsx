@@ -4,12 +4,10 @@
  */
 import { useQuery } from "@tanstack/react-query";
 import { Eye, Loader2 } from "lucide-react";
-import { degrees, PDFDocument, rgb, StandardFonts } from "pdf-lib";
 import { useState } from "react";
 import { toast } from "sonner";
 import { getPrescriptionHeader } from "@/api/doctor";
 import type { PrescriptionDetail } from "@/api/types";
-import { buildPrescriptionPdf } from "@/lib/prescription-pdf";
 
 export function PrescriptionPreview({
   fullName,
@@ -82,6 +80,9 @@ export function PrescriptionPreview({
         },
         verify_url: `${window.location.origin}/verifier/SPECIMEN`,
       };
+      // Bibliothèque PDF chargée seulement à la demande d'aperçu (allège l'espace médecin).
+      const [{ degrees, PDFDocument, rgb, StandardFonts }, { buildPrescriptionPdf }] =
+        await Promise.all([import("pdf-lib"), import("@/lib/prescription-pdf")]);
       const pdf = await PDFDocument.load(await buildPrescriptionPdf(sample));
       const font = await pdf.embedFont(StandardFonts.HelveticaBold);
       for (const page of pdf.getPages()) {

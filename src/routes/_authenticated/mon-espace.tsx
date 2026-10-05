@@ -48,7 +48,7 @@ import {
 import { NotificationBell } from "@/components/NotificationBell";
 import { HelpLink } from "@/components/HelpLink";
 import { getReceipt, startPayment } from "@/api/payments";
-import { buildReceiptPdf, downloadPdf } from "@/lib/receipt-pdf";
+import { downloadPdf } from "@/lib/download";
 import { listDoctorSlots } from "@/api/directory";
 import {
   addRelative,
@@ -513,6 +513,7 @@ function ApptCard({
                 onClick={async () => {
                   try {
                     const r = await getReceipt(payment.id);
+                    const { buildReceiptPdf } = await import("@/lib/receipt-pdf");
                     downloadPdf(await buildReceiptPdf(r), `recu-${r.reference}.pdf`);
                   } catch (e) {
                     toast.error((e as Error).message);

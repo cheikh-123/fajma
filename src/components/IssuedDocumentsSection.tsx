@@ -4,8 +4,7 @@ import { Download, FileSignature } from "lucide-react";
 import { toast } from "sonner";
 import { listMyIssuedDocuments } from "@/api/documents";
 import { formatDate } from "@/lib/datetime";
-import { buildIssuedDocumentPdf } from "@/lib/medical-doc-pdf";
-import { downloadPdf } from "@/lib/receipt-pdf";
+import { downloadPdf } from "@/lib/download";
 
 export function IssuedDocumentsSection() {
   const { data } = useQuery({ queryKey: ["issued-documents"], queryFn: listMyIssuedDocuments });
@@ -40,6 +39,7 @@ export function IssuedDocumentsSection() {
             <button
               onClick={async () => {
                 try {
+                  const { buildIssuedDocumentPdf } = await import("@/lib/medical-doc-pdf");
                   downloadPdf(await buildIssuedDocumentPdf(d), `${d.kind}-${d.reference}.pdf`);
                 } catch (e) {
                   toast.error((e as Error).message);
