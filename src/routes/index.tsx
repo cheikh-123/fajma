@@ -315,7 +315,7 @@ function Landing() {
           <div className="mt-16 grid gap-10 md:grid-cols-3">
             <FeatureCard
               image={doctorHero}
-              alt="Fiche Fajma d'un médecin généraliste de Liberté 6, à Dakar : inscrit à l'Ordre, parle français et wolof, consultation à 15 000 FCFA"
+              alt="Portrait illustrant les médecins de Fajma"
               tag="Médecins vérifiés"
               title="Des spécialistes de confiance"
               body="Consultez des professionnels reconnus, diplômes vérifiés, avis patients transparents."
