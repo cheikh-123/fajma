@@ -286,13 +286,17 @@
 body::before {
   content: "";
   display: block;
-  height: 4px;
-  background: linear-gradient(
-    90deg,
-    var(--sunu-green) 0 33.34%,
-    var(--sunu-gold) 33.34% 66.67%,
-    var(--sunu-red) 66.67%
-  );
+  height: 8px;
+  /* Comme le drapeau : étoile verte au centre de la bande jaune. */
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12.00 1.10L14.70 8.88L22.94 9.05L16.37 14.02L18.76 21.90L12.00 17.20L5.24 21.90L7.63 14.02L1.06 9.05L9.30 8.88Z' fill='%2300853f'/%3E%3C/svg%3E")
+      center / 9px 9px no-repeat,
+    linear-gradient(
+      90deg,
+      var(--sunu-green) 0 33.34%,
+      var(--sunu-gold) 33.34% 66.67%,
+      var(--sunu-red) 66.67%
+    );
 }
 
 @media print {

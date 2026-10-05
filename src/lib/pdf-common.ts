@@ -74,12 +74,25 @@ export function textRight(
 }
 
 /** Fine bande aux couleurs du drapeau en haut de page. */
+/** Étoile à cinq branches (repère 24 × 24), comme sur le drapeau du Sénégal. */
+export const FLAG_STAR =
+  "M12.00 1.10L14.70 8.88L22.94 9.05L16.37 14.02L18.76 21.90L12.00 17.20L5.24 21.90L7.63 14.02L1.06 9.05L9.30 8.88Z";
+
+/** Bande aux couleurs du drapeau en haut de page, étoile verte au centre de la bande jaune. */
 export function drawFlagStripe(page: PDFPage) {
   const third = PAGE[0] / 3;
-  const y = PAGE[1] - 5;
-  page.drawRectangle({ x: 0, y, width: third, height: 5, color: GREEN });
-  page.drawRectangle({ x: third, y, width: third, height: 5, color: GOLD });
-  page.drawRectangle({ x: third * 2, y, width: third + 1, height: 5, color: RED });
+  const h = 7;
+  const y = PAGE[1] - h;
+  page.drawRectangle({ x: 0, y, width: third, height: h, color: GREEN });
+  page.drawRectangle({ x: third, y, width: third, height: h, color: GOLD });
+  page.drawRectangle({ x: third * 2, y, width: third + 1, height: h, color: RED });
+  const star = 6.4;
+  page.drawSvgPath(FLAG_STAR, {
+    x: PAGE[0] / 2 - star / 2,
+    y: PAGE[1] - (h - star) / 2,
+    scale: star / 24,
+    color: GREEN,
+  });
 }
 
 /**
