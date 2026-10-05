@@ -57,6 +57,14 @@ livrée.
 2. Ne pas modifier les composants sous MPL / LGPL sans publier ces modifications, ou les remplacer.
 3. Régénérer cet inventaire à chaque ajout de bibliothèque (commande en tête du fichier de l'outil).
 
+**Données géographiques intégrées** (hors bibliothèques) :
+
+| Donnée | Source | Licence | Obligation |
+|---|---|---|---|
+| Contours du Sénégal et de la Gambie (carte de l'accueil, `src/lib/senegal-map.ts`) | Natural Earth, 1:50 000 000 | Domaine public | Aucune |
+| Localités du Sénégal (recherche « Où ? », `backend/directory/data/localites_senegal.tsv`) | GeoNames | CC BY 4.0 | Citer GeoNames (mentions légales) |
+| Fond de carte de la recherche (vue « carte ») | OpenStreetMap | ODbL | Mention « © OpenStreetMap » affichée sur la carte |
+
 ## 7.4 Serveur (Python) — liste complète
 
 | Composant | Version | Licence | Catégorie |

@@ -24,3 +24,19 @@ class AnalyticsTests(ApiTestCase):
         self.assertEqual(data["by_channel"], [{"channel": "whatsapp", "n": 1}])
         self.assertEqual(data["by_specialty"][0]["name"], "Médecine générale")
         self.assertEqual(data["kpis"]["doctors_verified"], 1)
+
+
+class CatalogAndMapTests(ApiTestCase):
+    def test_full_specialty_catalog_is_installed(self):
+        """Base neuve (production comprise) : le catalogue complet existe, un médecin peut créer sa fiche."""
+        from directory.specialties import CATALOG
+
+        data = self.client.get("/api/directory/specialties").data
+        self.assertEqual(len(data), len(CATALOG))
+        self.assertGreaterEqual(len(CATALOG), 36)
+        self.assertIn("ORL (oreilles, nez, gorge)", {s["name"] for s in data})
+
+    def test_map_places_come_from_real_doctor_locations(self):
+        self.doctor.latitude, self.doctor.longitude = 14.6928, -17.4467
+        self.doctor.save()
+        self.assertEqual(self.client.get("/api/directory/stats").data["places"], [[14.7, -17.4, 1]])

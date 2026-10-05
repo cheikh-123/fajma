@@ -1,7 +1,9 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { getPublicStats, listDoctors } from "@/api/directory";
+import { getPublicStats, listDoctors, listSpecialties } from "@/api/directory";
+import { SpecialtyIcon } from "@/components/SpecialtyIcon";
+import { SenegalMap } from "@/components/SenegalMap";
 import type { DoctorListItem } from "@/api/types";
 import { formatDate, formatTime, startOfDakarDay } from "@/lib/datetime";
 import { CityInput } from "@/components/CityInput";
@@ -56,15 +58,6 @@ export const Route = createFileRoute("/")({
   component: Landing,
 });
 
-const specialties = [
-  { name: "Généraliste", slug: "medecine-generale", icon: Stethoscope },
-  { name: "Pédiatrie", slug: "pediatrie", icon: Baby },
-  { name: "Cardiologie", slug: "cardiologie", icon: Heart },
-  { name: "Ophtalmologie", slug: "ophtalmologie", icon: Eye },
-  { name: "Orthopédie", slug: "orthopedie", icon: Bone },
-  { name: "Neurologie", slug: "neurologie", icon: Brain },
-];
-
 const cities = [
   "Dakar",
   "Thiès",
@@ -78,6 +71,11 @@ const cities = [
 
 function Landing() {
   const { data: stats } = useQuery({ queryKey: ["public-stats"], queryFn: getPublicStats });
+  // Toutes les spécialités du catalogue (serveur), avec le nombre de praticiens de chacune.
+  const { data: specialties = [] } = useQuery({
+    queryKey: ["specialties"],
+    queryFn: listSpecialties,
+  });
   const { t } = useI18n();
   const navigate = useNavigate();
   const [what, setWhat] = useState("");
@@ -257,29 +255,33 @@ function Landing() {
             Voir toutes les spécialités <ArrowRight className="size-4" />
           </Link>
         </div>
-        <div className="stagger grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
-          {specialties.map((s) => {
-            const Icon = s.icon;
-            return (
-              <Link
-                key={s.name}
-                to="/specialites/$slug"
-                params={{ slug: s.slug }}
-                className="group block rounded-2xl border border-sunu-line bg-sunu-card p-5 text-left transition hover:-translate-y-0.5 hover:border-sunu-green/30 hover:shadow-sunu-card"
-              >
-                <span className="grid size-10 place-items-center rounded-xl bg-sunu-green-soft text-sunu-green transition group-hover:bg-sunu-green group-hover:text-white">
-                  <Icon className="size-5" />
-                </span>
-                <h3 className="mt-4 text-sm font-bold text-sunu-dark">{s.name}</h3>
-                {stats?.by_specialty[s.slug] != null && (
-                  <p className="mt-1 text-xs text-sunu-ink/50">
-                    {stats.by_specialty[s.slug]} praticien
-                    {stats.by_specialty[s.slug] > 1 ? "s" : ""}
-                  </p>
-                )}
-              </Link>
-            );
-          })}
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+          {[...specialties]
+            // Spécialités déjà disponibles d'abord (plus de praticiens en tête), puis les autres par ordre alphabétique.
+            .sort((a, b) => (stats?.by_specialty[b.slug] ?? 0) - (stats?.by_specialty[a.slug] ?? 0))
+            .map((s) => {
+              const count = stats?.by_specialty[s.slug] ?? 0;
+              return (
+                <Link
+                  key={s.slug}
+                  to="/specialites/$slug"
+                  params={{ slug: s.slug }}
+                  className="group flex min-w-0 items-center gap-3 rounded-2xl border border-sunu-line bg-sunu-card p-3.5 text-left transition hover:-translate-y-0.5 hover:border-sunu-green/30 hover:shadow-sunu-card"
+                >
+                  <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-sunu-green-soft text-sunu-green transition group-hover:bg-sunu-green group-hover:text-white">
+                    <SpecialtyIcon name={s.icon} className="size-[18px]" />
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block text-sm font-bold leading-tight text-sunu-dark">
+                      {s.name}
+                    </span>
+                    <span className="mt-0.5 block text-xs text-sunu-ink/50">
+                      {count > 0 ? `${count} praticien${count > 1 ? "s" : ""}` : "Bientôt"}
+                    </span>
+                  </span>
+                </Link>
+              );
+            })}
         </div>
       </section>
 
@@ -445,49 +447,20 @@ function Landing() {
               </p>
               <div className="mt-6 flex flex-wrap gap-2">
                 {cities.map((c) => (
-                  <span
+                  <Link
                     key={c}
-                    className="inline-flex items-center gap-1.5 rounded-full border border-sunu-line bg-sunu-card px-3 py-1.5 text-xs font-semibold text-sunu-ink/70"
+                    to="/medecins"
+                    search={{ city: c }}
+                    className="inline-flex items-center gap-1.5 rounded-full border border-sunu-line bg-sunu-card px-3 py-1.5 text-xs font-semibold text-sunu-ink/70 hover:border-sunu-green hover:text-sunu-green"
                   >
                     <span className="size-1.5 rounded-full bg-sunu-teal" />
                     {c}
-                  </span>
+                  </Link>
                 ))}
               </div>
             </div>
-            <div className="relative aspect-[4/3] overflow-hidden rounded-3xl border border-sunu-line bg-sunu-card shadow-sunu-card">
-              <div
-                aria-hidden
-                className="absolute inset-0"
-                style={{
-                  backgroundImage:
-                    "radial-gradient(circle at 30% 40%, color-mix(in oklab, var(--sunu-green) 20%, transparent), transparent 40%), radial-gradient(circle at 65% 55%, color-mix(in oklab, var(--sunu-teal) 25%, transparent), transparent 40%), linear-gradient(180deg, var(--sunu-surface), var(--sunu-green-soft))",
-                }}
-              />
-              {/* Fake map pins */}
-              {[
-                { top: "38%", left: "30%", label: "Dakar" },
-                { top: "48%", left: "45%", label: "Thiès" },
-                { top: "22%", left: "40%", label: "Saint-Louis" },
-                { top: "60%", left: "58%", label: "Kaolack" },
-                { top: "78%", left: "40%", label: "Ziguinchor" },
-              ].map((p) => (
-                <div
-                  key={p.label}
-                  className="absolute -translate-x-1/2 -translate-y-1/2"
-                  style={{ top: p.top, left: p.left }}
-                >
-                  <div className="relative">
-                    <span className="absolute inset-0 -m-2 animate-ping rounded-full bg-sunu-green/30" />
-                    <span className="relative grid size-8 place-items-center rounded-full bg-sunu-green text-white shadow-lg">
-                      <MapPin className="size-4" />
-                    </span>
-                  </div>
-                  <span className="mt-1 block whitespace-nowrap rounded-md bg-sunu-card px-2 py-0.5 text-[10px] font-bold text-sunu-dark shadow">
-                    {p.label}
-                  </span>
-                </div>
-              ))}
+            <div className="rounded-3xl border border-sunu-line bg-sunu-card p-4 shadow-sunu-card sm:p-6">
+              <SenegalMap places={stats?.places} />
             </div>
           </div>
         </div>

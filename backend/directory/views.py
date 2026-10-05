@@ -15,12 +15,13 @@ from rest_framework.response import Response
 from appointments.models import Appointment
 from appointments.scheduling import compute_slots, next_available_many
 from insurance.views import accepted_insurers
-from sunusante.api import ApiError, ScopedThrottle, body, get_int, get_str, get_uuid, iso, not_found, require_user
+from sunusante.api import ApiError, ScopedThrottle, body, get_int, get_str, get_uuid, not_found, require_user
 
 from . import localities
 from .models import Doctor, Pharmacy, Review, Specialty
 from .replacements import public_replacements
 from .serializers import consultation_type_dict, doctor_dict, location_dict, pharmacy_dict, specialty_dict
+from .specialties import NAMES as SPECIALTY_NAMES
 
 logger = logging.getLogger(__name__)
 
@@ -258,7 +259,7 @@ Règles strictes :
 - Tu ne poses JAMAIS de diagnostic et tu ne prescris JAMAIS de médicament.
 - Tu réponds en français simple, adapté au contexte du Sénégal et de l'Afrique de l'Ouest.
 - Tu poses au maximum 2 questions de clarification, puis tu conclus.
-- Tu termines toujours par : la spécialité recommandée (parmi : Médecine générale, Pédiatrie, Cardiologie, Dermatologie, Gynécologie, Ophtalmologie, Orthopédie, Neurologie), le niveau d'urgence (faible / modéré / urgent) et l'invitation à prendre rendez-vous sur Fajma.
+- Tu termines toujours par : la spécialité recommandée (parmi les spécialités proposées sur Fajma : {specialties}), le niveau d'urgence (faible / modéré / urgent) et l'invitation à prendre rendez-vous sur Fajma.
 - Si les symptômes évoquent une urgence vitale (douleur thoracique, difficulté respiratoire, perte de conscience, saignement abondant), tu demandes d'appeler le SAMU (1515) ou d'aller aux urgences immédiatement.
 - Réponses courtes : 120 mots maximum."""
 
@@ -287,7 +288,7 @@ def ask_assistant(request):
         raise ApiError("Assistant indisponible : configuration IA manquante.", 503)
     req = urllib.request.Request(
         cfg["API_URL"],
-        data=json.dumps({"model": cfg["MODEL"], "messages": [{"role": "system", "content": ASSISTANT_PROMPT}, *clean]}).encode(),
+        data=json.dumps({"model": cfg["MODEL"], "messages": [{"role": "system", "content": ASSISTANT_PROMPT.format(specialties=", ".join(SPECIALTY_NAMES))}, *clean]}).encode(),
         headers={"Authorization": f"Bearer {cfg['API_KEY']}", "Content-Type": "application/json"},
         method="POST",
     )
@@ -305,6 +306,16 @@ def ask_assistant(request):
     if not content:
         raise ApiError("Réponse vide de l'assistant.", 502)
     return Response({"content": content})
+
+
+def _doctor_places(doctors) -> list[list]:
+    from collections import Counter
+
+    zones = Counter(
+        (round(lat, 1), round(lng, 1))
+        for lat, lng in doctors.exclude(latitude=None).exclude(longitude=None).values_list("latitude", "longitude")
+    )
+    return [[lat, lng, n] for (lat, lng), n in sorted(zones.items())]
 
 
 @api_view(["GET"])
@@ -326,5 +337,7 @@ def public_stats(request):
                 row["specialty__slug"]: row["n"]
                 for row in doctors.exclude(specialty=None).values("specialty__slug").annotate(n=Count("id"))
             },
+            # Carte de l'accueil : médecins publiés regroupés par zone d'environ 10 km (latitude, longitude, nombre).
+            "places": _doctor_places(doctors),
         }
     )

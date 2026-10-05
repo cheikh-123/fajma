@@ -34,7 +34,7 @@ def iso(dt: datetime) -> str:
 class ApiTestCase(TestCase):
     def setUp(self):
         cache.clear()  # remet à zéro les limites de débit
-        self.spec = Specialty.objects.create(slug="medecine-generale", name="Médecine générale")
+        self.spec = Specialty.objects.get(slug="medecine-generale")  # catalogue installé par migration
         self.doc_user = self.make_user("doc@test.sn", "Dr Test")
         self.doctor = Doctor.objects.create(
             user=self.doc_user, full_name="Dr Test", specialty=self.spec, city="Dakar", consultation_price=15000, is_verified=True, teleconsultation=True

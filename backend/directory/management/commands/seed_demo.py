@@ -13,18 +13,11 @@ from django.core.management.base import BaseCommand
 from django.db import transaction
 
 from accounts.models import User
+from directory.specialties import CATALOG
 from directory.models import ConsultationType, Doctor, DoctorAvailability, Pharmacy, Specialty
 
-SPECIALTIES = [
-    ("medecine-generale", "Médecine générale", "Stethoscope", "Consultations de premier recours pour toute la famille."),
-    ("pediatrie", "Pédiatrie", "Baby", "Soins et suivi des enfants de 0 à 15 ans."),
-    ("cardiologie", "Cardiologie", "Heart", "Prévention et traitement des maladies cardiovasculaires."),
-    ("gynecologie", "Gynécologie", "Sparkles", "Santé de la femme et suivi de grossesse."),
-    ("dermatologie", "Dermatologie", "Sparkles", "Maladies de la peau, acné, eczéma."),
-    ("ophtalmologie", "Ophtalmologie", "Eye", "Examens de la vue et pathologies oculaires."),
-    ("neurologie", "Neurologie", "Brain", "Maux de tête, épilepsie, troubles neurologiques."),
-    ("orthopedie", "Orthopédie", "Bone", "Traumatologie, articulations, dos."),
-]
+# Catalogue complet des spécialités : directory/specialties.py (aussi installé par migration).
+SPECIALTIES = CATALOG
 
 DOCTORS = [
     ("Dr Aïssatou Diop", "medecine-generale", "Dakar", "Point E, Rue 5", "Médecin généraliste avec 12 ans d'expérience à Dakar.", 12, 15000, True, ["Français", "Wolof"]),

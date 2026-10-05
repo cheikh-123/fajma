@@ -12,7 +12,7 @@ from .test_security import ApiTestCase
 class ExpertiseTests(ApiTestCase):
     def setUp(self):
         super().setUp()
-        cardio = Specialty.objects.create(slug="cardiologie", name="Cardiologie")
+        cardio = Specialty.objects.get(slug="cardiologie")  # installée par la migration du catalogue
         self.expert_user = self.make_user("cardio@test.sn", "Dr Cardio")
         self.expert = Doctor.objects.create(user=self.expert_user, full_name="Dr Cardio", specialty=cardio, city="Dakar", is_verified=True)
         self.third_user = self.make_user("autre@test.sn", "Dr Autre")

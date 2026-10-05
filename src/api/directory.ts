@@ -117,4 +117,6 @@ export const getPublicStats = () =>
     reviews: number;
     rating: number | null;
     by_specialty: Record<string, number>;
+    /** Médecins publiés par zone (~10 km) : [latitude, longitude, nombre]. */
+    places: [number, number, number][];
   }>("/directory/stats");

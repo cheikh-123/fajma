@@ -63,6 +63,13 @@ function LegalPage() {
           </a>
           , sous licence CC BY 4.0.
         </p>
+        <p>
+          Contours du Sénégal (carte de l'accueil) :{" "}
+          <a href="https://www.naturalearthdata.com/" className="font-semibold text-sunu-green">
+            Natural Earth
+          </a>
+          , domaine public. Fond de carte de la recherche : © OpenStreetMap et ses contributeurs.
+        </p>
       </section>
     </LegalLayout>
   );
