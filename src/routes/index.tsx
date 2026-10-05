@@ -33,7 +33,7 @@ import {
   Stethoscope,
   Video,
 } from "lucide-react";
-import doctorHero from "@/assets/fajma-medecins.jpg";
+import doctorHero from "@/assets/doctor-hero.jpg";
 import medicalRecords from "@/assets/fajma-dossier.jpg";
 import pharmacyImg from "@/assets/fajma-pharmacies.jpg";
 import { FajmaMark } from "@/components/FajmaMark";
@@ -315,7 +315,7 @@ function Landing() {
           <div className="mt-16 grid gap-10 md:grid-cols-3">
             <FeatureCard
               image={doctorHero}
-              alt="Portrait illustrant les médecins de Fajma"
+              alt="Médecin sénégalaise souriante en cabinet"
               tag="Médecins vérifiés"
               title="Des spécialistes de confiance"
               body="Consultez des professionnels reconnus, diplômes vérifiés, avis patients transparents."
