@@ -3,6 +3,7 @@ const fr = {
   "nav.find": "Trouver un médecin",
   "nav.teleconsult": "Téléconsultation",
   "nav.pharmacies": "Pharmacies",
+  "nav.queue": "Ticket hôpital",
   "nav.assistant": "Assistant IA",
   "nav.pros": "Professionnels",
   "nav.imPro": "Je suis pro",

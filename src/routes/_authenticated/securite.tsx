@@ -30,7 +30,9 @@ function SecurityPage() {
         ? "/pharmacie"
         : me?.is_lab
           ? "/laboratoire"
-          : "/mon-espace";
+          : me?.is_queue_agent
+            ? "/guichet"
+            : "/mon-espace";
 
   async function signOut() {
     await qc.cancelQueries();

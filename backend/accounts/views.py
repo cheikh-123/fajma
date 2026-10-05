@@ -59,6 +59,8 @@ def user_dict(user: User, session=None) -> dict:
         "is_lab": user.lab_memberships.exists(),
         # Responsable ou secrétariat d'un établissement : arrive sur l'agenda de la clinique.
         "is_clinic_staff": Clinic.objects.filter(owner=user).exists() or user.clinic_roles.exists(),
+        # Accueil d'un hôpital ou centre de santé : arrive sur l'écran du guichet (ticket virtuel).
+        "is_queue_agent": user.queue_roles.exists(),
         "mfa_enabled": TwoFactor.objects.filter(user=user, enabled=True).exists(),
         "phone_verified": user.phone_verified,
         "preferred_language": user.preferred_language,
@@ -164,6 +166,7 @@ DEMO_ACCOUNTS = {
     "clinique": "clinique@fajma.local",
     "secretariat": "secretariat@fajma.local",
     "laboratoire": "laboratoire@fajma.local",
+    "accueil": "accueil@fajma.local",
     "admin": "admin@fajma.local",
 }
 

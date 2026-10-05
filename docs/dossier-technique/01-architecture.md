@@ -50,6 +50,7 @@ d'être écrits sur le disque (clé conservée hors des sauvegardes).
 | `backend/care/` | Suivi à domicile (mesures, repères indicatifs, alertes aux médecins) et rappels de prise de médicaments |
 | `backend/labs/` | Laboratoires d'analyses : prescription, choix du laboratoire, prélèvement, dépôt des résultats |
 | `backend/support/` | Demandes d'aide envoyées depuis la page « Aide et contact », suivies par l'administration |
+| `backend/queues/` | Ticket virtuel des hôpitaux et centres de santé : établissements, services, tickets, ordre de passage, attente estimée, SMS, guichet, écran de salle (`logic.py` : règles ; `views.py` : API) |
 | `backend/audit/` | Journal d'audit inaltérable ; commandes d'exploitation `monitor` (supervision), `purge_data` (conservation), `encrypt_files` (chiffrement et rotation de clé) |
 | `backend/tests/` | Tests automatisés de l'API |
 | `src/` | Interface React : `api/` (appels à l'API), `routes/` (pages), `components/`, `lib/` (traductions, dates, PDF) |
@@ -130,6 +131,7 @@ d'être écrits sur le disque (clé conservée hors des sauvegardes).
 | `labs_laboratory`, `…_laboratorymember`, `…_laborder` | Laboratoires, personnel rattaché, prescriptions d'analyses et résultats |
 | `pharmacy_medicinequery`, `…_medicineanswer` | Demandes de disponibilité d'un médicament et réponses des pharmacies |
 | `support_supportrequest` | Demandes d'aide (nom, contact, sujet, message, statut, note interne) |
+| `queues_facility`, `…_facilityagent`, `…_queueservice`, `…_queueticket` | Établissements à ticket, personnel d'accueil (agent / responsable), services (lettre, horaires, jours, capacité, durée moyenne, pause), tickets (numéro du jour unique par service, code de suivi non devinable, canal, priorité, trajet, guichet, horodatages des appels et des SMS) |
 | `audit_auditevent` | Journal d'audit (aucune modification ni suppression possible par l'application) |
 
 Identifiants : UUID aléatoires (aucun identifiant séquentiel devinable dans les URL). Montants : entiers en francs CFA.

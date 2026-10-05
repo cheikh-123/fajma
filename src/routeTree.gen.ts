@@ -18,6 +18,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as CguRouteImport } from './routes/cgu'
 import { Route as ConfidentialiteRouteImport } from './routes/confidentialite'
 import { Route as ConfirmerEmailRouteImport } from './routes/confirmer-email'
+import { Route as HopitauxRouteImport } from './routes/hopitaux'
 import { Route as LegalRouteImport } from './routes/legal'
 import { Route as PharmaciesRouteImport } from './routes/pharmacies'
 import { Route as TarifsRouteImport } from './routes/tarifs'
@@ -25,18 +26,21 @@ import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedCliniqueRouteImport } from './routes/_authenticated/clinique'
 import { Route as AuthenticatedDossierRouteImport } from './routes/_authenticated/dossier'
 import { Route as AuthenticatedExpertiseRouteImport } from './routes/_authenticated/expertise'
+import { Route as AuthenticatedGuichetRouteImport } from './routes/_authenticated/guichet'
 import { Route as AuthenticatedLaboratoireRouteImport } from './routes/_authenticated/laboratoire'
 import { Route as AuthenticatedMessagesRouteImport } from './routes/_authenticated/messages'
 import { Route as AuthenticatedMonEspaceRouteImport } from './routes/_authenticated/mon-espace'
 import { Route as AuthenticatedPharmacieRouteImport } from './routes/_authenticated/pharmacie'
 import { Route as AuthenticatedProRouteImport } from './routes/_authenticated/pro'
 import { Route as AuthenticatedSecuriteRouteImport } from './routes/_authenticated/securite'
+import { Route as AffichageFacilityIdRouteImport } from './routes/affichage.$facilityId'
 import { Route as CliniquesIndexRouteImport } from './routes/cliniques.index'
 import { Route as CliniquesIdRouteImport } from './routes/cliniques.$id'
 import { Route as MedecinsIndexRouteImport } from './routes/medecins/index'
 import { Route as MedecinsIdRouteImport } from './routes/medecins/$id'
 import { Route as SpecialitesIndexRouteImport } from './routes/specialites.index'
 import { Route as SpecialitesSlugRouteImport } from './routes/specialites.$slug'
+import { Route as TicketCodeRouteImport } from './routes/ticket.$code'
 import { Route as UrgenceTokenRouteImport } from './routes/urgence.$token'
 import { Route as VerifierReferenceRouteImport } from './routes/verifier.$reference'
 import { Route as WidgetDoctorIdRouteImport } from './routes/widget.$doctorId'
@@ -89,6 +93,11 @@ const ConfirmerEmailRoute = ConfirmerEmailRouteImport.update({
   path: '/confirmer-email',
   getParentRoute: () => rootRouteImport,
 } as any)
+const HopitauxRoute = HopitauxRouteImport.update({
+  id: '/hopitaux',
+  path: '/hopitaux',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LegalRoute = LegalRouteImport.update({
   id: '/legal',
   path: '/legal',
@@ -124,6 +133,11 @@ const AuthenticatedExpertiseRoute = AuthenticatedExpertiseRouteImport.update({
   path: '/expertise',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedGuichetRoute = AuthenticatedGuichetRouteImport.update({
+  id: '/guichet',
+  path: '/guichet',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedLaboratoireRoute =
   AuthenticatedLaboratoireRouteImport.update({
     id: '/laboratoire',
@@ -155,6 +169,11 @@ const AuthenticatedSecuriteRoute = AuthenticatedSecuriteRouteImport.update({
   path: '/securite',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AffichageFacilityIdRoute = AffichageFacilityIdRouteImport.update({
+  id: '/affichage/$facilityId',
+  path: '/affichage/$facilityId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CliniquesIndexRoute = CliniquesIndexRouteImport.update({
   id: '/cliniques/',
   path: '/cliniques/',
@@ -183,6 +202,11 @@ const SpecialitesIndexRoute = SpecialitesIndexRouteImport.update({
 const SpecialitesSlugRoute = SpecialitesSlugRouteImport.update({
   id: '/specialites/$slug',
   path: '/specialites/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TicketCodeRoute = TicketCodeRouteImport.update({
+  id: '/ticket/$code',
+  path: '/ticket/$code',
   getParentRoute: () => rootRouteImport,
 } as any)
 const UrgenceTokenRoute = UrgenceTokenRouteImport.update({
@@ -233,6 +257,7 @@ export interface FileRoutesByFullPath {
   '/cgu': typeof CguRoute
   '/confidentialite': typeof ConfidentialiteRoute
   '/confirmer-email': typeof ConfirmerEmailRoute
+  '/hopitaux': typeof HopitauxRoute
   '/legal': typeof LegalRoute
   '/pharmacies': typeof PharmaciesRoute
   '/tarifs': typeof TarifsRoute
@@ -240,15 +265,18 @@ export interface FileRoutesByFullPath {
   '/clinique': typeof AuthenticatedCliniqueRoute
   '/dossier': typeof AuthenticatedDossierRoute
   '/expertise': typeof AuthenticatedExpertiseRoute
+  '/guichet': typeof AuthenticatedGuichetRoute
   '/laboratoire': typeof AuthenticatedLaboratoireRoute
   '/messages': typeof AuthenticatedMessagesRoute
   '/mon-espace': typeof AuthenticatedMonEspaceRoute
   '/pharmacie': typeof AuthenticatedPharmacieRoute
   '/pro': typeof AuthenticatedProRoute
   '/securite': typeof AuthenticatedSecuriteRoute
+  '/affichage/$facilityId': typeof AffichageFacilityIdRoute
   '/cliniques/$id': typeof CliniquesIdRoute
   '/medecins/$id': typeof MedecinsIdRoute
   '/specialites/$slug': typeof SpecialitesSlugRoute
+  '/ticket/$code': typeof TicketCodeRoute
   '/urgence/$token': typeof UrgenceTokenRoute
   '/verifier/$reference': typeof VerifierReferenceRoute
   '/widget/$doctorId': typeof WidgetDoctorIdRoute
@@ -269,6 +297,7 @@ export interface FileRoutesByTo {
   '/cgu': typeof CguRoute
   '/confidentialite': typeof ConfidentialiteRoute
   '/confirmer-email': typeof ConfirmerEmailRoute
+  '/hopitaux': typeof HopitauxRoute
   '/legal': typeof LegalRoute
   '/pharmacies': typeof PharmaciesRoute
   '/tarifs': typeof TarifsRoute
@@ -276,15 +305,18 @@ export interface FileRoutesByTo {
   '/clinique': typeof AuthenticatedCliniqueRoute
   '/dossier': typeof AuthenticatedDossierRoute
   '/expertise': typeof AuthenticatedExpertiseRoute
+  '/guichet': typeof AuthenticatedGuichetRoute
   '/laboratoire': typeof AuthenticatedLaboratoireRoute
   '/messages': typeof AuthenticatedMessagesRoute
   '/mon-espace': typeof AuthenticatedMonEspaceRoute
   '/pharmacie': typeof AuthenticatedPharmacieRoute
   '/pro': typeof AuthenticatedProRoute
   '/securite': typeof AuthenticatedSecuriteRoute
+  '/affichage/$facilityId': typeof AffichageFacilityIdRoute
   '/cliniques/$id': typeof CliniquesIdRoute
   '/medecins/$id': typeof MedecinsIdRoute
   '/specialites/$slug': typeof SpecialitesSlugRoute
+  '/ticket/$code': typeof TicketCodeRoute
   '/urgence/$token': typeof UrgenceTokenRoute
   '/verifier/$reference': typeof VerifierReferenceRoute
   '/widget/$doctorId': typeof WidgetDoctorIdRoute
@@ -307,6 +339,7 @@ export interface FileRoutesById {
   '/cgu': typeof CguRoute
   '/confidentialite': typeof ConfidentialiteRoute
   '/confirmer-email': typeof ConfirmerEmailRoute
+  '/hopitaux': typeof HopitauxRoute
   '/legal': typeof LegalRoute
   '/pharmacies': typeof PharmaciesRoute
   '/tarifs': typeof TarifsRoute
@@ -314,15 +347,18 @@ export interface FileRoutesById {
   '/_authenticated/clinique': typeof AuthenticatedCliniqueRoute
   '/_authenticated/dossier': typeof AuthenticatedDossierRoute
   '/_authenticated/expertise': typeof AuthenticatedExpertiseRoute
+  '/_authenticated/guichet': typeof AuthenticatedGuichetRoute
   '/_authenticated/laboratoire': typeof AuthenticatedLaboratoireRoute
   '/_authenticated/messages': typeof AuthenticatedMessagesRoute
   '/_authenticated/mon-espace': typeof AuthenticatedMonEspaceRoute
   '/_authenticated/pharmacie': typeof AuthenticatedPharmacieRoute
   '/_authenticated/pro': typeof AuthenticatedProRoute
   '/_authenticated/securite': typeof AuthenticatedSecuriteRoute
+  '/affichage/$facilityId': typeof AffichageFacilityIdRoute
   '/cliniques/$id': typeof CliniquesIdRoute
   '/medecins/$id': typeof MedecinsIdRoute
   '/specialites/$slug': typeof SpecialitesSlugRoute
+  '/ticket/$code': typeof TicketCodeRoute
   '/urgence/$token': typeof UrgenceTokenRoute
   '/verifier/$reference': typeof VerifierReferenceRoute
   '/widget/$doctorId': typeof WidgetDoctorIdRoute
@@ -345,6 +381,7 @@ export interface FileRouteTypes {
     | '/cgu'
     | '/confidentialite'
     | '/confirmer-email'
+    | '/hopitaux'
     | '/legal'
     | '/pharmacies'
     | '/tarifs'
@@ -352,15 +389,18 @@ export interface FileRouteTypes {
     | '/clinique'
     | '/dossier'
     | '/expertise'
+    | '/guichet'
     | '/laboratoire'
     | '/messages'
     | '/mon-espace'
     | '/pharmacie'
     | '/pro'
     | '/securite'
+    | '/affichage/$facilityId'
     | '/cliniques/$id'
     | '/medecins/$id'
     | '/specialites/$slug'
+    | '/ticket/$code'
     | '/urgence/$token'
     | '/verifier/$reference'
     | '/widget/$doctorId'
@@ -381,6 +421,7 @@ export interface FileRouteTypes {
     | '/cgu'
     | '/confidentialite'
     | '/confirmer-email'
+    | '/hopitaux'
     | '/legal'
     | '/pharmacies'
     | '/tarifs'
@@ -388,15 +429,18 @@ export interface FileRouteTypes {
     | '/clinique'
     | '/dossier'
     | '/expertise'
+    | '/guichet'
     | '/laboratoire'
     | '/messages'
     | '/mon-espace'
     | '/pharmacie'
     | '/pro'
     | '/securite'
+    | '/affichage/$facilityId'
     | '/cliniques/$id'
     | '/medecins/$id'
     | '/specialites/$slug'
+    | '/ticket/$code'
     | '/urgence/$token'
     | '/verifier/$reference'
     | '/widget/$doctorId'
@@ -418,6 +462,7 @@ export interface FileRouteTypes {
     | '/cgu'
     | '/confidentialite'
     | '/confirmer-email'
+    | '/hopitaux'
     | '/legal'
     | '/pharmacies'
     | '/tarifs'
@@ -425,15 +470,18 @@ export interface FileRouteTypes {
     | '/_authenticated/clinique'
     | '/_authenticated/dossier'
     | '/_authenticated/expertise'
+    | '/_authenticated/guichet'
     | '/_authenticated/laboratoire'
     | '/_authenticated/messages'
     | '/_authenticated/mon-espace'
     | '/_authenticated/pharmacie'
     | '/_authenticated/pro'
     | '/_authenticated/securite'
+    | '/affichage/$facilityId'
     | '/cliniques/$id'
     | '/medecins/$id'
     | '/specialites/$slug'
+    | '/ticket/$code'
     | '/urgence/$token'
     | '/verifier/$reference'
     | '/widget/$doctorId'
@@ -456,12 +504,15 @@ export interface RootRouteChildren {
   CguRoute: typeof CguRoute
   ConfidentialiteRoute: typeof ConfidentialiteRoute
   ConfirmerEmailRoute: typeof ConfirmerEmailRoute
+  HopitauxRoute: typeof HopitauxRoute
   LegalRoute: typeof LegalRoute
   PharmaciesRoute: typeof PharmaciesRoute
   TarifsRoute: typeof TarifsRoute
+  AffichageFacilityIdRoute: typeof AffichageFacilityIdRoute
   CliniquesIdRoute: typeof CliniquesIdRoute
   MedecinsIdRoute: typeof MedecinsIdRoute
   SpecialitesSlugRoute: typeof SpecialitesSlugRoute
+  TicketCodeRoute: typeof TicketCodeRoute
   UrgenceTokenRoute: typeof UrgenceTokenRoute
   VerifierReferenceRoute: typeof VerifierReferenceRoute
   WidgetDoctorIdRoute: typeof WidgetDoctorIdRoute
@@ -535,6 +586,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ConfirmerEmailRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/hopitaux': {
+      id: '/hopitaux'
+      path: '/hopitaux'
+      fullPath: '/hopitaux'
+      preLoaderRoute: typeof HopitauxRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/legal': {
       id: '/legal'
       path: '/legal'
@@ -584,6 +642,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedExpertiseRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/guichet': {
+      id: '/_authenticated/guichet'
+      path: '/guichet'
+      fullPath: '/guichet'
+      preLoaderRoute: typeof AuthenticatedGuichetRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/laboratoire': {
       id: '/_authenticated/laboratoire'
       path: '/laboratoire'
@@ -626,6 +691,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSecuriteRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/affichage/$facilityId': {
+      id: '/affichage/$facilityId'
+      path: '/affichage/$facilityId'
+      fullPath: '/affichage/$facilityId'
+      preLoaderRoute: typeof AffichageFacilityIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/cliniques/': {
       id: '/cliniques/'
       path: '/cliniques'
@@ -666,6 +738,13 @@ declare module '@tanstack/react-router' {
       path: '/specialites/$slug'
       fullPath: '/specialites/$slug'
       preLoaderRoute: typeof SpecialitesSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ticket/$code': {
+      id: '/ticket/$code'
+      path: '/ticket/$code'
+      fullPath: '/ticket/$code'
+      preLoaderRoute: typeof TicketCodeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/urgence/$token': {
@@ -725,6 +804,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedCliniqueRoute: typeof AuthenticatedCliniqueRoute
   AuthenticatedDossierRoute: typeof AuthenticatedDossierRoute
   AuthenticatedExpertiseRoute: typeof AuthenticatedExpertiseRoute
+  AuthenticatedGuichetRoute: typeof AuthenticatedGuichetRoute
   AuthenticatedLaboratoireRoute: typeof AuthenticatedLaboratoireRoute
   AuthenticatedMessagesRoute: typeof AuthenticatedMessagesRoute
   AuthenticatedMonEspaceRoute: typeof AuthenticatedMonEspaceRoute
@@ -742,6 +822,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedCliniqueRoute: AuthenticatedCliniqueRoute,
   AuthenticatedDossierRoute: AuthenticatedDossierRoute,
   AuthenticatedExpertiseRoute: AuthenticatedExpertiseRoute,
+  AuthenticatedGuichetRoute: AuthenticatedGuichetRoute,
   AuthenticatedLaboratoireRoute: AuthenticatedLaboratoireRoute,
   AuthenticatedMessagesRoute: AuthenticatedMessagesRoute,
   AuthenticatedMonEspaceRoute: AuthenticatedMonEspaceRoute,
@@ -767,12 +848,15 @@ const rootRouteChildren: RootRouteChildren = {
   CguRoute: CguRoute,
   ConfidentialiteRoute: ConfidentialiteRoute,
   ConfirmerEmailRoute: ConfirmerEmailRoute,
+  HopitauxRoute: HopitauxRoute,
   LegalRoute: LegalRoute,
   PharmaciesRoute: PharmaciesRoute,
   TarifsRoute: TarifsRoute,
+  AffichageFacilityIdRoute: AffichageFacilityIdRoute,
   CliniquesIdRoute: CliniquesIdRoute,
   MedecinsIdRoute: MedecinsIdRoute,
   SpecialitesSlugRoute: SpecialitesSlugRoute,
+  TicketCodeRoute: TicketCodeRoute,
   UrgenceTokenRoute: UrgenceTokenRoute,
   VerifierReferenceRoute: VerifierReferenceRoute,
   WidgetDoctorIdRoute: WidgetDoctorIdRoute,

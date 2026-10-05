@@ -1,6 +1,6 @@
 # Dossier technique et sécurité — Fajma
 
-**Version du dossier :** 4.7 — 5 octobre 2026
+**Version du dossier :** 4.8 — 5 octobre 2026
 **Périmètre :** code source du dépôt `sante-connect-main` (backend Django, frontend React, déploiement), services tiers.
 **Public visé :** acquéreurs, investisseurs, auditeurs techniques et juridiques, équipe technique reprenant le projet.
 
@@ -26,7 +26,7 @@ ni à Supabase.
 | Messages | Twilio : SMS et WhatsApp ; notifications push du navigateur (Web Push, gratuites) |
 | Téléconsultation | Jitsi Meet (serveur public au démarrage, auto-hébergeable) |
 | Assistant IA | Fournisseur configurable via une API compatible OpenAI (Google Gemini par défaut) |
-| Qualité | 302 tests automatisés de l'API ; parcours de bout en bout dans un navigateur réel pour chaque rôle ; intégration continue GitHub Actions |
+| Qualité | 312 tests automatisés de l'API ; parcours de bout en bout dans un navigateur réel pour chaque rôle ; intégration continue GitHub Actions |
 | Taille du code | ≈ 14 900 lignes Python (hors tests et migrations), ≈ 3 900 lignes de tests, ≈ 32 600 lignes TypeScript/React |
 
 ## 2. Contenu du dossier
@@ -86,7 +86,7 @@ ni à Supabase.
 
 ## 4. Méthode
 
-Dossier établi par lecture intégrale du code source, exécution de la suite de tests de l'API (302 tests) et
+Dossier établi par lecture intégrale du code source, exécution de la suite de tests de l'API (312 tests) et
 de parcours de bout en bout dans un navigateur réel (Chrome et Edge, ordinateur et mobile) : patient, médecin,
 médecin remplaçant, clinique, secrétariat, pharmacien, administrateur, activation obligatoire de la double
 authentification, mode hors ligne sur le build de production.
@@ -131,3 +131,4 @@ Ces points sont signalés **« À vérifier »**.
 | 4.5 | 05/10/2026 | Aperçu d'ordonnance du médecin : filigrane Fajma (symbole et nom, vert très pâle) à la place de « SPÉCIMEN » ; l'aperçu reste un exemple (référence SPECIMEN, patient fictif, QR code non vérifiable) |
 | 4.6 | 05/10/2026 | **Justificatifs obligatoires pour tous les professionnels** (§ 1, § 8.12) : médecin (Ordre + pièce d'identité), clinique (autorisation du ministère de la Santé, NINEA/RCCM, pièce d'identité du responsable, médecin responsable), pharmacie (autorisation d'exploitation, pharmacien titulaire inscrit à l'Ordre), laboratoire (agrément, biologiste responsable inscrit) ; dates de validité, rappels 30 jours avant et à l'échéance, publication impossible sans toutes les pièces validées et valides ; pharmacies et laboratoires partenaires désormais validés aussi par l'administration ; liste modifiable en un seul endroit. En-tête des PDF allégé à la demande du fondateur : fond blanc, bande tricolore avec l'étoile sous les informations (comme le bas de page) ; le PDF de ce dossier reprend le même en-tête et le même bas de page |
 | 4.7 | 05/10/2026 | **Audit « ce qu'on ne peut pas saisir ou corriger »** sur toutes les interfaces (§ 8.13) : adresse email ajoutable et modifiable (confirmée par un lien envoyé à la nouvelle adresse, mot de passe demandé, ancienne adresse prévenue) ; correction des proches (et leur téléphone), des assurances, des lieux de consultation ; fiche du laboratoire modifiable par le laboratoire et par l'administration ; rôle du secrétariat et titre des médecins modifiables dans la clinique ; suivi de ses demandes d'aide ; correction du nom ou de la spécialité d'un médecin vérifié par l'administration (motif obligatoire, journalisé) ; passage de toutes les pages de tous les rôles dans un navigateur réel sans erreur |
+| 4.8 | 05/10/2026 | **Ticket virtuel à l'hôpital** (§ 8.14) : le patient prend son numéro depuis chez lui (site, USSD, WhatsApp), suit sa place et l'attente estimée en direct, reçoit les SMS « c'est bientôt », « partez maintenant » (selon son temps de trajet) et « c'est votre tour, box 2 » ; l'accueil appelle les numéros, gère priorités (femme enceinte, personne âgée, urgence…), absents et tickets remis au guichet (imprimables) ; écran de salle d'attente avec annonce vocale ; bilan du jour et réglage des services pour le responsable ; établissements gérés par l'administration |

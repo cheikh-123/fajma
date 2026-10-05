@@ -145,7 +145,28 @@ class Command(BaseCommand):
                       "latitude": 14.6937, "longitude": -17.4613},
         )
         LaboratoryMember.objects.get_or_create(laboratory=lab, user=lab_user)
-        for u in (admin, patient, doc_user, pharmacist, cardio_user, clinic_owner, secretary, lab_user):
+        # Ticket virtuel : un hôpital de démonstration, trois services, une responsable d'accueil.
+        from datetime import time as _time
+
+        from queues.models import Facility, FacilityAgent, QueueService
+
+        desk_user, _ = User.objects.get_or_create(email="accueil@fajma.local", defaults={"full_name": "Ndèye Diouf (accueil)"})
+        hospital, _ = Facility.objects.get_or_create(
+            name="Hôpital de démonstration de Fann",
+            defaults={"kind": "hopital", "city": "Dakar", "district": "Fann", "address": "Avenue Cheikh Anta Diop",
+                      "phone": "338691818", "latitude": 14.6928, "longitude": -17.4628},
+        )
+        for i, (name, prefix, opens, closes) in enumerate(
+            (("Consultation générale", "A", _time(6, 0), _time(14, 0)), ("Pédiatrie", "P", _time(7, 0), _time(13, 0)),
+             ("Maternité (consultations prénatales)", "M", _time(7, 30), _time(12, 30)))
+        ):
+            QueueService.objects.get_or_create(
+                facility=hospital, name=name,
+                defaults={"prefix": prefix, "opens_at": opens, "closes_at": closes, "open_days": [1, 2, 3, 4, 5, 6],
+                          "avg_minutes": 12, "daily_capacity": 120, "position": i},
+            )
+        FacilityAgent.objects.get_or_create(facility=hospital, user=desk_user, defaults={"role": "manager"})
+        for u in (admin, patient, doc_user, pharmacist, cardio_user, clinic_owner, secretary, lab_user, desk_user):
             u.set_password(DEMO_PASSWORD)
             u.save()
         Doctor.objects.filter(full_name="Dr Aïssatou Diop", user__isnull=True).update(user=doc_user)

@@ -41,10 +41,13 @@ class Command(BaseCommand):
         from directory.credentials import send_expiry_reminders
 
         expiring = send_expiry_reminders(now)
+        from queues.logic import expire_old_tickets
+
+        expired_tickets = expire_old_tickets()
         self.stdout.write(
             f"rappels : {queued} planifiés, {sent} envoyés, {failed} en échec ; {recalls} rappels patients ; "
             f"{vaccines} rappels vaccins ; {prenatal} rappels prénataux ; {medications} rappels de médicaments ; "
-            f"{renewals} rappels de renouvellement ; {expiring} justificatifs à renouveler"
+            f"{renewals} rappels de renouvellement ; {expiring} justificatifs à renouveler ; {expired_tickets} tickets de file expirés"
         )
 
     def send_recalls(self, now) -> int:

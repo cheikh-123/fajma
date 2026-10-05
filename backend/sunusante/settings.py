@@ -100,6 +100,7 @@ INSTALLED_APPS = [
     "care",
     "labs",
     "support",
+    "queues",
 ]
 
 MIDDLEWARE = [
@@ -269,6 +270,7 @@ REST_FRAMEWORK = {
         "client_errors": "30/min",
         "support": "5/hour",
         "ai_notes": "60/hour",
+        "queue": "30/hour",
     },
 }
 

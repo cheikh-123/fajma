@@ -30,6 +30,7 @@ from accounts.security import admin_login
 from care import views as care
 from labs import views as labs
 from support import views as support
+from queues import views as queues
 from medical import ai_notes
 from medical import emergency, record_export, renewals
 
@@ -238,6 +239,8 @@ admin_urls = [
     path("laboratories/<uuid:laboratory_id>/members", labs.admin_lab_member),
     path("laboratories/<uuid:laboratory_id>", labs.admin_update_laboratory),
     path("doctors/<uuid:doctor_id>", accounts.admin_correct_doctor),
+    path("facilities", queues.admin_facilities),
+    path("facilities/<uuid:facility_id>", queues.admin_facility),
     path("pharmacies/<uuid:pharmacy_id>", pharmacy.admin_update_pharmacy),
     path("reviews", reviews.admin_reviews),
     path("credentials", credentials.admin_credentials),
@@ -320,6 +323,22 @@ urlpatterns = [
     path("api/health", core.health),
     path("api/support", support.create_request),
     path("api/support/mine", support.my_requests),
+    # Ticket virtuel (files d'attente des hôpitaux et centres de santé)
+    path("api/queues/", include([
+        path("facilities", queues.facilities),
+        path("facilities/<uuid:facility_id>", queues.facility_detail),
+        path("facilities/<uuid:facility_id>/display", queues.display),
+        path("facilities/<uuid:facility_id>/services", queues.save_service),
+        path("services/<uuid:service_id>/take", queues.take),
+        path("services/<uuid:service_id>/call", queues.call_next),
+        path("services/<uuid:service_id>/walk-in", queues.walk_in),
+        path("services/<uuid:service_id>/pause", queues.pause_service),
+        path("tickets/<uuid:ticket_id>/action", queues.ticket_action),
+        path("tickets/<str:code>", queues.ticket_by_code),
+        path("tickets/<str:code>/cancel", queues.cancel_by_code),
+        path("mine", queues.my_tickets),
+        path("desk", queues.desk),
+    ])),
     path("api/emergency/<str:token>", emergency.public_card),
     path("api/events", stream.event_stream),
     path("api/calendar/<str:token>.ics", calendar_sync.calendar_feed),

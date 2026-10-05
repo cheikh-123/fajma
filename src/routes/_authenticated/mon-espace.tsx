@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { AppointmentHistory } from "@/components/AppointmentHistory";
 import { InstallApp } from "@/components/InstallApp";
+import { MyTicketsCard } from "@/components/MyTicketsCard";
 import { QuestionnaireForm } from "@/components/QuestionnaireForm";
 import {
   useSuspenseQuery,
@@ -227,6 +228,14 @@ function MyAreaPage() {
                 Espace pharmacie
               </Link>
             )}
+            {me?.is_queue_agent && (
+              <Link
+                to="/guichet"
+                className="flex items-center gap-2 rounded-full bg-sunu-teal px-4 py-2.5 text-sm font-semibold text-white"
+              >
+                Accueil hôpital
+              </Link>
+            )}
             {me?.is_lab && (
               <Link
                 to="/laboratoire"
@@ -329,6 +338,7 @@ function MyAreaPage() {
                 </Link>
               </div>
             )}
+            <MyTicketsCard />
             <RelativesPanel />
             <WaitlistPanel />
           </aside>

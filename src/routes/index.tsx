@@ -121,6 +121,9 @@ function Landing() {
             <Link to="/pharmacies" className="hover:text-sunu-green">
               {t("nav.pharmacies")}
             </Link>
+            <Link to="/hopitaux" className="hover:text-sunu-green">
+              {t("nav.queue")}
+            </Link>
             <Link to="/assistant" className="hover:text-sunu-green">
               {t("nav.assistant")}
             </Link>
@@ -338,6 +341,30 @@ function Landing() {
               icon={Pill}
             />
           </div>
+        </div>
+      </section>
+
+      {/* TICKET VIRTUEL */}
+      <section className="reveal mx-auto max-w-7xl px-6 pt-16">
+        <div className="flex flex-col items-start gap-6 rounded-3xl bg-sunu-green p-8 text-white md:flex-row md:items-center md:p-10">
+          <div className="flex-1">
+            <p className="text-xs font-bold uppercase tracking-widest text-white/80">
+              Nouveau · Ticket virtuel
+            </p>
+            <h2 className="mt-2 text-2xl font-bold md:text-3xl">
+              Plus besoin de faire la queue dès 5 h du matin à l'hôpital
+            </h2>
+            <p className="mt-2 max-w-2xl text-sm text-white/85">
+              Prenez votre numéro depuis chez vous, suivez votre place en direct et recevez un SMS «
+              Partez maintenant » au bon moment. Sans internet : par USSD ou WhatsApp.
+            </p>
+          </div>
+          <Link
+            to="/hopitaux"
+            className="shrink-0 rounded-full bg-white px-6 py-3 text-sm font-bold text-sunu-green hover:bg-white/90"
+          >
+            Prendre un ticket
+          </Link>
         </div>
       </section>
 
@@ -589,6 +616,7 @@ function Landing() {
                 { label: "Téléconsultation", to: "/medecins", search: { tele: "1" } },
                 { label: "Assistant symptômes", to: "/assistant" },
                 { label: "Pharmacies", to: "/pharmacies" },
+                { label: "Ticket virtuel à l'hôpital", to: "/hopitaux" },
                 { label: "Aide et contact", to: "/aide" },
               ]}
             />

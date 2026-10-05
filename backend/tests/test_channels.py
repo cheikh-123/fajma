@@ -126,17 +126,17 @@ class UssdTests(ApiTestCase):
         self.assertIn("END Pharmacies Ville6", self.ussd("4*9*2", session="P1"))
 
     def test_language_choice(self):
-        self.assertIn("5. Làkk / Langue / Language", self.ussd("", session="L1"))
-        home_wo = self.ussd("5*2", session="L1")
+        self.assertIn("6. Làkk / Langue / Language", self.ussd("", session="L1"))
+        home_wo = self.ussd("6*2", session="L1")
         self.assertIn("Jël ndaje", home_wo)
-        self.assertEqual(self.ussd("5*2*2", session="L1"), "END Amoo benn ndaje buy ñëw.")
-        self.assertIn("Book an appointment", self.ussd("5*3", session="L2"))
+        self.assertEqual(self.ussd("6*2*2", session="L1"), "END Amoo benn ndaje buy ñëw.")
+        self.assertIn("Book an appointment", self.ussd("6*3", session="L2"))
 
     def test_language_saved_on_account(self):
         from accounts.models import User
 
         user = User.objects.create_user(None, phone="+221770000005", full_name="Modou", phone_verified=True)
-        self.ussd("5*3", session="L3", phone="221770000005")
+        self.ussd("6*3", session="L3", phone="221770000005")
         user.refresh_from_db()
         self.assertEqual(user.preferred_language, "en")
         # Nouvelle session : la langue du compte s'applique d'emblée.

@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { z } from "zod";
 import {
+  Ticket,
   Building2,
   ClipboardList,
   FlaskConical,
@@ -125,7 +126,9 @@ function AuthPage() {
                 ? "/laboratoire"
                 : user.is_clinic_staff
                   ? "/clinique"
-                  : "/mon-espace",
+                  : user.is_queue_agent
+                    ? "/guichet"
+                    : "/mon-espace",
       });
   }
 
@@ -338,6 +341,7 @@ const DEMO: { id: DemoAccount; label: string; icon: LucideIcon; to: string }[] =
   { id: "clinique", label: "Clinique", icon: Building2, to: "/clinique" },
   { id: "secretariat", label: "Secrétariat", icon: ClipboardList, to: "/clinique" },
   { id: "laboratoire", label: "Laboratoire", icon: FlaskConical, to: "/laboratoire" },
+  { id: "accueil", label: "Accueil hôpital", icon: Ticket, to: "/guichet" },
   { id: "admin", label: "Administrateur", icon: ShieldCheck, to: "/admin" },
 ];
 

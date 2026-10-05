@@ -7,6 +7,7 @@ const wo: Dict = {
   "nav.find": "Wut ab doktoor",
   "nav.teleconsult": "Seetu ci wideyo",
   "nav.pharmacies": "Farmasi yi",
+  "nav.queue": "Tike opitaal",
   "nav.assistant": "Ndimbal IA",
   "nav.pros": "Liggéeykati wér-gi-yaram",
   "nav.imPro": "Doktoor laa",
