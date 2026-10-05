@@ -1,6 +1,6 @@
 # Dossier technique et sécurité — Fajma
 
-**Version du dossier :** 4.4 — 5 octobre 2026
+**Version du dossier :** 4.5 — 5 octobre 2026
 **Périmètre :** code source du dépôt `sante-connect-main` (backend Django, frontend React, déploiement), services tiers.
 **Public visé :** acquéreurs, investisseurs, auditeurs techniques et juridiques, équipe technique reprenant le projet.
 
@@ -128,3 +128,4 @@ Ces points sont signalés **« À vérifier »**.
 | 4.2 | 05/10/2026 | Étoile verte du drapeau sénégalais ajoutée au centre de la bande jaune : bande du site, PDF (ordonnances, certificats, reçus, dossier médical), images de l'accueil, couverture du dossier ; images de l'accueil simplifiées pour être lisibles en petit |
 | 4.3 | 05/10/2026 | Nouvel en-tête des documents PDF choisi parmi 6 propositions : bandeau vert, logo blanc et phrase « Votre santé, simplement », bande tricolore avec l'étoile, titres espacés (ordonnances, certificats, courriers, reçus, dossier médical) ; nouvelle photo « Médecins vérifiés » sur l'accueil |
 | 4.4 | 05/10/2026 | Nouveau bas de page des documents PDF choisi parmi 6 propositions : fine bande tricolore avec l'étoile, mention centrée, « fajma.sn · Page x/y » ; le dossier médical et le reçu utilisent désormais le même bas de page |
+| 4.5 | 05/10/2026 | Aperçu d'ordonnance du médecin : filigrane Fajma (symbole et nom, vert très pâle) à la place de « SPÉCIMEN » ; l'aperçu reste un exemple (référence SPECIMEN, patient fictif, QR code non vérifiable) |

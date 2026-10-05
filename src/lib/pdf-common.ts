@@ -349,6 +349,35 @@ export function drawFajmaLogo(
   return size * 1.3 + bold.widthOfTextAtSize("Fajma", textSize);
 }
 
+/**
+ * Filigrane Fajma au centre de la page (symbole et nom, vert très pâle), par exemple sur l'aperçu d'ordonnance
+ * du médecin. Discret : le texte du document reste parfaitement lisible par-dessus.
+ */
+export function drawFajmaWatermark(page: PDFPage, bold: PDFFont) {
+  const size = 190;
+  const unit = size / 32;
+  const x = (PAGE[0] - size) / 2;
+  const top = PAGE[1] / 2 + size / 2 + 40;
+  const faint = { opacity: 0.07 };
+  page.drawSvgPath(FAJMA_MARK_PATHS.bubble, { x, y: top, scale: unit, color: GREEN, ...faint });
+  const letter = {
+    x: x + FAJMA_MARK_LETTER.dx * unit,
+    y: top - FAJMA_MARK_LETTER.dy * unit,
+    scale: unit * FAJMA_MARK_LETTER.scale,
+  };
+  page.drawSvgPath(FAJMA_MARK_PATHS.letter, { ...letter, color: GREEN, opacity: 0.12 });
+  const word = "Fajma";
+  const wordSize = 96;
+  page.drawText(word, {
+    x: (PAGE[0] - bold.widthOfTextAtSize(word, wordSize)) / 2,
+    y: top - size - 100,
+    size: wordSize,
+    font: bold,
+    color: GREEN,
+    ...faint,
+  });
+}
+
 /** Texte centré sur la largeur utile de la page. */
 function textCenter(
   page: PDFPage,

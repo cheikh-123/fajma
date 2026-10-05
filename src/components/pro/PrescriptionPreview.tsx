@@ -81,21 +81,16 @@ export function PrescriptionPreview({
         verify_url: `${window.location.origin}/verifier/SPECIMEN`,
       };
       // Bibliothèque PDF chargée seulement à la demande d'aperçu (allège l'espace médecin).
-      const [{ degrees, PDFDocument, rgb, StandardFonts }, { buildPrescriptionPdf }] =
-        await Promise.all([import("pdf-lib"), import("@/lib/prescription-pdf")]);
+      const [{ PDFDocument, StandardFonts }, { buildPrescriptionPdf }, { drawFajmaWatermark }] =
+        await Promise.all([
+          import("pdf-lib"),
+          import("@/lib/prescription-pdf"),
+          import("@/lib/pdf-common"),
+        ]);
       const pdf = await PDFDocument.load(await buildPrescriptionPdf(sample));
       const font = await pdf.embedFont(StandardFonts.HelveticaBold);
-      for (const page of pdf.getPages()) {
-        page.drawText("SPÉCIMEN", {
-          x: 130,
-          y: 300,
-          size: 90,
-          font,
-          color: rgb(0.89, 0.106, 0.137),
-          opacity: 0.18,
-          rotate: degrees(35),
-        });
-      }
+      // Filigrane Fajma : l'aperçu reste un exemple (référence « SPECIMEN », patient fictif, QR non vérifiable).
+      for (const page of pdf.getPages()) drawFajmaWatermark(page, font);
       const url = URL.createObjectURL(
         new Blob([(await pdf.save()) as BlobPart], { type: "application/pdf" }),
       );
