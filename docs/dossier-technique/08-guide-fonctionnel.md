@@ -27,8 +27,10 @@ d'abord conduit à l'activer ; il est déconnecté après 30 minutes sans activi
 
 1. Saisir son numéro de téléphone, recevoir un code à 6 chiffres par SMS (3 codes au plus par 10 minutes),
    le saisir : le compte est créé. L'email et le mot de passe restent possibles.
-2. Compléter son profil (nom, ville, langue : français, wolof ou anglais) et ajouter ses proches (enfants,
-   parents) pour prendre rendez-vous et tenir leur carnet à leur nom.
+2. Compléter son profil (nom, téléphone, **email**, ville, langue : français, wolof ou anglais) et ajouter ses
+   proches (enfants, parents) pour prendre rendez-vous et tenir leur carnet à leur nom. Proches et assurances se
+   corrigent à tout moment (crayon). L'email s'ajoute ou se change dans « Mes coordonnées » : un lien est envoyé
+   à la nouvelle adresse, qui n'est enregistrée qu'à son ouverture.
 3. Chaque connexion depuis un appareil jamais utilisé déclenche une alerte (email, ou SMS sans email).
 
 **Trouver un médecin et réserver**
@@ -147,7 +149,8 @@ internet).
 ## 8.4 Secrétariat et clinique
 
 - **Responsable** : crée l'établissement, invite les médecins et la secrétaire, modifie les informations,
-  retire un médecin qui part, dépose les justificatifs de l'établissement (§ 8.12). La clinique est publiée
+  retire un médecin qui part, change le titre affiché d'un médecin (« Chef de service »…) ou le rôle d'un membre
+  du secrétariat (secrétaire / gestionnaire), dépose les justificatifs de l'établissement (§ 8.12). La clinique est publiée
   après vérification par Fajma.
 - **Secrétaire** : agenda de tous les médecins par semaine, prise de RDV au guichet ou au téléphone (même pour
   un patient sans compte, avec son téléphone pour les rappels), créneaux libres proposés, déplacement,
@@ -169,6 +172,8 @@ internet).
 - Demandes d'analyses reçues : patients attendus, « prélèvement effectué », dépôt des résultats (PDF ou image,
   avec commentaire). Les résultats rejoignent le dossier du patient ; patient et médecin prescripteur sont
   prévenus. Recherche par référence ou par nom.
+- **Fiche du laboratoire** : quartier, adresse, téléphone et horaires affichés aux patients (le nom et la ville
+  sont corrigés par l'équipe Fajma).
 - **Justificatifs du laboratoire** (§ 8.12) : tant qu'ils ne sont pas validés, le laboratoire n'est pas
   proposé aux patients.
 
@@ -177,6 +182,8 @@ internet).
 - Bandeau **« À traiter »** : médecins et établissements à valider, justificatifs à vérifier, justificatifs
   expirés ou qui expirent dans les 30 jours, avis signalés, virements et
   remboursements, demandes d'aide, SMS en échec.
+- **Correction d'une fiche médecin vérifiée** (nom, spécialité) sur justificatif : crayon dans « Validation des
+  médecins », motif obligatoire, journalisé, médecin prévenu. **Laboratoires** : fiche corrigible (crayon).
 - **Justificatifs** : une seule liste (filtre médecins, cliniques, pharmacies, laboratoires), ouvrir la pièce,
   la vérifier à la source, valider ou refuser avec un motif envoyé au professionnel.
 - Validation des médecins, cliniques, pharmacies et laboratoires : refusée tant qu'une pièce obligatoire
@@ -194,7 +201,7 @@ internet).
 ## 8.8 Visiteurs et secours
 
 - **Aide et contact** : numéros d'urgence (SAMU 1515, sapeurs-pompiers 18), questions fréquentes avec recherche,
-  formulaire de contact.
+  formulaire de contact ; une personne connectée y retrouve ses demandes et leur état (en cours, traitée).
 - **Tarifs** des professionnels, **vérification d'une ordonnance** par sa référence ou son QR code (sans contenu
   médical).
 - **Fiche d'urgence** (QR code) : identité, âge et informations choisies par le patient, bouton « Appeler le
@@ -287,3 +294,24 @@ automatiquement : l'administration voit ce qui manque et décide.
   demander.
 - La liste est à faire valider par un juriste et les Ordres professionnels ; elle se modifie en un seul endroit
   (`backend/directory/requirements.py`), écrans et contrôles suivent automatiquement.
+
+## 8.13 Audit « saisir et corriger » (5 octobre 2026)
+
+Contrôle de chaque information enregistrée (75 tables) : peut-elle être saisie et corrigée par la bonne
+personne, dans son espace ? Chaque adresse de l'API est reliée à un écran. Manques trouvés et corrigés :
+
+| Interface | Manque | Correction |
+|---|---|---|
+| Patient | Impossible de saisir ou changer son email | « Mes coordonnées » : email confirmé par lien (§ 2.4) ; aussi dans « Sécurité du compte » des professionnels |
+| Patient | Un proche mal saisi devait être supprimé puis recréé ; téléphone du proche non saisissable | Crayon « Modifier », champ téléphone |
+| Patient | Assurance non modifiable (n° d'adhérent, taux, date de fin) | Crayon « Modifier » |
+| Patient, professionnels | Aucun suivi des demandes d'aide envoyées | « Mes demandes » sur la page Aide et contact |
+| Médecin | Lieu de consultation non modifiable | Crayon « Modifier » (position GPS conservée) |
+| Laboratoire | Horaires, téléphone, adresse non modifiables par le laboratoire | Fiche du laboratoire dans son espace |
+| Clinique | Rôle du secrétariat et titre des médecins non modifiables | Liste « Rôle » et crayon « Titre » |
+| Administration | Fiche d'un laboratoire non corrigible ; nom ou spécialité d'un médecin vérifié non corrigible alors que le médecin est renvoyé vers l'équipe | Crayons de correction (motif obligatoire pour le médecin) |
+
+Restent volontairement non modifiables : ordonnances, certificats et comptes-rendus émis (documents médicaux et
+légaux : on en émet un nouveau), reçus, journal d'audit, organisme et bénéficiaire d'une assurance (on la
+supprime et on la recrée), avis publiés.
+

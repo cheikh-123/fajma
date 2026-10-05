@@ -2,6 +2,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import {
+  Pencil,
   BarChart3,
   CalendarOff,
   ChevronLeft,
@@ -230,15 +231,28 @@ export function LocationsPanel() {
   const { data } = useQuery({ queryKey: ["pro-locations"], queryFn: listMyLocations });
   const empty = { name: "", address: "", city: "", phone: "" };
   const [form, setForm] = useState(empty);
+  // Lieu en cours de modification : sa position GPS est conservée.
+  const [editing, setEditing] = useState<{
+    id: string;
+    latitude: number | null;
+    longitude: number | null;
+  } | null>(null);
   const add = useMutation({
     mutationFn: () =>
       addMyLocation({
-        data: { ...form, phone: form.phone || null, latitude: null, longitude: null },
+        data: {
+          ...form,
+          phone: form.phone || null,
+          id: editing?.id,
+          latitude: editing?.latitude ?? null,
+          longitude: editing?.longitude ?? null,
+        },
       }),
     onSuccess: (res) => {
       qc.setQueryData(["pro-locations"], res);
       setForm(empty);
-      toast.success("Lieu ajouté");
+      toast.success(editing ? "Lieu modifié" : "Lieu ajouté");
+      setEditing(null);
     },
     onError: (e) => toast.error(e.message),
   });
@@ -271,16 +285,28 @@ export function LocationsPanel() {
                 {l.address}, {l.city}
               </span>
             </span>
-            <button
-              onClick={() =>
-                window.confirm(`Supprimer « ${l.name} » et ses plages horaires ?`) &&
-                del.mutate(l.id)
-              }
-              className="text-sunu-ink/40 hover:text-red-600"
-              aria-label={`Supprimer ${l.name}`}
-            >
-              <Trash2 className="size-3.5" />
-            </button>
+            <span className="flex shrink-0 items-center gap-2">
+              <button
+                onClick={() => {
+                  setEditing({ id: l.id, latitude: l.latitude, longitude: l.longitude });
+                  setForm({ name: l.name, address: l.address, city: l.city, phone: l.phone ?? "" });
+                }}
+                className="text-sunu-ink/40 hover:text-sunu-green"
+                aria-label={`Modifier ${l.name}`}
+              >
+                <Pencil className="size-3.5" />
+              </button>
+              <button
+                onClick={() =>
+                  window.confirm(`Supprimer « ${l.name} » et ses plages horaires ?`) &&
+                  del.mutate(l.id)
+                }
+                className="text-sunu-ink/40 hover:text-red-600"
+                aria-label={`Supprimer ${l.name}`}
+              >
+                <Trash2 className="size-3.5" />
+              </button>
+            </span>
           </div>
         ))}
       </div>
@@ -323,12 +349,32 @@ export function LocationsPanel() {
             className="rounded-lg border border-sunu-line px-3 py-2 text-sm"
           />
         </div>
-        <button
-          disabled={add.isPending}
-          className="flex items-center justify-center gap-1 rounded-lg bg-sunu-green px-3 py-2 text-xs font-semibold text-white disabled:opacity-50"
-        >
-          <Plus className="size-3.5" /> Ajouter le lieu
-        </button>
+        <div className="flex gap-2">
+          <button
+            disabled={add.isPending}
+            className="flex flex-1 items-center justify-center gap-1 rounded-lg bg-sunu-green px-3 py-2 text-xs font-semibold text-white disabled:opacity-50"
+          >
+            {editing ? (
+              "Enregistrer les modifications"
+            ) : (
+              <>
+                <Plus className="size-3.5" /> Ajouter le lieu
+              </>
+            )}
+          </button>
+          {editing && (
+            <button
+              type="button"
+              onClick={() => {
+                setEditing(null);
+                setForm(empty);
+              }}
+              className="rounded-lg border border-sunu-line px-3 py-2 text-xs font-semibold text-sunu-ink/70"
+            >
+              Annuler
+            </button>
+          )}
+        </div>
       </form>
     </div>
   );

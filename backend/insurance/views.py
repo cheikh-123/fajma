@@ -36,7 +36,9 @@ def list_insurers(request):
 @api_view(["GET", "POST"])
 def my_coverages(request):
     user = require_user(request)
-    if request.method == "POST":
+    if request.method == "POST" and body(request).get("id"):
+        _update_coverage(user, body(request))
+    elif request.method == "POST":
         data = body(request)
         insurer = Insurer.objects.filter(id=get_uuid(data, "insurer_id"), is_active=True).first()
         if not insurer:
@@ -63,6 +65,27 @@ def my_coverages(request):
         )
     coverages = PatientCoverage.objects.filter(user=user).select_related("insurer", "relative")
     return Response([coverage_dict(c) for c in coverages])
+
+
+def _valid_until(data):
+    raw = get_str(data, "valid_until", max_len=10)
+    if not raw:
+        return None
+    try:
+        return date.fromisoformat(raw)
+    except ValueError as err:
+        raise ApiError("Date de validité invalide") from err
+
+
+def _update_coverage(user, data) -> None:
+    """Correction d'une couverture : n° d'adhérent, taux de prise en charge, fin de validité."""
+    coverage = PatientCoverage.objects.filter(id=get_uuid(data, "id"), user=user).first()
+    if not coverage:
+        raise not_found("Couverture introuvable")
+    coverage.member_number = get_str(data, "member_number", required=True, min_len=2, max_len=40)
+    coverage.coverage_percent = get_int(data, "coverage_percent", default=coverage.coverage_percent, min_value=0, max_value=100)
+    coverage.valid_until = _valid_until(data)
+    coverage.save(update_fields=["member_number", "coverage_percent", "valid_until", "updated_at"])
 
 
 @api_view(["POST"])

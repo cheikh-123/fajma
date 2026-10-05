@@ -26,6 +26,8 @@ import {
   MapPin,
   MessageSquare,
   Pill,
+  Pencil,
+  Check,
   Plus,
   Receipt,
   Repeat,
@@ -763,17 +765,34 @@ function RelativesPanel() {
     relationship: (typeof RELATIONSHIPS)[number]["value"];
     birth_date: string;
     sex: "F" | "M" | "";
+    phone: string;
   }>({
     full_name: "",
     relationship: "enfant",
     birth_date: "",
     sex: "",
+    phone: "",
   });
+  // Proche en cours de correction (nom mal orthographié, date de naissance…).
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const reset = () => {
+    setForm({ full_name: "", relationship: "enfant", birth_date: "", sex: "", phone: "" });
+    setEditingId(null);
+  };
   const refresh = () => qc.invalidateQueries({ queryKey: ["my-relatives"] });
   const add = useMutation({
-    mutationFn: () => addRelative({ data: { ...form, birth_date: form.birth_date || undefined } }),
+    mutationFn: () =>
+      addRelative({
+        data: {
+          ...form,
+          id: editingId ?? undefined,
+          birth_date: form.birth_date || undefined,
+          phone: form.phone || undefined,
+        },
+      }),
     onSuccess: () => {
-      setForm({ full_name: "", relationship: "enfant", birth_date: "", sex: "" });
+      if (editingId) toast.success("Proche modifié");
+      reset();
       refresh();
     },
     onError: (e) => toast.error(e.message),
@@ -809,13 +828,31 @@ function RelativesPanel() {
                 {r.sex ? ` · ${r.sex === "F" ? "fille / femme" : "garçon / homme"}` : ""}
               </span>
             </span>
-            <button
-              onClick={() => del.mutate(r.id)}
-              className="text-sunu-ink/40 hover:text-red-600"
-              aria-label={`Retirer ${r.full_name}`}
-            >
-              <Trash2 className="size-3.5" />
-            </button>
+            <span className="flex shrink-0 items-center gap-2">
+              <button
+                onClick={() => {
+                  setEditingId(r.id);
+                  setForm({
+                    full_name: r.full_name,
+                    relationship: r.relationship,
+                    birth_date: r.birth_date ?? "",
+                    sex: r.sex ?? "",
+                    phone: r.phone ?? "",
+                  });
+                }}
+                className="text-sunu-ink/40 hover:text-sunu-green"
+                aria-label={`Modifier ${r.full_name}`}
+              >
+                <Pencil className="size-3.5" />
+              </button>
+              <button
+                onClick={() => del.mutate(r.id)}
+                className="text-sunu-ink/40 hover:text-red-600"
+                aria-label={`Retirer ${r.full_name}`}
+              >
+                <Trash2 className="size-3.5" />
+              </button>
+            </span>
           </div>
         ))}
       </div>
@@ -868,12 +905,39 @@ function RelativesPanel() {
             <option value="M">Masculin</option>
           </select>
         </div>
-        <button
-          disabled={add.isPending}
-          className="flex items-center justify-center gap-1 rounded-lg bg-sunu-green px-3 py-2 text-xs font-semibold text-white disabled:opacity-50"
-        >
-          <Plus className="size-3.5" /> {t("book.addRelative")}
-        </button>
+        <input
+          type="tel"
+          aria-label="Téléphone du proche (facultatif)"
+          value={form.phone}
+          onChange={(e) => setForm({ ...form, phone: e.target.value })}
+          placeholder="Téléphone (facultatif)"
+          className="rounded-lg border border-sunu-line px-3 py-2 text-sm outline-none focus:border-sunu-green"
+        />
+        <div className="flex gap-2">
+          <button
+            disabled={add.isPending}
+            className="flex flex-1 items-center justify-center gap-1 rounded-lg bg-sunu-green px-3 py-2 text-xs font-semibold text-white disabled:opacity-50"
+          >
+            {editingId ? (
+              <>
+                <Check className="size-3.5" /> Enregistrer les modifications
+              </>
+            ) : (
+              <>
+                <Plus className="size-3.5" /> {t("book.addRelative")}
+              </>
+            )}
+          </button>
+          {editingId && (
+            <button
+              type="button"
+              onClick={reset}
+              className="rounded-lg border border-sunu-line px-3 py-2 text-xs font-semibold text-sunu-ink/70"
+            >
+              Annuler
+            </button>
+          )}
+        </div>
       </form>
     </section>
   );

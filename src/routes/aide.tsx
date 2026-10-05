@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   ArrowLeft,
   CheckCircle2,
@@ -13,7 +13,13 @@ import {
 import { useState, type ReactNode } from "react";
 import { toast } from "sonner";
 import { useMe } from "@/api/auth";
-import { SUPPORT_TOPICS, sendSupportRequest, type SupportTopic } from "@/api/support";
+import {
+  SUPPORT_TOPICS,
+  listMySupportRequests,
+  sendSupportRequest,
+  type SupportTopic,
+} from "@/api/support";
+import { formatDateTime } from "@/lib/datetime";
 import { ThemeToggle } from "@/lib/theme";
 import { FajmaMark } from "@/components/FajmaMark";
 
@@ -339,6 +345,7 @@ function HelpPage() {
 
 function ContactForm() {
   const { data: me } = useMe();
+  const qc = useQueryClient();
   const [form, setForm] = useState({
     name: "",
     contact: "",
@@ -356,8 +363,17 @@ function ContactForm() {
         message: form.message,
         website: form.website,
       }),
-    onSuccess: () => setSent(true),
+    onSuccess: () => {
+      setSent(true);
+      qc.invalidateQueries({ queryKey: ["my-support"] });
+    },
     onError: (e) => toast.error(e.message),
+  });
+  // Suivi : les demandes déjà envoyées depuis ce compte.
+  const { data: mine } = useQuery({
+    queryKey: ["my-support"],
+    queryFn: listMySupportRequests,
+    enabled: Boolean(me),
   });
   const input =
     "w-full rounded-lg border border-sunu-line bg-sunu-card px-3 py-2.5 text-sm outline-none focus:border-sunu-green";
@@ -464,6 +480,30 @@ function ContactForm() {
             Envoyer
           </button>
         </form>
+      )}
+      {mine && mine.length > 0 && (
+        <div className="mt-8 border-t border-sunu-line pt-5">
+          <h3 className="text-sm font-bold text-sunu-dark">Mes demandes</h3>
+          <ul className="mt-2 divide-y divide-sunu-line text-sm">
+            {mine.map((r) => (
+              <li key={r.id} className="flex flex-wrap items-start justify-between gap-2 py-2.5">
+                <div className="min-w-0">
+                  <p className="font-semibold text-sunu-dark">{r.topic_label}</p>
+                  <p className="line-clamp-2 text-xs text-sunu-ink/60">{r.message}</p>
+                  <p className="text-xs text-sunu-ink/45">
+                    Envoyée le{" "}
+                    {formatDateTime(r.created_at, { dateStyle: "short", timeStyle: "short" })}
+                  </p>
+                </div>
+                <span
+                  className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${r.status === "open" ? "bg-amber-100 text-amber-800" : "bg-sunu-teal/15 text-sunu-teal"}`}
+                >
+                  {r.status === "open" ? "En cours" : "Traitée"}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
     </section>
   );

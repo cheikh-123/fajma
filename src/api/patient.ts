@@ -46,6 +46,8 @@ export const addRelative = ({
   data,
 }: {
   data: {
+    /** Présent : correction d'un proche existant. */
+    id?: string;
     full_name: string;
     relationship: Relative["relationship"];
     birth_date?: string;

@@ -1,5 +1,5 @@
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useState } from "react";
 import { ThemeToggle } from "@/lib/theme";
 import { redirectBeforeHydration } from "@/lib/first-load";
 import { LogoutButton } from "@/components/LogoutButton";
@@ -15,6 +15,7 @@ import {
   useSuspenseQuery,
 } from "@tanstack/react-query";
 import {
+  Pencil,
   Building2,
   Calendar,
   CheckCircle2,
@@ -38,6 +39,7 @@ import {
 import { getAdminAudit } from "@/api/auth";
 import { formatDateTime } from "@/lib/datetime";
 import { FinanceAdmin } from "@/components/admin/FinanceAdmin";
+import { DoctorCorrection } from "@/components/admin/DoctorCorrection";
 import { PharmacyMembersAdmin } from "@/components/admin/PharmacyMembersAdmin";
 import { ReviewModeration } from "@/components/admin/ReviewModeration";
 import { CredentialsAdmin } from "@/components/admin/CredentialsAdmin";
@@ -77,6 +79,8 @@ function AdminPage() {
   const qc = useQueryClient();
   const { data } = useSuspenseQuery(adminQO);
   const { data: sms } = useQuery(smsQO);
+  // Fiche médecin en cours de correction (nom, spécialité).
+  const [correcting, setCorrecting] = useState<string | null>(null);
   const verify = useMutation({
     mutationFn: (v: { kind: VerificationKind; id: string; verified: boolean }) =>
       setVerification({ data: v }),
@@ -162,15 +166,20 @@ function AdminPage() {
         <div id="validation" className="mt-8 grid scroll-mt-20 gap-6 lg:grid-cols-2">
           <Panel title="Validation des médecins">
             {data.doctors.map((d) => (
-              <Row
-                key={d.id}
-                title={d.full_name}
-                sub={d.city}
-                verified={d.is_verified}
-                onToggle={() =>
-                  verify.mutate({ kind: "doctor", id: d.id, verified: !d.is_verified })
-                }
-              />
+              <div key={d.id}>
+                <Row
+                  title={d.full_name}
+                  sub={`${d.specialty} · ${d.city}`}
+                  verified={d.is_verified}
+                  onToggle={() =>
+                    verify.mutate({ kind: "doctor", id: d.id, verified: !d.is_verified })
+                  }
+                  onEdit={() => setCorrecting(correcting === d.id ? null : d.id)}
+                />
+                {correcting === d.id && (
+                  <DoctorCorrection doctor={d} onDone={() => setCorrecting(null)} />
+                )}
+              </div>
             ))}
           </Panel>
           <Panel title="Validation des établissements">
@@ -432,18 +441,29 @@ function Row({
   sub,
   verified,
   onToggle,
+  onEdit,
 }: {
   title: string;
   sub: string;
   verified: boolean;
   onToggle: () => void;
+  onEdit?: () => void;
 }) {
   return (
     <div className="flex items-center justify-between gap-3 py-3">
-      <div>
+      <div className="min-w-0 flex-1">
         <p className="text-sm font-semibold text-sunu-dark">{title}</p>
         <p className="text-xs text-sunu-ink/50">{sub}</p>
       </div>
+      {onEdit && (
+        <button
+          onClick={onEdit}
+          aria-label={`Corriger ${title}`}
+          className="text-sunu-ink/40 hover:text-sunu-green"
+        >
+          <Pencil className="size-4" />
+        </button>
+      )}
       <button
         onClick={onToggle}
         className={`flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold ${verified ? "bg-sunu-teal/15 text-sunu-teal" : "bg-amber-100 text-amber-800"}`}

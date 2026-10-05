@@ -490,15 +490,26 @@ def my_locations(request):
     doctor = my_doctor(require_user(request))
     if request.method == "POST":
         data = body(request)
-        DoctorLocation.objects.create(
-            doctor=doctor,
-            name=get_str(data, "name", required=True, min_len=2, max_len=120),
-            address=get_str(data, "address", required=True, min_len=2, max_len=200),
-            city=get_str(data, "city", required=True, min_len=2, max_len=80),
-            phone=get_str(data, "phone", max_len=30) or "",
-            latitude=_coord(data, "latitude", -90, 90),
-            longitude=_coord(data, "longitude", -180, 180),
-        )
+        fields = {
+            "name": get_str(data, "name", required=True, min_len=2, max_len=120),
+            "address": get_str(data, "address", required=True, min_len=2, max_len=200),
+            "city": get_str(data, "city", required=True, min_len=2, max_len=80),
+            "phone": get_str(data, "phone", max_len=30) or "",
+            "latitude": _coord(data, "latitude", -90, 90),
+            "longitude": _coord(data, "longitude", -180, 180),
+        }
+        if (fields["latitude"] is None) != (fields["longitude"] is None):
+            raise ApiError("Coordonnées incomplètes")
+        # Avec « id » : modification d'un lieu existant (les rendez-vous déjà pris le gardent).
+        if location_id := get_uuid(data, "id", required=False):
+            location = DoctorLocation.objects.filter(id=location_id, doctor=doctor).first()
+            if not location:
+                raise not_found("Lieu introuvable")
+            for key, value in fields.items():
+                setattr(location, key, value)
+            location.save()
+        else:
+            DoctorLocation.objects.create(doctor=doctor, **fields)
     return Response([location_dict(loc) for loc in doctor.locations.all()])
 
 

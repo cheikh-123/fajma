@@ -493,6 +493,38 @@ def set_language(request):
     return Response({"ok": True})
 
 
+@api_view(["POST"])
+def admin_correct_doctor(request, doctor_id):
+    """
+    Correction par l'équipe Fajma du nom ou de la spécialité d'une fiche vérifiée (le médecin ne peut plus les
+    changer seul), sur justificatif. Motif obligatoire, journalisé, médecin prévenu.
+    """
+    from directory.models import Specialty
+    from notifications.service import notify
+
+    require_admin(request)
+    doctor = Doctor.objects.filter(id=doctor_id).select_related("specialty", "user").first()
+    if not doctor:
+        raise not_found("Médecin introuvable")
+    data = body(request)
+    reason = get_str(data, "reason", required=True, min_len=3, max_len=300)
+    before = {"full_name": doctor.full_name, "specialty": doctor.specialty.name}
+    if "full_name" in data:
+        doctor.full_name = get_str(data, "full_name", required=True, min_len=2, max_len=120)
+    if data.get("specialty_id"):
+        specialty = Specialty.objects.filter(id=get_uuid(data, "specialty_id")).first()
+        if not specialty:
+            raise ApiError("Spécialité inconnue")
+        doctor.specialty = specialty
+    doctor.save(update_fields=["full_name", "specialty", "updated_at"])
+    after = {"full_name": doctor.full_name, "specialty": doctor.specialty.name}
+    audit.log(request, "admin_verification", kind="doctor_corrected", id=str(doctor.id), before=before, after=after, reason=reason)
+    if doctor.user_id and before != after:
+        notify(doctor.user, kind="verification", title="Fiche corrigée par l'équipe Fajma",
+               body=f"{after['full_name']} · {after['specialty']}. Motif : {reason}", link="/pro", email=True)
+    return Response({"ok": True, **after})
+
+
 # ── Proches ──────────────────────────────────────────────────────────
 
 
@@ -526,14 +558,23 @@ def relatives(request):
     if request.method == "GET":
         return Response([relative_dict(r) for r in user.relatives.all()])
     data = body(request)
-    rel = Relative.objects.create(
-        owner=user,
-        full_name=get_str(data, "full_name", required=True, min_len=2, max_len=120),
-        relationship=get_choice(data, "relationship", {"enfant", "conjoint", "parent", "autre"}, default="enfant"),
-        birth_date=_birth_date(data),
-        sex=get_choice(data, "sex", {"", "F", "M"}, default="") or "",
-        phone=get_str(data, "phone", max_len=30) or "",
-    )
+    fields = {
+        "full_name": get_str(data, "full_name", required=True, min_len=2, max_len=120),
+        "relationship": get_choice(data, "relationship", {"enfant", "conjoint", "parent", "autre"}, default="enfant"),
+        "birth_date": _birth_date(data),
+        "sex": get_choice(data, "sex", {"", "F", "M"}, default="") or "",
+        "phone": get_str(data, "phone", max_len=30) or "",
+    }
+    # Avec « id » : correction d'un proche existant (les ordonnances déjà émises gardent leurs mentions figées).
+    if relative_id := get_uuid(data, "id", required=False):
+        rel = Relative.objects.filter(id=relative_id, owner=user).first()
+        if not rel:
+            raise not_found("Proche introuvable")
+        for key, value in fields.items():
+            setattr(rel, key, value)
+        rel.save()
+        return Response(relative_dict(rel))
+    rel = Relative.objects.create(owner=user, **fields)
     return Response({"id": str(rel.id)})
 
 
@@ -562,8 +603,11 @@ def admin_overview(request):
     return Response(
         {
             "doctors": [
-                {"id": str(d.id), "full_name": d.full_name, "city": d.city, "is_verified": d.is_verified, "created_at": iso(d.created_at)}
-                for d in Doctor.objects.order_by("-created_at")
+                {
+                    "id": str(d.id), "full_name": d.full_name, "city": d.city, "is_verified": d.is_verified,
+                    "created_at": iso(d.created_at), "specialty_id": str(d.specialty_id), "specialty": d.specialty.name,
+                }
+                for d in Doctor.objects.select_related("specialty").order_by("-created_at")
             ],
             "appointments": [
                 {"id": str(a.id), "status": a.status, "mode": a.mode, "scheduled_at": iso(a.scheduled_at)}

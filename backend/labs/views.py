@@ -233,6 +233,62 @@ def lab_result(request, order_id):
     return Response(order_dict(order, for_lab=True))
 
 
+# ── Fiche du laboratoire ─────────────────────────────────────────────
+
+
+def _apply_lab_fields(lab: Laboratory, data: dict, *, admin: bool) -> None:
+    """Téléphone, horaires, adresse, quartier (et pour l'administration : nom et ville). Position recalculée."""
+    from directory import localities
+
+    place_before = (lab.city, lab.district, lab.address)
+    if admin and "name" in data:
+        lab.name = get_str(data, "name", required=True, min_len=2, max_len=160)
+    if admin and "city" in data:
+        lab.city = get_str(data, "city", required=True, min_len=2, max_len=80)
+    if "district" in data:
+        lab.district = get_str(data, "district", max_len=80) or ""
+    if "address" in data:
+        lab.address = get_str(data, "address", required=True, min_len=3, max_len=200)
+    if "phone" in data:
+        lab.phone = get_str(data, "phone", max_len=30) or ""
+    if "opening_hours" in data:
+        lab.opening_hours = get_str(data, "opening_hours", max_len=160) or ""
+    if (lab.city, lab.district, lab.address) != place_before:
+        found = (localities.find(lab.district) if lab.district else None) or localities.find(lab.city)
+        if found:
+            lab.latitude, lab.longitude = found.latitude, found.longitude
+    lab.save()
+
+
+@api_view(["GET", "POST"])
+def my_laboratories(request):
+    """Membres du laboratoire : GET leurs laboratoires ; POST {laboratory_id, phone, opening_hours, address…}."""
+    user = require_user(request)
+    ids = _my_lab_ids(user)
+    if not ids:
+        raise forbidden("Compte non rattaché à un laboratoire")
+    if request.method == "POST":
+        data = body(request)
+        lab = Laboratory.objects.filter(id=get_uuid(data, "laboratory_id"), id__in=ids).first()
+        if not lab:
+            raise not_found("Laboratoire introuvable")
+        _apply_lab_fields(lab, data, admin=False)
+        audit.log(request, "lab_updated", laboratory=str(lab.id))
+    return Response([lab_dict(lab) for lab in Laboratory.objects.filter(id__in=ids)])
+
+
+@api_view(["POST"])
+def admin_update_laboratory(request, laboratory_id):
+    """Administration : correction de la fiche (nom, ville, quartier, adresse, téléphone, horaires)."""
+    require_admin(request)
+    lab = Laboratory.objects.filter(id=laboratory_id).first()
+    if not lab:
+        raise not_found("Laboratoire introuvable")
+    _apply_lab_fields(lab, body(request), admin=True)
+    audit.log(request, "admin_lab_updated", laboratory=str(lab.id))
+    return Response(lab_dict(lab))
+
+
 # ── Administration ───────────────────────────────────────────────────
 
 

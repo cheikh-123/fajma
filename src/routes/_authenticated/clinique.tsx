@@ -14,6 +14,7 @@ import {
 } from "@tanstack/react-query";
 import { useState } from "react";
 import {
+  Pencil,
   ArrowLeft,
   Building2,
   CalendarDays,
@@ -32,6 +33,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import {
+  updateClinicTeam,
   addClinicDoctor,
   createMyClinic,
   getMyClinic,
@@ -1060,6 +1062,16 @@ function Team({ clinic }: { clinic: Clinic }) {
     onSuccess: refresh,
     onError: (e) => toast.error(e.message),
   });
+  const team = useMutation({
+    mutationFn: (
+      v: { staff_id: string; role: "secretary" | "manager" } | { member_id: string; title: string },
+    ) => updateClinicTeam(clinic.id, v),
+    onSuccess: () => {
+      toast.success("Équipe mise à jour");
+      refresh();
+    },
+    onError: (e) => toast.error(e.message),
+  });
   const removeMember = useMutation({
     mutationFn: (member_id: string) =>
       removeClinicMember({ data: { clinic_id: clinic.id, member_id } }),
@@ -1095,9 +1107,25 @@ function Team({ clinic }: { clinic: Clinic }) {
                   <div className="min-w-0 flex-1">
                     <p className="font-bold text-sunu-dark">{m.doctor?.full_name}</p>
                     <p className="text-xs text-sunu-ink/55">
-                      {m.doctor?.specialty?.name} · {m.doctor?.city}
+                      {m.title} · {m.doctor?.specialty?.name} · {m.doctor?.city}
                     </p>
                   </div>
+                  {isOwner && (
+                    <button
+                      onClick={() => {
+                        const title = window.prompt(
+                          `Titre affiché pour ${m.doctor?.full_name} (ex. Chef de service) :`,
+                          m.title,
+                        );
+                        if (title && title.trim().length >= 2)
+                          team.mutate({ member_id: m.id, title: title.trim() });
+                      }}
+                      className="text-sunu-ink/40 hover:text-sunu-green"
+                      aria-label={`Modifier le titre de ${m.doctor?.full_name}`}
+                    >
+                      <Pencil className="size-4" />
+                    </button>
+                  )}
                   {isOwner && (
                     <button
                       onClick={() => {
@@ -1137,11 +1165,22 @@ function Team({ clinic }: { clinic: Clinic }) {
                   >
                     <div>
                       <p className="font-semibold text-sunu-dark">{s.full_name}</p>
-                      <p className="text-xs text-sunu-ink/55">
-                        {s.role === "manager" ? "Gestionnaire" : "Secrétaire"}
-                        {s.phone ? ` · ${s.phone}` : ""}
-                      </p>
+                      <p className="text-xs text-sunu-ink/55">{s.phone ?? ""}</p>
                     </div>
+                    <select
+                      aria-label={`Rôle de ${s.full_name}`}
+                      value={s.role}
+                      onChange={(e) =>
+                        team.mutate({
+                          staff_id: s.id,
+                          role: e.target.value as "secretary" | "manager",
+                        })
+                      }
+                      className="ml-auto mr-3 rounded-lg border border-sunu-line bg-sunu-card px-2 py-1 text-xs"
+                    >
+                      <option value="secretary">Secrétaire</option>
+                      <option value="manager">Gestionnaire</option>
+                    </select>
                     <button
                       onClick={() => {
                         if (window.confirm(`Retirer l'accès de ${s.full_name} ?`))

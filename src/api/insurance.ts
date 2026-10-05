@@ -18,6 +18,14 @@ export const addCoverage = ({
   };
 }) => api.post<Coverage[]>("/insurance/coverages", data);
 
+/** Correction d'une couverture : n° d'adhérent, taux, fin de validité (organisme et bénéficiaire inchangés). */
+export const updateCoverage = (data: {
+  id: string;
+  member_number: string;
+  coverage_percent: number;
+  valid_until?: string;
+}) => api.post<Coverage[]>("/insurance/coverages", data);
+
 export const deleteCoverage = (id: string) =>
   api.post<{ ok: true }>(`/insurance/coverages/${id}/delete`);
 

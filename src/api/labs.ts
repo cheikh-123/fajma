@@ -59,6 +59,19 @@ export const labUploadResult = (
   data: { file_name: string; content_base64: string; note?: string; final?: boolean },
 ) => api.post<LabOrder>(`/labs/orders/${id}/result`, data);
 
+type LabFields = {
+  district?: string;
+  address?: string;
+  phone?: string;
+  opening_hours?: string;
+};
+/** Membres du laboratoire : téléphone, horaires, adresse, quartier. */
+export const updateMyLab = (data: LabFields & { laboratory_id: string }) =>
+  api.post<Laboratory[]>("/labs/mine", data);
+/** Administration : toute la fiche, nom et ville compris. */
+export const adminUpdateLab = (id: string, data: LabFields & { name?: string; city?: string }) =>
+  api.post<Laboratory>(`/admin/laboratories/${id}`, data);
+
 export type AdminLab = Laboratory & {
   members: { id: string; full_name: string; email: string | null }[];
 };

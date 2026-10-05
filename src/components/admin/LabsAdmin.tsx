@@ -1,9 +1,10 @@
 /** Administration : laboratoires partenaires et comptes de leur personnel. */
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { FlaskConical, Plus, Trash2 } from "lucide-react";
+import { FlaskConical, Pencil, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { createLab, labMember, listAdminLabs } from "@/api/labs";
+import { LabEditor } from "@/components/labs/LabEditor";
 
 export function LabsAdmin() {
   const qc = useQueryClient();
@@ -18,6 +19,7 @@ export function LabsAdmin() {
     opening_hours: "",
   });
   const [emails, setEmails] = useState<Record<string, string>>({});
+  const [editing, setEditing] = useState<string | null>(null);
   const refresh = () => qc.invalidateQueries({ queryKey: ["admin-labs"] });
   const create = useMutation({
     mutationFn: () => createLab(form),
@@ -121,11 +123,22 @@ export function LabsAdmin() {
       <div className="mt-3 max-h-[28rem] divide-y divide-sunu-line overflow-y-auto">
         {(data ?? []).map((lab) => (
           <div key={lab.id} className="py-3 text-sm">
-            <p className="font-semibold text-sunu-dark">{lab.name}</p>
+            <p className="flex items-center justify-between gap-2 font-semibold text-sunu-dark">
+              {lab.name}
+              <button
+                onClick={() => setEditing(editing === lab.id ? null : lab.id)}
+                aria-label={`Modifier ${lab.name}`}
+                className="text-sunu-ink/40 hover:text-sunu-green"
+              >
+                <Pencil className="size-3.5" />
+              </button>
+            </p>
             <p className="text-xs text-sunu-ink/60">
               {lab.address}, {lab.city}
               {lab.phone ? ` · ${lab.phone}` : ""}
+              {lab.opening_hours ? ` · ${lab.opening_hours}` : ""}
             </p>
+            {editing === lab.id && <LabEditor lab={lab} admin onDone={() => setEditing(null)} />}
             <ul className="mt-1 grid gap-1">
               {lab.members.map((m) => (
                 <li key={m.id} className="flex items-center justify-between text-xs">

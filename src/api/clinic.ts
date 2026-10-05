@@ -49,6 +49,12 @@ export const updateClinic = ({
 }) => api.post<Clinic>(`/clinics/${data.clinic_id}/update`, data);
 
 /** Retire un médecin de l'équipe (responsable) ou le médecin quitte l'établissement. */
+/** Responsable : rôle d'un membre du secrétariat, ou titre affiché d'un médecin. */
+export const updateClinicTeam = (
+  clinicId: string,
+  data: { staff_id: string; role: "secretary" | "manager" } | { member_id: string; title: string },
+) => api.post<import("./types").Clinic>(`/clinics/${clinicId}/team`, data);
+
 export const removeClinicMember = ({ data }: { data: { clinic_id: string; member_id: string } }) =>
   api.post<{ ok: true }>(`/clinics/${data.clinic_id}/members/${data.member_id}/delete`);
 

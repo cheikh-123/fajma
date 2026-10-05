@@ -39,6 +39,20 @@ def support_dict(r: SupportRequest) -> dict:
     }
 
 
+@api_view(["GET"])
+def my_requests(request):
+    """Demandes envoyées par l'utilisateur connecté (statut seulement : la note interne reste à l'équipe)."""
+    from sunusante.api import require_user
+
+    user = require_user(request)
+    return Response(
+        [
+            {k: v for k, v in support_dict(r).items() if k != "admin_note"}
+            for r in SupportRequest.objects.filter(user=user).order_by("-created_at")[:50]
+        ]
+    )
+
+
 @api_view(["POST"])
 @throttle_classes([SupportThrottle])
 def create_request(request):

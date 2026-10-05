@@ -281,7 +281,8 @@ export const addPatientNote = ({ data }: { data: { patient_id: string; content: 
 
 export const listMyLocations = () => api.get<DoctorLocation[]>("/pro/locations");
 
-export const addMyLocation = ({ data }: { data: Omit<DoctorLocation, "id"> }) =>
+/** Avec `id` : modification d'un lieu existant. */
+export const addMyLocation = ({ data }: { data: Omit<DoctorLocation, "id"> & { id?: string } }) =>
   api.post<DoctorLocation[]>("/pro/locations", data);
 
 export const deleteMyLocation = (id: string) =>

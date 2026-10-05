@@ -18,6 +18,8 @@ export const getAdminOverview = () =>
       city: string;
       is_verified: boolean;
       created_at: string;
+      specialty_id: string;
+      specialty: string;
     }[];
     appointments: { id: string; status: string; mode: string; scheduled_at: string }[];
     clinics: VerifiableEstablishment[];
@@ -79,6 +81,12 @@ export const setVerification = ({
 }: {
   data: { kind: VerificationKind; id: string; verified: boolean };
 }) => api.post<{ ok: true }>("/admin/verification", data);
+
+/** Correction du nom ou de la spécialité d'une fiche médecin (motif obligatoire). */
+export const correctDoctor = (
+  id: string,
+  data: { full_name: string; specialty_id: string; reason: string },
+) => api.post<{ ok: true }>(`/admin/doctors/${id}`, data);
 
 export const listSmsReminders = () =>
   api.get<

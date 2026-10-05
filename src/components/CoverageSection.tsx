@@ -1,9 +1,15 @@
 /** Dossier patient : assurances et mutuelles (pour soi ou pour un proche). */
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { Loader2, ShieldPlus, Trash2 } from "lucide-react";
+import { Loader2, Pencil, ShieldPlus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
-import { addCoverage, deleteCoverage, listInsurers, listMyCoverages } from "@/api/insurance";
+import {
+  addCoverage,
+  deleteCoverage,
+  listInsurers,
+  listMyCoverages,
+  updateCoverage,
+} from "@/api/insurance";
 import { listMyRelatives } from "@/api/patient";
 import { formatDate } from "@/lib/datetime";
 import { useI18n } from "@/lib/i18n";
@@ -28,23 +34,33 @@ export function CoverageSection() {
     valid_until: "",
     relative_id: "",
   });
+  // Couverture en cours de correction : organisme et bénéficiaire ne changent pas (on supprime et on recrée).
+  const [editingId, setEditingId] = useState<string | null>(null);
   const set = (patch: Partial<typeof form>) => setForm({ ...form, ...patch });
   const refresh = () => qc.invalidateQueries({ queryKey: ["my-coverages"] });
 
   const add = useMutation({
     mutationFn: () =>
-      addCoverage({
-        data: {
-          insurer_id: form.insurer_id,
-          member_number: form.member_number,
-          coverage_percent: Number(form.coverage_percent),
-          valid_until: form.valid_until || undefined,
-          relative_id: form.relative_id || undefined,
-        },
-      }),
+      editingId
+        ? updateCoverage({
+            id: editingId,
+            member_number: form.member_number,
+            coverage_percent: Number(form.coverage_percent),
+            valid_until: form.valid_until || undefined,
+          })
+        : addCoverage({
+            data: {
+              insurer_id: form.insurer_id,
+              member_number: form.member_number,
+              coverage_percent: Number(form.coverage_percent),
+              valid_until: form.valid_until || undefined,
+              relative_id: form.relative_id || undefined,
+            },
+          }),
     onSuccess: () => {
       toast.success("Assurance enregistrée");
       setOpen(false);
+      setEditingId(null);
       setForm({
         insurer_id: "",
         member_number: "",
@@ -84,13 +100,32 @@ export function CoverageSection() {
                   {c.valid_until && ` · valable jusqu'au ${formatDate(c.valid_until)}`}
                 </p>
               </div>
-              <button
-                onClick={() => remove.mutate(c.id)}
-                aria-label="Supprimer"
-                className="text-sunu-ink/40 hover:text-red-600"
-              >
-                <Trash2 className="size-4" />
-              </button>
+              <span className="flex shrink-0 items-center gap-2">
+                <button
+                  onClick={() => {
+                    setEditingId(c.id);
+                    setForm({
+                      insurer_id: c.insurer.id,
+                      member_number: c.member_number,
+                      coverage_percent: String(c.coverage_percent),
+                      valid_until: c.valid_until ?? "",
+                      relative_id: c.relative?.id ?? "",
+                    });
+                    setOpen(true);
+                  }}
+                  aria-label="Modifier"
+                  className="text-sunu-ink/40 hover:text-sunu-teal"
+                >
+                  <Pencil className="size-4" />
+                </button>
+                <button
+                  onClick={() => remove.mutate(c.id)}
+                  aria-label="Supprimer"
+                  className="text-sunu-ink/40 hover:text-red-600"
+                >
+                  <Trash2 className="size-4" />
+                </button>
+              </span>
             </li>
           ))}
         </ul>
@@ -107,6 +142,7 @@ export function CoverageSection() {
               Organisme
               <select
                 required
+                disabled={Boolean(editingId)}
                 value={form.insurer_id}
                 onChange={(e) => {
                   const ins = insurers?.find((i) => i.id === e.target.value);
@@ -160,6 +196,7 @@ export function CoverageSection() {
             <label className="grid gap-1 text-xs font-semibold text-sunu-ink/60 sm:col-span-2">
               Pour
               <select
+                disabled={Boolean(editingId)}
                 value={form.relative_id}
                 onChange={(e) => set({ relative_id: e.target.value })}
                 className={input}
@@ -182,7 +219,17 @@ export function CoverageSection() {
               </button>
               <button
                 type="button"
-                onClick={() => setOpen(false)}
+                onClick={() => {
+                  setOpen(false);
+                  setEditingId(null);
+                  setForm({
+                    insurer_id: "",
+                    member_number: "",
+                    coverage_percent: "",
+                    valid_until: "",
+                    relative_id: "",
+                  });
+                }}
                 className="rounded-lg border border-sunu-line px-4 py-2 text-sm"
               >
                 Annuler

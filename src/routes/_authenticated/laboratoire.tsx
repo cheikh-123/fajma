@@ -9,6 +9,7 @@ import { LogoutButton } from "@/components/LogoutButton";
 import { HelpLink } from "@/components/HelpLink";
 import { SecuritySection } from "@/components/SecuritySection";
 import { CredentialsPanel } from "@/components/pro/CredentialsPanel";
+import { LabEditor } from "@/components/labs/LabEditor";
 import { ThemeToggle } from "@/lib/theme";
 import { formatDate, formatDateTime } from "@/lib/datetime";
 import { ageAt } from "@/lib/prescription-text";
@@ -112,6 +113,9 @@ function LabPage() {
           })}
         </div>
         <div className="mt-10 grid gap-4 lg:grid-cols-2">
+          {data.laboratories.map((l) => (
+            <LabEditor key={`fiche-${l.id}`} lab={l} />
+          ))}
           {data.laboratories.map((l) => (
             <CredentialsPanel
               key={l.id}

@@ -49,6 +49,8 @@ class AuditEvent(BaseModel):
         ("admin_pharmacy_created", "Pharmacie ajoutée (administration)"),
         ("admin_pharmacy_updated", "Pharmacie modifiée (administration)"),
         ("admin_lab_created", "Laboratoire ajouté (administration)"),
+        ("admin_lab_updated", "Laboratoire modifié (administration)"),
+        ("lab_updated", "Laboratoire modifié (biologiste)"),
         ("admin_support_closed", "Demande d'aide traitée (administration)"),
         ("admin_support_reopened", "Demande d'aide rouverte (administration)"),
     ]

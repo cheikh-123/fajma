@@ -277,6 +277,34 @@ def add_staff(request, clinic_id):
 
 
 @api_view(["POST"])
+def update_team(request, clinic_id):
+    """
+    Responsable : {staff_id, role} change le rôle (secrétaire / gestionnaire) ;
+    {member_id, title} change le titre affiché d'un médecin (« Chef de service »…).
+    """
+    user = require_user(request)
+    clinic, is_owner = clinic_access(user, clinic_id)
+    if not is_owner:
+        raise forbidden("Seul le responsable peut modifier l'équipe")
+    data = body(request)
+    if staff_id := get_uuid(data, "staff_id", required=False):
+        staff = ClinicStaff.objects.filter(id=staff_id, clinic=clinic).select_related("user").first()
+        if not staff:
+            raise not_found("Membre introuvable")
+        staff.role = get_choice(data, "role", {"secretary", "manager"})
+        staff.save(update_fields=["role", "updated_at"])
+        notifications.notify(staff.user, kind="clinic", title="Rôle modifié",
+                             body=f"Vous êtes désormais {staff.get_role_display().lower()} de {clinic.name}.", link="/clinique")
+    else:
+        member = ClinicMember.objects.filter(id=get_uuid(data, "member_id"), clinic=clinic).first()
+        if not member:
+            raise not_found("Médecin introuvable")
+        member.title = get_str(data, "title", required=True, min_len=2, max_len=100)
+        member.save(update_fields=["title", "updated_at"])
+    return Response(clinic_dict(clinic, "owner"))
+
+
+@api_view(["POST"])
 def remove_staff(request, staff_id):
     user = require_user(request)
     staff = ClinicStaff.objects.filter(id=staff_id, clinic__owner=user).select_related("user", "clinic").first()

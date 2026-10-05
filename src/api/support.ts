@@ -35,6 +35,10 @@ export const sendSupportRequest = (data: {
   website?: string;
 }) => api.post<{ ok: true }>("/support", data);
 
+/** Demandes envoyées par l'utilisateur connecté (sans la note interne de l'équipe). */
+export const listMySupportRequests = () =>
+  api.get<Omit<SupportRequest, "admin_note">[]>("/support/mine");
+
 export const listSupportRequests = (status: "open" | "all") =>
   api.get<SupportRequest[]>("/admin/support", { status });
 
