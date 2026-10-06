@@ -145,6 +145,9 @@ WSGI_APPLICATION = "sunusante.wsgi.application"
 # ── Base de données ──────────────────────────────────────────────────
 # "IMMEDIATE" : chaque transaction verrouille la base en écriture dès son début, ce qui rend
 # atomique la vérification « créneau libre ? » + la création du rendez-vous.
+LOCAL_DB_HOSTS = {"localhost", "127.0.0.1", "::1", "db"}
+
+
 def database_from_url(url: str) -> dict:
     """DATABASE_URL=postgres://utilisateur:motdepasse@hote:5432/base (production)."""
     u = urlparse(url)
@@ -159,7 +162,9 @@ def database_from_url(url: str) -> dict:
         "PORT": str(u.port or 5432),
         "CONN_MAX_AGE": 60,
         "CONN_HEALTH_CHECKS": True,
-        "OPTIONS": {"sslmode": os.environ.get("DATABASE_SSLMODE", "prefer")},
+        # Base sur la même machine ou le même réseau Docker : chiffrement facultatif ; base distante (hébergeur,
+        # autre serveur) : connexion chiffrée exigée par défaut.
+        "OPTIONS": {"sslmode": os.environ.get("DATABASE_SSLMODE") or ("prefer" if (u.hostname or "localhost") in LOCAL_DB_HOSTS else "require")},
     }
 
 

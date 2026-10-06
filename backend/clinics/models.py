@@ -5,7 +5,8 @@ from sunusante.models import BaseModel
 
 
 class Clinic(BaseModel):
-    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="owned_clinics")
+    # PROTECT : supprimer le compte du responsable n'efface jamais l'établissement (transférer d'abord).
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="owned_clinics")
     name = models.CharField(max_length=160)
     city = models.CharField(max_length=80)
     address = models.CharField(max_length=240, blank=True)

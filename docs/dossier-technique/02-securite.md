@@ -37,6 +37,7 @@
 | Médecin remplaçant | Proposé par le titulaire, accepté par le remplaçant (médecin vérifié) ; droits limités à la période et aux patients concernés |
 | Pharmacien | Rattachement à une officine par l'administration, après vérification |
 | Laboratoire d'analyses | Rattachement à un laboratoire par l'administration, après vérification ; ne voit que les prescriptions que les patients lui ont envoyées |
+| Application → base PostgreSQL | Compte `fajma_app` sans droits d'administrateur PostgreSQL (vérifié : création de base ou de compte, exécution de commandes sur le serveur, lecture de ses fichiers refusées) ; connexion chiffrée exigée si la base est sur une autre machine ; aucune requête SQL écrite à la main (pas d'injection SQL) |
 | Administrateur | Accès donné par un super-administrateur (rubrique « Système », journalisé), avec un **rôle** : validations, support, finances, santé publique, communication ou super-administrateur. Chaque rôle n'ouvre que ses rubriques ; le serveur le vérifie deux fois (intergiciel sur toutes les adresses `/api/admin/…` et contrôle dans chaque vue) ; une adresse inconnue est réservée au super-administrateur. Un compte d'équipe sans rôle enregistré est super-administrateur (le fondateur). Personne ne modifie son propre accès |
 
 Tous les rôles autres que « patient » exigent la double authentification (§ 2.2).

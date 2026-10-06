@@ -216,3 +216,29 @@ listes de validation mélangées, pas de recherche globale ni de vue d'ensemble 
 aux 200 derniers évènements, réglages réservés au technicien, tous les administrateurs avec tous les droits.
 Les 9 corrections sont faites (voir 8.7) ; les rôles sont vérifiés par le serveur, pas seulement masqués à
 l'écran. 4 tests automatisés ajoutés (rôles, réglages, annonces, recherche, fiche 360°, journal).
+
+## 9.21 Audit de la base de données (version 6.2)
+
+Nouvel audit complet de la base sur PostgreSQL 17 réel, après les ajouts des versions 5.x et 6.x (78 tables,
+139 clés étrangères, 33 contraintes d'unicité ou de cohérence).
+
+| Contrôle | Résultat |
+|---|---|
+| Migrations à jour, contrôle de production de Django | Conformes (seul avertissement : inscription HSTS « preload », choix volontaire) |
+| Injection SQL | Aucune requête SQL écrite à la main (hors « SELECT 1 » de surveillance) |
+| Effacement accidentel | Dossiers, ordonnances, rendez-vous, paiements, écritures comptables, messages : suppression refusée par la base. Comptes jamais supprimés par l'application (anonymisation) |
+| Double réservation d'un créneau | Impossible : contrainte d'exclusion PostgreSQL sur la plage horaire du médecin |
+| Doublons | Un seul compte par email (casse ignorée) et par numéro vérifié, imposé par la base ; aucun doublon dans les données |
+| Clés étrangères | Toutes validées |
+| Liens publics (fiche d'urgence, vérification d'ordonnance) | Jetons aléatoires de 256 bits, uniques ; nombre d'essais limité ; aucune identité de patient |
+| Purge | Sessions expirées, codes SMS, conversations, notifications anciennes : chaque nuit |
+
+| Constat | Gravité | Correctif |
+|---|---|---|
+| L'application se connectait avec le compte administrateur de PostgreSQL : une faille applicative aurait donné la main sur tout le serveur de base | **Important** | Compte `fajma_app` sans droits d'administrateur, créé au premier démarrage ; testé : migrations et application fonctionnent, opérations dangereuses refusées |
+| Sauvegardes en clair si la phrase secrète était oubliée (données de santé) | **Important** | Phrase secrète obligatoire |
+| Connexion à une base hébergée ailleurs non chiffrée par défaut | Moyen | Chiffrement exigé par défaut hors machine locale |
+| Supprimer le compte du responsable d'une clinique (console technique) effaçait la clinique | Mineur | Suppression refusée par la base |
+
+Reste à la charge de l'hébergement : chiffrement du disque du serveur (les contenus des dossiers sont en clair
+dans la base, comme dans tout logiciel médical consultable ; les fichiers joints sont déjà chiffrés).
