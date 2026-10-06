@@ -1,6 +1,6 @@
 # Dossier technique et sécurité — Fajma
 
-**Version du dossier :** 5.2 — 6 octobre 2026
+**Version du dossier :** 5.3 — 6 octobre 2026
 **Périmètre :** code source du dépôt `sante-connect-main` (backend Django, frontend React, déploiement), services tiers.
 **Public visé :** acquéreurs, investisseurs, auditeurs techniques et juridiques, équipe technique reprenant le projet.
 
@@ -26,7 +26,7 @@ ni à Supabase.
 | Messages | Twilio : SMS et WhatsApp ; notifications push du navigateur (Web Push, gratuites) |
 | Téléconsultation | Jitsi Meet (serveur public au démarrage, auto-hébergeable) |
 | Assistant IA | Fournisseur configurable via une API compatible OpenAI (Google Gemini par défaut) |
-| Qualité | 329 tests automatisés de l'API ; parcours de bout en bout dans un navigateur réel pour chaque rôle ; intégration continue GitHub Actions |
+| Qualité | 331 tests automatisés de l'API ; parcours de bout en bout dans un navigateur réel pour chaque rôle ; intégration continue GitHub Actions |
 | Taille du code | ≈ 14 900 lignes Python (hors tests et migrations), ≈ 3 900 lignes de tests, ≈ 32 600 lignes TypeScript/React |
 
 ## 2. Contenu du dossier
@@ -86,7 +86,7 @@ ni à Supabase.
 
 ## 4. Méthode
 
-Dossier établi par lecture intégrale du code source, exécution de la suite de tests de l'API (329 tests) et
+Dossier établi par lecture intégrale du code source, exécution de la suite de tests de l'API (331 tests) et
 de parcours de bout en bout dans un navigateur réel (Chrome et Edge, ordinateur et mobile) : patient, médecin,
 médecin remplaçant, clinique, secrétariat, pharmacien, administrateur, activation obligatoire de la double
 authentification, mode hors ligne sur le build de production.
@@ -136,3 +136,4 @@ Ces points sont signalés **« À vérifier »**.
 | 5.0 | 06/10/2026 | **WhatsApp en phrases libres et messages vocaux** (§ 8.16) : « Sama doom dafa am yaram », « un pédiatre à Thiès », « ticket pour l'hôpital » — écrits ou dits dans un message vocal (wolof, français, anglais), compris et menés directement à la bonne étape (spécialité, ville), réponse dans la langue de la personne ; transcription par un service au choix de l'hébergeur (compatible OpenAI, auto-hébergeable), son jamais conservé |
 | 5.1 | 06/10/2026 | **Avis médical écrit** (§ 8.17) : sans rendez-vous ni vidéo, pour les zones à faible réseau — symptômes, mesures et photos, paiement d'avance (mobile money ou crédit santé familial), réponse écrite du médecin sous 24 ou 48 h avec ordonnance si besoin, consultation en personne ou urgence conseillée ; sans réponse à temps, annulé et remboursé automatiquement ; aucun créneau d'agenda bloqué |
 | 5.2 | 06/10/2026 | **Relais communautaires** (§ 8.18) : les badiénou gokh et agents de santé de quartier, habilités par l'administration, suivent avec leur accord les personnes sans téléphone ni internet (rendez-vous, vaccins, tension, glycémie), avec un tableau des alertes du jour (tension ou sucre dangereux, vaccins en retard, rendez-vous proches) ; transfert complet du dossier à la personne quand elle a un téléphone (accord par code SMS) |
+| 5.3 | 06/10/2026 | **Veille épidémiologique anonymisée** (§ 8.19) : consultations par grand syndrome (fièvre / paludisme, dengue, diarrhée, respiratoire, éruption, conjonctivite, méningite), par ville et par semaine, cases de moins de 5 masquées, signal de hausse inhabituelle (moyenne + 2 écarts-types), export tableur ; à partager avec les autorités après accord de la CDP |

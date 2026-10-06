@@ -441,3 +441,16 @@ enfants, malades chroniques), avec les relais de santé qui les connaissent déj
   code par SMS et le lui donne (son accord). Tout son dossier passe sur son propre compte (rendez-vous,
   comptes-rendus, ordonnances, vaccins, mesures, assurances, analyses), qui est créé si besoin ; elle se
   connecte avec son numéro. Le transfert couvre automatiquement toute table liée aux proches.
+
+## 8.19 Veille épidémiologique anonymisée
+
+- Section « Veille épidémiologique » de l'administration : sur 12 semaines, nombre de consultations par grand
+  syndrome (fièvre / paludisme, dengue, diarrhée / gastro-entérite, toux et infections respiratoires,
+  éruptions de type rougeole ou varicelle, conjonctivite, méningite), par ville du médecin et par semaine,
+  déduit du motif de rendez-vous et du diagnostic.
+- **Anonymat** : seulement des comptes ; toute case de moins de 5 consultations est affichée « <5 » (aussi dans
+  le tableur) ; aucune identité, aucun texte médical ne sort.
+- **Signal** : semaine en cours au-dessus de la moyenne + 2 écarts-types des 8 semaines précédentes, au moins 5
+  cas et une fois et demie l'habitude ; c'est une alerte à vérifier par les autorités, jamais un diagnostic.
+- Export tableur anonymisé, journalisé. Partage avec le ministère de la Santé (Direction de la prévention,
+  district) : après accord de la CDP et convention.

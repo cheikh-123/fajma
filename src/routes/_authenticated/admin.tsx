@@ -51,6 +51,7 @@ import { UsersAdmin } from "@/components/admin/UsersAdmin";
 import { LabsAdmin } from "@/components/admin/LabsAdmin";
 import { FacilitiesAdmin } from "@/components/admin/FacilitiesAdmin";
 import { CommunityAdmin } from "@/components/admin/CommunityAdmin";
+import { EpidemioAdmin } from "@/components/admin/EpidemioAdmin";
 import { PharmaciesAdmin } from "@/components/admin/PharmaciesAdmin";
 import { SecuritySection } from "@/components/SecuritySection";
 
@@ -260,6 +261,9 @@ function AdminPage() {
         <div id="hopitaux" className="mt-6 scroll-mt-20">
           <FacilitiesAdmin />
         </div>
+        <div id="veille" className="mt-6 scroll-mt-20">
+          <EpidemioAdmin />
+        </div>
         <div id="relais" className="mt-6 scroll-mt-20">
           <CommunityAdmin />
         </div>
@@ -313,6 +317,7 @@ const ADMIN_SECTIONS = [
   ["laboratoires", "Laboratoires"],
   ["hopitaux", "Ticket hôpital"],
   ["relais", "Relais"],
+  ["veille", "Veille épidémiologique"],
   ["avis", "Avis"],
   ["sms", "SMS"],
   ["journal", "Journal d'audit"],

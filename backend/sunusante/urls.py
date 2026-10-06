@@ -39,6 +39,7 @@ from medical import emergency, record_export, renewals
 
 from . import analytics as core_analytics
 from . import activity_report
+from . import epidemio as core_epidemio
 from . import exports
 from . import views as core
 
@@ -243,6 +244,7 @@ admin_urls = [
     path("laboratories/<uuid:laboratory_id>", labs.admin_update_laboratory),
     path("doctors/<uuid:doctor_id>", accounts.admin_correct_doctor),
     path("facilities", queues.admin_facilities),
+    path("epidemio", core_epidemio.epidemio),
     path("community-agents", community.admin_agents),
     path("community-agents/<uuid:agent_id>", community.admin_agent),
     path("facilities/<uuid:facility_id>", queues.admin_facility),
