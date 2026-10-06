@@ -456,3 +456,100 @@ body::before {
     animation: none !important;
   }
 }
+
+/* ── Bandeau de campagne sponsorisée (accueil) ── */
+@keyframes fajma-campaign-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes fajma-shine-move {
+  0% {
+    transform: translateX(-120%) skewX(-18deg);
+  }
+  60%,
+  100% {
+    transform: translateX(220%) skewX(-18deg);
+  }
+}
+@keyframes fajma-kenburns-move {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.12) translate(-2%, -1%);
+  }
+}
+@keyframes fajma-float-move {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-14px);
+  }
+}
+@keyframes fajma-cta-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.55);
+  }
+  70% {
+    box-shadow: 0 0 0 14px rgba(255, 255, 255, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+  }
+}
+@keyframes fajma-progress-move {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .fajma-campaign {
+    animation: fajma-campaign-in 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+  .fajma-campaign-text > * {
+    animation: fajma-campaign-in 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+  .fajma-campaign-text > *:nth-child(2) {
+    animation-delay: 0.08s;
+  }
+  .fajma-campaign-text > *:nth-child(3) {
+    animation-delay: 0.16s;
+  }
+  .fajma-campaign-text > *:nth-child(4) {
+    animation-delay: 0.24s;
+  }
+  .fajma-shine::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 35%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.22), transparent);
+    animation: fajma-shine-move 5s ease-in-out infinite;
+  }
+  .fajma-kenburns {
+    animation: fajma-kenburns-move 14s ease-in-out infinite alternate;
+  }
+  .fajma-float {
+    animation: fajma-float-move 6s ease-in-out infinite;
+  }
+  .fajma-float-slow {
+    animation: fajma-float-move 9s ease-in-out infinite;
+  }
+  .fajma-cta {
+    animation: fajma-cta-pulse 2.4s ease-out infinite;
+  }
+  .fajma-progress {
+    animation: fajma-progress-move linear forwards;
+  }
+}

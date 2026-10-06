@@ -55,6 +55,11 @@ class Campaign(BaseModel):
     cta_label = models.CharField(max_length=30, default="En savoir plus")
     cta_url = models.CharField(max_length=300)  # https://… ou adresse interne (/medecins?…)
     category = models.CharField(max_length=12, choices=CATEGORIES)
+    # Visuel du bandeau (photo ou illustration) et couleur de la campagne (rose pour Octobre rose…).
+    THEMES = [("vert", "Vert Fajma"), ("rose", "Rose"), ("bleu", "Bleu"), ("orange", "Orange"), ("violet", "Violet"), ("rouge", "Rouge")]
+    image_path = models.CharField(max_length=300, blank=True)
+    image_mime = models.CharField(max_length=60, blank=True)
+    theme = models.CharField(max_length=8, choices=THEMES, default="vert")
     placements = models.JSONField(default=list)
     cities = models.JSONField(default=list)  # vide : tout le Sénégal
     languages = models.JSONField(default=list)  # vide : toutes

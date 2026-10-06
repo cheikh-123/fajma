@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { CampaignSlot } from "@/components/CampaignSlot";
+import { CampaignHero } from "@/components/CampaignHero";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -147,6 +147,9 @@ function Landing() {
           </div>
         </div>
       </nav>
+
+      {/* CAMPAGNE SPONSORISÉE (invisible sans campagne validée) */}
+      <CampaignHero />
 
       {/* HERO */}
       <section id="recherche" className="relative overflow-hidden bg-sunu-surface">
@@ -341,10 +344,6 @@ function Landing() {
           </div>
         </div>
       </section>
-
-      <div className="mx-auto max-w-7xl px-6 pt-10">
-        <CampaignSlot placement="home" />
-      </div>
 
       {/* DOCTORS DISPO */}
       <section id="rdv" className="reveal mx-auto max-w-7xl px-6 py-24">

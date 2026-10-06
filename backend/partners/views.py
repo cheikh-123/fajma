@@ -41,6 +41,7 @@ def partner_dict(p: Partner) -> dict:
 
 def campaign_public(c: Campaign) -> dict:
     return {"id": str(c.id), "title": c.title, "body": c.body, "cta_label": c.cta_label, "category": c.category,
+            "theme": c.theme, "image_url": f"/api/campaigns/{c.id}/image" if c.image_path else None,
             "partner": {"name": c.partner.name, "logo_url": _logo_url(c.partner_id, bool(c.partner.logo_path))}}
 
 
@@ -66,9 +67,20 @@ def _bump(campaign_id, placement: str, field: str) -> None:
 
 
 @api_view(["GET"])
+def campaign_image(request, campaign_id):
+    c = Campaign.objects.filter(id=campaign_id).exclude(image_path="").first()
+    if not c:
+        raise not_found("Image introuvable")
+    return serve(c.image_path, c.image_mime)
+
+
+@api_view(["GET"])
 @throttle_classes([AdThrottle])
 def campaign_for(request):
-    """?placement=home|search|patient&city=&lang= : une campagne validée et en cours, choisie au hasard."""
+    """
+    ?placement=home|search|patient&city=&lang= : une campagne validée et en cours, choisie au hasard ;
+    &all=1 : toutes les campagnes éligibles (carrousel de l'accueil, 5 au plus, ordre aléatoire).
+    """
     placement = request.query_params.get("placement", "")
     if placement not in {k for k, _ in Campaign.PLACEMENTS}:
         return Response(None)
@@ -86,6 +98,12 @@ def campaign_for(request):
         if c.languages and lang and lang not in c.languages:
             continue
         eligible.append(c)
+    if request.query_params.get("all"):
+        random.shuffle(eligible)
+        eligible = eligible[:5]
+        for c in eligible:
+            _bump(c.id, placement, "impressions")
+        return Response([{**campaign_public(c), "placement": placement} for c in eligible])
     if not eligible:
         return Response(None)
     chosen = random.choice(eligible)
@@ -173,6 +191,12 @@ def admin_campaigns(request):
         c.cta_label = get_str(data, "cta_label", max_len=30) or "En savoir plus"
         c.cta_url = _url(get_str(data, "cta_url", required=True, max_len=300) or "")
         c.category = get_choice(data, "category", {k for k, _ in Campaign.CATEGORIES})
+        c.theme = get_choice(data, "theme", {k for k, _ in Campaign.THEMES}, default=c.theme or "vert")
+        if isinstance(data.get("image"), dict):
+            content, mime, name = decode_upload(data["image"])
+            if not mime.startswith("image/"):
+                raise ApiError("Le visuel doit être une image (JPEG, PNG ou WebP)")
+            c.image_path, c.image_mime = store("campaigns", name, content), mime
         _check_text(c.title, c.body, c.cta_label)
         placements = [x for x in (data.get("placements") or []) if x in {k for k, _ in Campaign.PLACEMENTS}]
         if not placements:

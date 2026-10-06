@@ -62,6 +62,7 @@ export function PartnersAdmin() {
     is_public: true,
   });
   const [logo, setLogo] = useState<File | null>(null);
+  const [visual, setVisual] = useState<File | null>(null);
   const [c, setC] = useState({
     partner_id: "",
     title: "",
@@ -69,6 +70,7 @@ export function PartnersAdmin() {
     cta_label: "En savoir plus",
     cta_url: "",
     category: "prevention",
+    theme: "vert",
     placements: ["home"] as string[],
     cities: "",
     starts_on: today,
@@ -94,9 +96,12 @@ export function PartnersAdmin() {
     onError: (e) => toast.error(e.message),
   });
   const saveCampaign = useMutation({
-    mutationFn: () =>
+    mutationFn: async () =>
       api.post("/admin/campaigns", {
         ...c,
+        image: visual
+          ? { file_name: visual.name, content_base64: await fileToBase64(visual) }
+          : undefined,
         cities: c.cities
           .split(",")
           .map((x) => x.trim())
@@ -260,6 +265,27 @@ export function PartnersAdmin() {
           aria-label="Lien"
           className={field}
         />
+        <select
+          value={c.theme}
+          onChange={(e) => setC({ ...c, theme: e.target.value })}
+          aria-label="Couleur de la campagne"
+          className={field}
+        >
+          <option value="vert">Couleur : vert Fajma</option>
+          <option value="rose">Couleur : rose (Octobre rose)</option>
+          <option value="bleu">Couleur : bleu (Novembre bleu, diabète)</option>
+          <option value="orange">Couleur : orange</option>
+          <option value="violet">Couleur : violet</option>
+          <option value="rouge">Couleur : rouge (VIH, don de sang)</option>
+        </select>
+        <label className="flex items-center gap-2 text-xs">
+          Visuel du bandeau (photo ou illustration, format large)
+          <input
+            type="file"
+            accept="image/png,image/jpeg,image/webp"
+            onChange={(e) => setVisual(e.target.files?.[0] ?? null)}
+          />
+        </label>
         <input
           value={c.cities}
           onChange={(e) => setC({ ...c, cities: e.target.value })}
