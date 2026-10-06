@@ -3,6 +3,7 @@
  * téléphone), recharger son crédit santé (carte bancaire ou mobile money, montant affiché aussi en euros),
  * payer ses consultations, prendre ses rendez-vous et suivre ses comptes-rendus si le proche l'a accepté.
  */
+import { HelpLink } from "@/components/HelpLink";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
@@ -77,6 +78,7 @@ function FamilyPage() {
           </Link>
           <ThemeToggle className="ml-auto" />
           <NotificationBell />
+          <HelpLink role="famille" />
           <LogoutButton />
         </div>
       </header>

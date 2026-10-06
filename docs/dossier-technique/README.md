@@ -1,6 +1,6 @@
 # Dossier technique et sécurité — Fajma
 
-**Version du dossier :** 5.7 — 6 octobre 2026
+**Version du dossier :** 5.8 — 6 octobre 2026
 **Périmètre :** code source du dépôt `sante-connect-main` (backend Django, frontend React, déploiement), services tiers.
 **Public visé :** acquéreurs, investisseurs, auditeurs techniques et juridiques, équipe technique reprenant le projet.
 
@@ -141,3 +141,4 @@ Ces points sont signalés **« À vérifier »**.
 | 5.5 | 06/10/2026 | **Diagnostic codé et déclaration des maladies** (§ 8.19) : dans le compte-rendu (et l'avis écrit), le médecin choisit le diagnostic principal dans une liste de 44 maladies (codes CIM-10, inspirée de la SIMR : maladies à déclaration immédiate, surveillance hebdomadaire dont hépatites A/E, B et C, VIH, tuberculose, maladies chroniques, santé de la mère), suspect / probable / confirmé et résultat du test rapide ; maladie à déclaration immédiate : consigne de déclaration au district, administration prévenue, suivi « déclaré / à déclarer » ; veille par région à partir de ce diagnostic ; rapport hebdomadaire SIMR (région × maladie, suspects / confirmés) pour les autorités |
 | 5.6 | 06/10/2026 | **Partenaires et campagnes sponsorisées** (§ 8.20) : page « Nos partenaires », encarts « Sponsorisé » (accueil, recherche en encart séparé, espace patient) validés par l'administration, charte publicitaire dans les CGU (pas de médicament sur ordonnance, pas de médecin mis en avant contre paiement, ciblage par ville et langue seulement), refus automatique des textes interdits, statistiques agrégées et rapport pour l'annonceur |
 | 5.7 | 06/10/2026 | Campagnes : grand bandeau animé en haut de l'accueil (visuel, couleur de la campagne, entrée animée, zoom lent, reflet, bouton qui attire l'œil) et carrousel de 5 campagnes au plus (7 s, points, flèches, pause au survol, ordre aléatoire) ; visuel et couleur choisis dans l'administration ; accueil : bande « Nos partenaires » (logos qui défilent) et lien « Partenaires » dans le menu |
+| 5.8 | 06/10/2026 | **Guide d'utilisation dans l'application** (§ 8.21) : page `/guide` avec un chapitre par espace (patient, famille, médecin, clinique et secrétariat, pharmacie, laboratoire, relais, administration), étapes numérotées et astuces, sommaire, recherche dans tous les chapitres, impression ; le lien « Aide » de chaque espace ouvre son chapitre ; liens depuis « Aide et contact » et le pied de page |

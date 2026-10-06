@@ -73,7 +73,7 @@ function LabPage() {
           </Link>
           <ThemeToggle className="ml-auto mr-3" />
           <NotificationBell />
-          <HelpLink />
+          <HelpLink role="laboratoire" />
           <LogoutButton />
         </div>
       </header>

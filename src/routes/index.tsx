@@ -602,6 +602,7 @@ function Landing() {
                 { label: "Pharmacies", to: "/pharmacies" },
                 { label: "Aider un proche au Sénégal", to: "/famille" },
                 { label: "Nos partenaires", to: "/partenaires" },
+                { label: "Guide d'utilisation", to: "/guide" },
                 { label: "Aide et contact", to: "/aide" },
               ]}
             />

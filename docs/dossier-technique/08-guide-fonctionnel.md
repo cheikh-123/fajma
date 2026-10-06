@@ -456,3 +456,15 @@ une téléconsultation. Les textes contenant des mots interdits (« ordonnance �
 « guérison garantie »…) sont refusés automatiquement. Ciblage par ville et langue seulement, jamais par les
 données de santé ; statistiques agrégées, aucune donnée personnelle transmise. Charte à faire relire par un
 juriste et l'Ordre des médecins.
+
+## 8.21 Guide d'utilisation dans l'application
+
+- Page **« Guide d'utilisation »** (`/guide`), un chapitre par espace : patient, famille (entraide), médecin,
+  clinique et secrétariat, pharmacie, laboratoire, relais communautaire, administration.
+- Chaque chapitre : introduction, sommaire, sections avec **étapes numérotées**, points clés et **astuces** ;
+  recherche dans tous les chapitres à la fois (« ordonnance », « annuler », « crédit »…) ; bouton
+  « Imprimer ce guide ».
+- Le lien **« Aide »** de l'en-tête de chaque espace ouvre directement le chapitre de cet espace ; le guide
+  renvoie vers « Aide et contact » pour écrire à l'équipe. Liens aussi depuis la page « Aide et contact » et le
+  pied de page de l'accueil.
+- Contenu : `src/lib/guide-content.ts`, à tenir à jour à chaque évolution d'un écran.

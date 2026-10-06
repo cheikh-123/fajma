@@ -78,7 +78,7 @@ function PharmacyPage() {
           </Link>
           <ThemeToggle className="ml-auto mr-3" />
           <NotificationBell />
-          <HelpLink />
+          <HelpLink role="pharmacie" />
           <LogoutButton />
         </div>
       </header>

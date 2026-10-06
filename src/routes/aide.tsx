@@ -264,6 +264,12 @@ function HelpPage() {
         <h1 className="mt-2 text-3xl font-bold tracking-tight text-sunu-dark md:text-4xl">
           Comment pouvons-nous vous aider ?
         </h1>
+        <Link
+          to="/guide"
+          className="mt-4 inline-flex items-center gap-2 rounded-full bg-sunu-green px-5 py-2.5 text-sm font-semibold text-white"
+        >
+          Lire le guide d'utilisation, pas à pas
+        </Link>
 
         <div
           role="note"

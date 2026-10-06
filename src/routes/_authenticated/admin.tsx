@@ -122,7 +122,7 @@ function AdminPage() {
               Voir le site
             </Link>
             <NotificationBell />
-            <HelpLink />
+            <HelpLink role="admin" />
             <LogoutButton />
           </div>
         </div>

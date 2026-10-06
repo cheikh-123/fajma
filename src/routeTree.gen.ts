@@ -18,6 +18,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as CguRouteImport } from './routes/cgu'
 import { Route as ConfidentialiteRouteImport } from './routes/confidentialite'
 import { Route as ConfirmerEmailRouteImport } from './routes/confirmer-email'
+import { Route as GuideRouteImport } from './routes/guide'
 import { Route as LegalRouteImport } from './routes/legal'
 import { Route as PartenairesRouteImport } from './routes/partenaires'
 import { Route as PharmaciesRouteImport } from './routes/pharmacies'
@@ -90,6 +91,11 @@ const ConfidentialiteRoute = ConfidentialiteRouteImport.update({
 const ConfirmerEmailRoute = ConfirmerEmailRouteImport.update({
   id: '/confirmer-email',
   path: '/confirmer-email',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GuideRoute = GuideRouteImport.update({
+  id: '/guide',
+  path: '/guide',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LegalRoute = LegalRouteImport.update({
@@ -251,6 +257,7 @@ export interface FileRoutesByFullPath {
   '/cgu': typeof CguRoute
   '/confidentialite': typeof ConfidentialiteRoute
   '/confirmer-email': typeof ConfirmerEmailRoute
+  '/guide': typeof GuideRoute
   '/legal': typeof LegalRoute
   '/partenaires': typeof PartenairesRoute
   '/pharmacies': typeof PharmaciesRoute
@@ -290,6 +297,7 @@ export interface FileRoutesByTo {
   '/cgu': typeof CguRoute
   '/confidentialite': typeof ConfidentialiteRoute
   '/confirmer-email': typeof ConfirmerEmailRoute
+  '/guide': typeof GuideRoute
   '/legal': typeof LegalRoute
   '/partenaires': typeof PartenairesRoute
   '/pharmacies': typeof PharmaciesRoute
@@ -331,6 +339,7 @@ export interface FileRoutesById {
   '/cgu': typeof CguRoute
   '/confidentialite': typeof ConfidentialiteRoute
   '/confirmer-email': typeof ConfirmerEmailRoute
+  '/guide': typeof GuideRoute
   '/legal': typeof LegalRoute
   '/partenaires': typeof PartenairesRoute
   '/pharmacies': typeof PharmaciesRoute
@@ -372,6 +381,7 @@ export interface FileRouteTypes {
     | '/cgu'
     | '/confidentialite'
     | '/confirmer-email'
+    | '/guide'
     | '/legal'
     | '/partenaires'
     | '/pharmacies'
@@ -411,6 +421,7 @@ export interface FileRouteTypes {
     | '/cgu'
     | '/confidentialite'
     | '/confirmer-email'
+    | '/guide'
     | '/legal'
     | '/partenaires'
     | '/pharmacies'
@@ -451,6 +462,7 @@ export interface FileRouteTypes {
     | '/cgu'
     | '/confidentialite'
     | '/confirmer-email'
+    | '/guide'
     | '/legal'
     | '/partenaires'
     | '/pharmacies'
@@ -492,6 +504,7 @@ export interface RootRouteChildren {
   CguRoute: typeof CguRoute
   ConfidentialiteRoute: typeof ConfidentialiteRoute
   ConfirmerEmailRoute: typeof ConfirmerEmailRoute
+  GuideRoute: typeof GuideRoute
   LegalRoute: typeof LegalRoute
   PartenairesRoute: typeof PartenairesRoute
   PharmaciesRoute: typeof PharmaciesRoute
@@ -570,6 +583,13 @@ declare module '@tanstack/react-router' {
       path: '/confirmer-email'
       fullPath: '/confirmer-email'
       preLoaderRoute: typeof ConfirmerEmailRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/guide': {
+      id: '/guide'
+      path: '/guide'
+      fullPath: '/guide'
+      preLoaderRoute: typeof GuideRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/legal': {
@@ -829,6 +849,7 @@ const rootRouteChildren: RootRouteChildren = {
   CguRoute: CguRoute,
   ConfidentialiteRoute: ConfidentialiteRoute,
   ConfirmerEmailRoute: ConfirmerEmailRoute,
+  GuideRoute: GuideRoute,
   LegalRoute: LegalRoute,
   PartenairesRoute: PartenairesRoute,
   PharmaciesRoute: PharmaciesRoute,

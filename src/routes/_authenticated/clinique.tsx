@@ -110,7 +110,7 @@ function ClinicPage() {
               </Link>
             )}
             <NotificationBell />
-            <HelpLink />
+            <HelpLink role="clinique" />
             <LogoutButton />
           </div>
         </div>

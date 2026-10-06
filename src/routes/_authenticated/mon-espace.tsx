@@ -193,7 +193,7 @@ function MyAreaPage() {
           <div className="flex items-center gap-2 sm:gap-3">
             <ThemeToggle />
             <LanguageSwitcher />
-            <HelpLink />
+            <HelpLink role="patient" />
             <NotificationBell />
             <button
               onClick={signOut}

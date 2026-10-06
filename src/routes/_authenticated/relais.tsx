@@ -2,6 +2,7 @@
  * Espace relais communautaire : personnes suivies (sans téléphone ni internet), alertes du jour en tête
  * (tension, glycémie, vaccins en retard, rendez-vous proches), ajout avec accord, transfert du dossier.
  */
+import { HelpLink } from "@/components/HelpLink";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
@@ -70,6 +71,7 @@ function RelaisPage() {
           </Link>
           <ThemeToggle className="ml-auto" />
           <NotificationBell />
+          <HelpLink role="relais" />
           <LogoutButton />
         </div>
       </header>

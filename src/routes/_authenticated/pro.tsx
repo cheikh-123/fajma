@@ -224,7 +224,7 @@ function ProPage() {
           </Link>
           <ThemeToggle className="ml-auto mr-3" />
           <div className="flex items-center gap-3">
-            <HelpLink />
+            <HelpLink role="medecin" />
             <NotificationBell />
             <button
               onClick={signOut}
