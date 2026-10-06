@@ -553,3 +553,24 @@ body::before {
     animation: fajma-progress-move linear forwards;
   }
 }
+
+/* ── Bande des partenaires (accueil) : défilement continu, pause au survol ── */
+@keyframes fajma-marquee-move {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+.fajma-marquee-mask {
+  mask-image: linear-gradient(to right, transparent, black 6%, black 94%, transparent);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .fajma-marquee {
+    animation: fajma-marquee-move 40s linear infinite;
+  }
+  .fajma-marquee:hover {
+    animation-play-state: paused;
+  }
+}

@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { CampaignHero } from "@/components/CampaignHero";
+import { PartnersStrip } from "@/components/PartnersStrip";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -124,6 +125,9 @@ function Landing() {
             </Link>
             <Link to="/assistant" className="hover:text-sunu-green">
               {t("nav.assistant")}
+            </Link>
+            <Link to="/partenaires" className="hover:text-sunu-green">
+              {t("nav.partners")}
             </Link>
             <Link to="/pro" className="hover:text-sunu-green">
               {t("nav.pros")}
@@ -255,6 +259,9 @@ function Landing() {
           </div>
         </div>
       </section>
+
+      {/* PARTENAIRES (invisible tant qu'aucun partenaire n'est public) */}
+      <PartnersStrip />
 
       {/* SPECIALTIES */}
       <section className="reveal mx-auto max-w-7xl px-6 py-20">
