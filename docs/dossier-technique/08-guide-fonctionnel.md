@@ -399,3 +399,25 @@ consultations avec le crédit offert (choix « Crédit santé » au paiement).
 - Transcription : service compatible OpenAI choisi par l'hébergeur (`SPEECH_MODE`, `SPEECH_API_URL`,
   `SPEECH_API_KEY`, `SPEECH_MODEL` : Whisper, serveur auto-hébergé, modèle wolof) ; à défaut, le modèle de
   l'assistant (`AI_*`). Le son n'est jamais conservé. Les mots-clés wolof sont à faire relire par un locuteur.
+
+## 8.17 Avis médical écrit (consultation asynchrone)
+
+Pour les zones où la vidéo passe mal, ou pour une question qui ne justifie pas un déplacement.
+
+**Médecin** : onglet « Avis écrits » de l'espace médecin — activer l'offre, prix, délai de réponse (24 ou 48 h),
+consignes aux patients. Les demandes payées arrivent avec leur échéance (SMS au médecin) : motif, symptômes,
+depuis quand, température, tension, poids, traitements en cours, photos. Il répond par écrit et conclut :
+conseils, ordonnance (médicaments ajoutés directement, en-tête et signature habituels), consultation en
+personne conseillée, ou urgence (le patient est invité à appeler le SAMU, 1515).
+
+**Patient** : sur la fiche du médecin, « Demander un avis écrit » ; description, mesures facultatives, jusqu'à
+4 photos ; paiement en ligne (mobile money, ou crédit santé offert par un proche — pas d'espèces). Suivi et
+réponse dans la carte « Avis écrits » de son espace ; ordonnance dans son dossier, envoyable en pharmacie.
+
+**Règles**
+- Chaque demande est un rendez-vous sans durée : paiement, reçu, reversement au médecin, compte-rendu et
+  ordonnance fonctionnent comme une consultation, sans bloquer de créneau ; elle n'apparaît pas dans l'agenda.
+- Le délai démarre au paiement ; sans réponse à l'échéance, la demande est annulée et le patient remboursé
+  (aussitôt sur le crédit santé s'il l'avait utilisé), puis prévenu.
+- Photos visibles du seul médecin concerné, et seulement une fois la demande payée.
+- Deux demandes en cours au plus par patient et par médecin ; annulation possible avant la réponse.

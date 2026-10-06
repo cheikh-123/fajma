@@ -474,6 +474,7 @@ def my_appointments(request):
     user = require_user(request)
     appts = (
         Appointment.objects.filter(patient=user)
+        .exclude(mode="async")
         .select_related("doctor__specialty", "relative", "consultation_type", "review", "location", "practitioner", "series")
         .prefetch_related("payments", "payments__refund")
         .order_by("-scheduled_at")
@@ -753,6 +754,7 @@ def doctor_appointments(request):
     since = timezone.now() - timedelta(days=past_days)
     appts = (
         Appointment.objects.filter(involves(doctor), scheduled_at__gte=since)
+        .exclude(mode="async")
         .select_related("patient", "relative", "consultation_type", "doctor", "practitioner", "series")
         .prefetch_related("payments")
     )

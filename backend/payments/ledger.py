@@ -39,6 +39,11 @@ def record_earning(payment: Payment) -> None:
     # Crédit santé : l'argent a été encaissé en ligne à la recharge ; la consultation est créditée au médecin.
     if payment.provider not in ("paydunya", "credit") or payment.status != "paid":
         return
+    if payment.appointment.mode == "async":
+        # Avis écrit payé : la demande part chez le médecin et son délai de réponse démarre.
+        from econsult.views import activate
+
+        activate(payment.appointment)
     doctor = payment.appointment.doctor
     percent = PLANS[effective_plan(doctor)]["commission_percent"]
     commission = commission_for(payment.amount, percent)

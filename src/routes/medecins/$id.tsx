@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { AsyncRequestForm } from "@/components/AsyncRequestForm";
 import { getBookFor, setBookFor, type BookFor } from "@/lib/book-for";
 import {
   useSuspenseQuery,
@@ -335,7 +336,10 @@ function DoctorPage() {
           </div>
         </section>
 
-        <BookingPanel doctor={doctor} />
+        <div className="self-start lg:sticky lg:top-24">
+          <AsyncRequestForm doctorId={doctor.id} doctorName={doctor.full_name} />
+          <BookingPanel doctor={doctor} />
+        </div>
       </main>
     </div>
   );
@@ -518,7 +522,7 @@ function BookingPanel({ doctor }: { doctor: Doctor }) {
   });
 
   return (
-    <aside className="self-start rounded-2xl border border-sunu-line bg-sunu-card p-6 shadow-sunu-card lg:sticky lg:top-24">
+    <aside className="rounded-2xl border border-sunu-line bg-sunu-card p-6 shadow-sunu-card">
       <h2 className="flex items-center gap-2 text-lg font-bold text-sunu-dark">
         <Calendar className="size-5 text-sunu-green" /> {t("book.title")}
       </h2>

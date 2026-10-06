@@ -326,6 +326,7 @@ def agenda(request, clinic_id):
         Appointment.objects.filter(
             doctor__clinic_memberships__clinic=clinic, scheduled_at__gte=start, scheduled_at__lt=start + timedelta(days=days)
         )
+        .exclude(mode="async")
         .select_related("doctor", "patient", "relative", "consultation_type", "practitioner", "series")
         .order_by("scheduled_at")
     )

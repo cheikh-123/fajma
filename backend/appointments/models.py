@@ -19,7 +19,8 @@ class Appointment(BaseModel):
         ("no_show", "Absent"),
     ]
     CANCELLED_BY = [("patient", "Patient"), ("doctor", "Médecin"), ("clinic", "Secrétariat")]
-    MODES = [("in_person", "Cabinet"), ("teleconsultation", "Téléconsultation"), ("home_visit", "À domicile")]
+    # « async » : avis médical écrit (sans durée, n'occupe aucun créneau ; voir l'application econsult).
+    MODES = [("in_person", "Cabinet"), ("teleconsultation", "Téléconsultation"), ("home_visit", "À domicile"), ("async", "Avis écrit")]
 
     # Patient inscrit, ou patient sans compte saisi par le secrétariat (external_*).
     patient = models.ForeignKey(

@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { AsyncPanel } from "@/components/pro/AsyncPanel";
 import { AppointmentHistory } from "@/components/AppointmentHistory";
 import { ThemeToggle } from "@/lib/theme";
 import {
@@ -11,6 +12,7 @@ import {
 import { useState } from "react";
 import { z } from "zod";
 import {
+  MessageSquareText,
   LogOut,
   Calendar,
   Video,
@@ -135,6 +137,7 @@ const TABS = [
   { id: "planning", label: "Emploi du temps", icon: CalendarClock },
   { id: "profil", label: "Profil et cabinet", icon: UserRound },
   { id: "ordonnances", label: "Ordonnances", icon: FileSignature },
+  { id: "avis", label: "Avis écrits", icon: MessageSquareText },
   { id: "equipe", label: "Secrétariat et remplacements", icon: Users },
   { id: "finances", label: "Finances", icon: Wallet },
   { id: "securite", label: "Sécurité", icon: ShieldCheck },
@@ -146,7 +149,16 @@ export const Route = createFileRoute("/_authenticated/pro")({
     z
       .object({
         onglet: z
-          .enum(["rdv", "planning", "profil", "ordonnances", "equipe", "finances", "securite"])
+          .enum([
+            "rdv",
+            "planning",
+            "profil",
+            "ordonnances",
+            "avis",
+            "equipe",
+            "finances",
+            "securite",
+          ])
           .optional()
           .catch(undefined),
       })
@@ -662,6 +674,8 @@ function DoctorDashboard({ profile }: { profile: Profile }) {
           </div>
         </div>
       )}
+
+      {tab === "avis" && <AsyncPanel />}
 
       {tab === "equipe" && (
         <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2 [&>*]:min-w-0">

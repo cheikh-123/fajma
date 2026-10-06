@@ -50,6 +50,7 @@ d'être écrits sur le disque (clé conservée hors des sauvegardes).
 | `backend/care/` | Suivi à domicile (mesures, repères indicatifs, alertes aux médecins) et rappels de prise de médicaments |
 | `backend/labs/` | Laboratoires d'analyses : prescription, choix du laboratoire, prélèvement, dépôt des résultats |
 | `backend/support/` | Demandes d'aide envoyées depuis la page « Aide et contact », suivies par l'administration |
+| `backend/econsult/` | Avis médical écrit : offre du médecin (prix, délai), demandes (symptômes, mesures, photos), réponse et ordonnance, délais dépassés remboursés ; chaque demande est un rendez-vous de mode « async » sans durée |
 | `backend/family/` | Entraide familiale : liens d'entraide (accord par code SMS, droits), crédit santé (recharges payées en ligne, journal des mouvements), paiement par un proche, nouvelles au proche |
 | `backend/queues/` | Ticket virtuel des hôpitaux et centres de santé : établissements, services, tickets, ordre de passage, attente estimée, SMS, guichet, écran de salle (`logic.py` : règles ; `views.py` : API) |
 | `backend/audit/` | Journal d'audit inaltérable ; commandes d'exploitation `monitor` (supervision), `purge_data` (conservation), `encrypt_files` (chiffrement et rotation de clé) |
@@ -132,6 +133,7 @@ d'être écrits sur le disque (clé conservée hors des sauvegardes).
 | `labs_laboratory`, `…_laboratorymember`, `…_laborder` | Laboratoires, personnel rattaché, prescriptions d'analyses et résultats |
 | `pharmacy_medicinequery`, `…_medicineanswer` | Demandes de disponibilité d'un médicament et réponses des pharmacies |
 | `support_supportrequest` | Demandes d'aide (nom, contact, sujet, message, statut, note interne) |
+| `econsult_asyncoffer`, `…_asyncrequest` | Offre d'avis écrit du médecin ; demandes (rendez-vous associé, symptômes, mesures, délai, réponse, conclusion) ; photos rangées dans les documents du patient et partagées avec le seul médecin |
 | `family_carelink`, `…_credittopup`, `…_creditentry` | Liens d'entraide (proche aidant, bénéficiaire, droits, accord, retrait, rappels), recharges du crédit santé (reçu numéroté), mouvements du crédit (jamais modifiés ni supprimés, un seul débit et un seul remboursement par paiement) ; `payments_payment.payer` : proche qui a payé |
 | `queues_facility`, `…_facilityagent`, `…_queueservice`, `…_queueticket` | Établissements à ticket, personnel d'accueil (agent / responsable), services (lettre, horaires, jours, capacité, durée moyenne, pause), tickets (numéro du jour unique par service, code de suivi non devinable, canal, priorité, trajet, guichet, horodatages des appels et des SMS) |
 | `audit_auditevent` | Journal d'audit (aucune modification ni suppression possible par l'application) |

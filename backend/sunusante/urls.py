@@ -32,6 +32,7 @@ from labs import views as labs
 from support import views as support
 from queues import views as queues
 from family import views as family
+from econsult import views as econsult
 from medical import ai_notes
 from medical import emergency, record_export, renewals
 
@@ -326,6 +327,15 @@ urlpatterns = [
     path("api/support/mine", support.my_requests),
     # Ticket virtuel (files d'attente des hôpitaux et centres de santé)
     # Entraide familiale (diaspora) : proches aidés, crédit santé, paiement et suivi à distance
+    # Avis médical écrit (consultation asynchrone)
+    path("api/econsult/", include([
+        path("offer/<uuid:doctor_id>", econsult.public_offer),
+        path("requests", econsult.my_requests),
+        path("requests/<uuid:request_id>/cancel", econsult.cancel_request),
+        path("pro/offer", econsult.my_offer),
+        path("pro/requests", econsult.pro_requests),
+        path("pro/requests/<uuid:request_id>/answer", econsult.answer),
+    ])),
     path("api/family/", include([
         path("links", family.links),
         path("links/<uuid:link_id>", family.detail),

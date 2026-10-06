@@ -49,6 +49,8 @@ def start_payment(request):
     amount = appt.amount_due
     if amount <= 0:
         raise ApiError("Aucun montant à régler pour ce rendez-vous")
+    if appt.mode == "async" and method == "cash":
+        raise ApiError("Un avis écrit se règle en ligne (mobile money ou crédit santé)")
 
     payment = existing or Payment(appointment=appt, patient=user, reference=f"SUNU-{secrets.token_hex(4).upper()}")
     payment.amount = amount

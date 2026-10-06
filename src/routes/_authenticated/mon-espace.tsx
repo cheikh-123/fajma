@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { AppointmentHistory } from "@/components/AppointmentHistory";
 import { InstallApp } from "@/components/InstallApp";
 import { MyTicketsCard } from "@/components/MyTicketsCard";
+import { MyAsyncCard } from "@/components/MyAsyncCard";
 import { FamilyHelpCard } from "@/components/FamilyHelpCard";
 import { listCareLinks } from "@/api/family";
 import { QuestionnaireForm } from "@/components/QuestionnaireForm";
@@ -350,6 +351,7 @@ function MyAreaPage() {
                 </Link>
               </div>
             )}
+            <MyAsyncCard />
             <MyTicketsCard />
             <FamilyHelpCard />
             <RelativesPanel />

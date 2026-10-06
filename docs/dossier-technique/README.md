@@ -1,6 +1,6 @@
 # Dossier technique et sécurité — Fajma
 
-**Version du dossier :** 5.0 — 6 octobre 2026
+**Version du dossier :** 5.1 — 6 octobre 2026
 **Périmètre :** code source du dépôt `sante-connect-main` (backend Django, frontend React, déploiement), services tiers.
 **Public visé :** acquéreurs, investisseurs, auditeurs techniques et juridiques, équipe technique reprenant le projet.
 
@@ -26,7 +26,7 @@ ni à Supabase.
 | Messages | Twilio : SMS et WhatsApp ; notifications push du navigateur (Web Push, gratuites) |
 | Téléconsultation | Jitsi Meet (serveur public au démarrage, auto-hébergeable) |
 | Assistant IA | Fournisseur configurable via une API compatible OpenAI (Google Gemini par défaut) |
-| Qualité | 321 tests automatisés de l'API ; parcours de bout en bout dans un navigateur réel pour chaque rôle ; intégration continue GitHub Actions |
+| Qualité | 325 tests automatisés de l'API ; parcours de bout en bout dans un navigateur réel pour chaque rôle ; intégration continue GitHub Actions |
 | Taille du code | ≈ 14 900 lignes Python (hors tests et migrations), ≈ 3 900 lignes de tests, ≈ 32 600 lignes TypeScript/React |
 
 ## 2. Contenu du dossier
@@ -86,7 +86,7 @@ ni à Supabase.
 
 ## 4. Méthode
 
-Dossier établi par lecture intégrale du code source, exécution de la suite de tests de l'API (321 tests) et
+Dossier établi par lecture intégrale du code source, exécution de la suite de tests de l'API (325 tests) et
 de parcours de bout en bout dans un navigateur réel (Chrome et Edge, ordinateur et mobile) : patient, médecin,
 médecin remplaçant, clinique, secrétariat, pharmacien, administrateur, activation obligatoire de la double
 authentification, mode hors ligne sur le build de production.
@@ -134,3 +134,4 @@ Ces points sont signalés **« À vérifier »**.
 | 4.8 | 05/10/2026 | **Ticket virtuel à l'hôpital** (§ 8.14) : le patient prend son numéro depuis chez lui (site, USSD, WhatsApp), suit sa place et l'attente estimée en direct, reçoit les SMS « c'est bientôt », « partez maintenant » (selon son temps de trajet) et « c'est votre tour, box 2 » ; l'accueil appelle les numéros, gère priorités (femme enceinte, personne âgée, urgence…), absents et tickets remis au guichet (imprimables) ; écran de salle d'attente avec annonce vocale ; bilan du jour et réglage des services pour le responsable ; établissements gérés par l'administration |
 | 4.9 | 05/10/2026 | **Entraide familiale (diaspora)** (§ 8.15) : un proche, même à l'étranger, aide un parent au Sénégal avec son accord (code SMS donné au téléphone) ; paiement des consultations par carte bancaire ou mobile money, crédit santé prépayé (montants affichés en euros, parité fixe), remboursement automatique sur le crédit en cas d'annulation, prise de rendez-vous au nom du parent, comptes-rendus et ordonnances si le parent l'accepte (accès journalisé), nouvelles après chaque rendez-vous, alerte de crédit bas et rappel mensuel de recharge |
 | 5.0 | 06/10/2026 | **WhatsApp en phrases libres et messages vocaux** (§ 8.16) : « Sama doom dafa am yaram », « un pédiatre à Thiès », « ticket pour l'hôpital » — écrits ou dits dans un message vocal (wolof, français, anglais), compris et menés directement à la bonne étape (spécialité, ville), réponse dans la langue de la personne ; transcription par un service au choix de l'hébergeur (compatible OpenAI, auto-hébergeable), son jamais conservé |
+| 5.1 | 06/10/2026 | **Avis médical écrit** (§ 8.17) : sans rendez-vous ni vidéo, pour les zones à faible réseau — symptômes, mesures et photos, paiement d'avance (mobile money ou crédit santé familial), réponse écrite du médecin sous 24 ou 48 h avec ordonnance si besoin, consultation en personne ou urgence conseillée ; sans réponse à temps, annulé et remboursé automatiquement ; aucun créneau d'agenda bloqué |
