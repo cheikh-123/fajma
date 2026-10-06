@@ -126,17 +126,17 @@ class UssdTests(ApiTestCase):
         self.assertIn("END Pharmacies Ville6", self.ussd("4*9*2", session="P1"))
 
     def test_language_choice(self):
-        self.assertIn("6. Làkk / Langue / Language", self.ussd("", session="L1"))
-        home_wo = self.ussd("6*2", session="L1")
+        self.assertIn("5. Làkk / Langue / Language", self.ussd("", session="L1"))
+        home_wo = self.ussd("5*2", session="L1")
         self.assertIn("Jël ndaje", home_wo)
-        self.assertEqual(self.ussd("6*2*2", session="L1"), "END Amoo benn ndaje buy ñëw.")
-        self.assertIn("Book an appointment", self.ussd("6*3", session="L2"))
+        self.assertEqual(self.ussd("5*2*2", session="L1"), "END Amoo benn ndaje buy ñëw.")
+        self.assertIn("Book an appointment", self.ussd("5*3", session="L2"))
 
     def test_language_saved_on_account(self):
         from accounts.models import User
 
         user = User.objects.create_user(None, phone="+221770000005", full_name="Modou", phone_verified=True)
-        self.ussd("6*3", session="L3", phone="221770000005")
+        self.ussd("5*3", session="L3", phone="221770000005")
         user.refresh_from_db()
         self.assertEqual(user.preferred_language, "en")
         # Nouvelle session : la langue du compte s'applique d'emblée.
@@ -190,7 +190,6 @@ class FreeTextAndVoiceTests(ApiTestCase):
 
         self.assertEqual(understand("Sama doom dafa am yaram"), {"lang": "wo", "intent": "book", "specialty": "pediatrie"})
         self.assertEqual(understand("je veux un pédiatre à Thiès", ["Dakar", "Thiès"])["city"], "Thiès")
-        self.assertEqual(understand("ticket pour l'hôpital de Fann")["intent"], "queue")
         self.assertEqual(understand("quand est mon rendez-vous")["intent"], "mine")
         self.assertEqual(understand("I need a dentist")["specialty"], "dentiste")
         self.assertEqual(understand("Bonjour"), {})
@@ -199,15 +198,3 @@ class FreeTextAndVoiceTests(ApiTestCase):
         out = self.say("Je cherche un médecin généraliste à Dakar")
         self.assertIn("Dr Test", out)  # spécialité et ville sautées : liste des médecins directement
 
-    def test_voice_message_is_transcribed(self):
-        audio = {"NumMedia": "1", "MediaUrl0": "https://api.twilio.com/media/1", "MediaContentType0": "audio/ogg"}
-        with (
-            self.settings(SPEECH={"MODE": "transcriptions", "API_URL": "https://stt.example/v1/audio/transcriptions", "API_KEY": "k", "MODEL": "w"}),
-            __import__("unittest").mock.patch("bots.understand.fetch_twilio_media", return_value=(b"OggS", "audio/ogg")),
-            __import__("unittest").mock.patch("bots.understand.transcribe", return_value="Dama bëgg doktoor bu généraliste ca Dakar"),
-        ):
-            out = self.say("", **audio)
-        self.assertIn("Lii laa dégg", out)  # réponse en wolof, avec ce qui a été compris
-        self.assertIn("Dr Test", out)
-        with __import__("unittest").mock.patch("bots.understand.fetch_twilio_media", return_value=None):
-            self.assertIn("pas compris", self.say("", phone="+221770000077", **audio))

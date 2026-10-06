@@ -49,7 +49,6 @@ const AnalyticsDashboard = lazy(() =>
 );
 import { UsersAdmin } from "@/components/admin/UsersAdmin";
 import { LabsAdmin } from "@/components/admin/LabsAdmin";
-import { FacilitiesAdmin } from "@/components/admin/FacilitiesAdmin";
 import { CommunityAdmin } from "@/components/admin/CommunityAdmin";
 import { EpidemioAdmin } from "@/components/admin/EpidemioAdmin";
 import { PharmaciesAdmin } from "@/components/admin/PharmaciesAdmin";
@@ -258,9 +257,6 @@ function AdminPage() {
         <div id="laboratoires" className="mt-6 scroll-mt-20">
           <LabsAdmin />
         </div>
-        <div id="hopitaux" className="mt-6 scroll-mt-20">
-          <FacilitiesAdmin />
-        </div>
         <div id="veille" className="mt-6 scroll-mt-20">
           <EpidemioAdmin />
         </div>
@@ -315,7 +311,6 @@ const ADMIN_SECTIONS = [
   ["finances", "Finances"],
   ["pharmacies", "Pharmacies"],
   ["laboratoires", "Laboratoires"],
-  ["hopitaux", "Ticket hôpital"],
   ["relais", "Relais"],
   ["veille", "Veille épidémiologique"],
   ["avis", "Avis"],

@@ -30,7 +30,6 @@ from accounts.security import admin_login
 from care import views as care
 from labs import views as labs
 from support import views as support
-from queues import views as queues
 from family import views as family
 from econsult import views as econsult
 from community import views as community
@@ -243,11 +242,9 @@ admin_urls = [
     path("laboratories/<uuid:laboratory_id>/members", labs.admin_lab_member),
     path("laboratories/<uuid:laboratory_id>", labs.admin_update_laboratory),
     path("doctors/<uuid:doctor_id>", accounts.admin_correct_doctor),
-    path("facilities", queues.admin_facilities),
     path("epidemio", core_epidemio.epidemio),
     path("community-agents", community.admin_agents),
     path("community-agents/<uuid:agent_id>", community.admin_agent),
-    path("facilities/<uuid:facility_id>", queues.admin_facility),
     path("pharmacies/<uuid:pharmacy_id>", pharmacy.admin_update_pharmacy),
     path("reviews", reviews.admin_reviews),
     path("credentials", credentials.admin_credentials),
@@ -330,9 +327,6 @@ urlpatterns = [
     path("api/health", core.health),
     path("api/support", support.create_request),
     path("api/support/mine", support.my_requests),
-    # Ticket virtuel (files d'attente des hôpitaux et centres de santé)
-    # Entraide familiale (diaspora) : proches aidés, crédit santé, paiement et suivi à distance
-    # Avis médical écrit (consultation asynchrone)
     # Relais communautaires (personnes suivies sans téléphone ni internet)
     path("api/community/", include([
         path("people", community.people),
@@ -340,6 +334,7 @@ urlpatterns = [
         path("people/<uuid:follow_id>/transfer", community.start_transfer),
         path("people/<uuid:follow_id>/transfer/confirm", community.confirm_transfer),
     ])),
+    # Avis médical écrit (consultation asynchrone)
     path("api/econsult/", include([
         path("offer/<uuid:doctor_id>", econsult.public_offer),
         path("requests", econsult.my_requests),
@@ -348,6 +343,7 @@ urlpatterns = [
         path("pro/requests", econsult.pro_requests),
         path("pro/requests/<uuid:request_id>/answer", econsult.answer),
     ])),
+    # Entraide familiale (diaspora) : proches aidés, crédit santé, paiement et suivi à distance
     path("api/family/", include([
         path("links", family.links),
         path("links/<uuid:link_id>", family.detail),
@@ -359,21 +355,6 @@ urlpatterns = [
         path("links/<uuid:link_id>/pay", family.pay),
         path("links/<uuid:link_id>/topup", family.topup),
         path("topups/<uuid:topup_id>/refresh", family.refresh_topup),
-    ])),
-    path("api/queues/", include([
-        path("facilities", queues.facilities),
-        path("facilities/<uuid:facility_id>", queues.facility_detail),
-        path("facilities/<uuid:facility_id>/display", queues.display),
-        path("facilities/<uuid:facility_id>/services", queues.save_service),
-        path("services/<uuid:service_id>/take", queues.take),
-        path("services/<uuid:service_id>/call", queues.call_next),
-        path("services/<uuid:service_id>/walk-in", queues.walk_in),
-        path("services/<uuid:service_id>/pause", queues.pause_service),
-        path("tickets/<uuid:ticket_id>/action", queues.ticket_action),
-        path("tickets/<str:code>", queues.ticket_by_code),
-        path("tickets/<str:code>/cancel", queues.cancel_by_code),
-        path("mine", queues.my_tickets),
-        path("desk", queues.desk),
     ])),
     path("api/emergency/<str:token>", emergency.public_card),
     path("api/events", stream.event_stream),

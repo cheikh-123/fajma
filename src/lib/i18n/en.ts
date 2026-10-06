@@ -5,7 +5,6 @@ const en: Dict = {
   "nav.find": "Find a doctor",
   "nav.teleconsult": "Video consultation",
   "nav.pharmacies": "Pharmacies",
-  "nav.queue": "Hospital ticket",
   "nav.assistant": "AI assistant",
   "nav.pros": "Health professionals",
   "nav.imPro": "I'm a professional",

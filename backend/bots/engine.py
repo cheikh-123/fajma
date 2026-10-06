@@ -115,7 +115,6 @@ class Flow:
             ("mine", self.tr("mine")),
             ("cancel", self.tr("cancel")),
             ("pharma", self.tr("pharma")),
-            ("queue", self.tr("queue")),
             ("lang", self.tr("lang")),
         ]
 
@@ -123,12 +122,11 @@ class Flow:
         try:
             while True:
                 # Libellés du menu mémorisés par langue : le changement de langue réaffiche le menu traduit.
-                # Menu principal en un seul écran (6 choix, sous la limite de 182 caractères de l'USSD).
-                choice = self.choose(self.tr("home"), self.home_options(), key=f"home-{self.lang}", page_size=6)
+                choice = self.choose(self.tr("home"), self.home_options(), key=f"home-{self.lang}")
                 if choice != "lang":
                     break
                 self.choose_language()
-            return {"book": self.book, "queue": self.queue_menu, "mine": self.mine, "cancel": self.cancel, "pharma": self.pharmacies}[choice]()
+            return {"book": self.book, "mine": self.mine, "cancel": self.cancel, "pharma": self.pharmacies}[choice]()
         except _Prompt as p:
             prefix = self.tr("invalid") if self.invalid else ""
             suffix = "" if self.step <= 1 else "\n" + self.tr("home_opt")
@@ -248,78 +246,6 @@ class Flow:
             return Reply(self.tr("too_late", h=appt.doctor.cancellation_deadline_hours), end=True)
         cancel(appt, "patient", "Annulé par " + ("USSD" if self.compact else "WhatsApp"))
         return Reply(self.tr("cancelled"), end=True)
-
-    # ── Ticket virtuel ──
-    def queue_menu(self) -> Reply:
-        what = self.choose(self.tr("q_menu"), [("take", self.tr("q_take")), ("mine", self.tr("q_mine"))], key=f"q-{self.lang}")
-        return self.queue_take() if what == "take" else self.queue_status()
-
-    def queue_take(self) -> Reply:
-        from queues import logic
-        from queues.models import Facility, QueueService
-
-        open_facilities = Facility.objects.filter(is_active=True, services__isnull=False).distinct()
-        prefilled = self.memo.get("_city")
-        city = prefilled if prefilled and open_facilities.filter(city=prefilled).exists() else self.choose(
-            self.tr("city"),
-            lambda: [(c, c) for c in open_facilities.values_list("city", flat=True).distinct().order_by("city")],
-            key="qcity",
-        )
-        facility_id = self.choose(
-            self.tr("q_facility"),
-            lambda: [(str(f.id), f.name) for f in open_facilities.filter(city=city).order_by("name")],
-            key="qfac",
-        )
-        service_id = self.choose(
-            self.tr("q_service"),
-            lambda: [(str(s.id), s.name) for s in QueueService.objects.filter(facility_id=facility_id)],
-            key="qsrv",
-        )
-        service = QueueService.objects.select_related("facility").get(id=service_id)
-        if reason := logic.closed_reason(service):
-            return Reply(self.tr("sorry", error=reason), end=True)
-        waiting = logic.waiting_queue(service).count()
-        pace = logic.pace_minutes(service)
-        confirm = self.choose(
-            self.tr("q_confirm", service=service.name, facility=service.facility.name, waiting=waiting,
-                    eta=logic.eta_text(round(waiting * pace + pace / 2), self.lang)),
-            [("yes", self.tr("q_yes")), ("no", self.tr("abort"))],
-            key="qconfirm",
-        )
-        if confirm == "no":
-            return Reply(self.tr("aborted"), end=True)
-        user = self.user()
-        try:
-            ticket, _ = logic.take_ticket(
-                service, phone=self.phone, user=user, name=user.full_name if user else "",
-                channel="ussd" if self.compact else "whatsapp", lang=self.lang,
-            )
-        except ApiError as err:
-            return Reply(self.tr("sorry", error=err.detail), end=True)
-        ahead, eta = logic.place(ticket)
-        return Reply(self.tr("q_ok", label=ticket.label, ahead=ahead, eta=logic.eta_text(eta, self.lang)), end=True)
-
-    def queue_status(self) -> Reply:
-        from queues import logic
-        from queues.models import QueueTicket
-
-        ticket = (
-            QueueTicket.objects.filter(phone=self.phone, day=timezone.localdate())
-            .select_related("service__facility")
-            .order_by("-created_at")
-            .first()
-        )
-        if not ticket:
-            return Reply(self.tr("q_no_ticket"), end=True)
-        if ticket.status == "waiting":
-            ahead, eta = logic.place(ticket)
-            state = self.tr("q_waiting", ahead=ahead, eta=logic.eta_text(eta, self.lang))
-        elif ticket.status == "called":
-            desk = logic._desk_text(ticket)
-            state = self.tr("q_called", desk=desk)
-        else:
-            state = self.tr("q_closed")
-        return Reply(self.tr("q_status", label=ticket.label, facility=ticket.service.facility.name, state=state), end=True)
 
     def pharmacies(self) -> Reply:
         city = self.choose(

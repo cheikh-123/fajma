@@ -28,14 +28,7 @@ export const disableMfa = (password: string) =>
 
 /** Accès démo sans identification (serveur de développement uniquement). */
 export type DemoAccount =
-  | "patient"
-  | "medecin"
-  | "pharmacie"
-  | "clinique"
-  | "secretariat"
-  | "laboratoire"
-  | "accueil"
-  | "admin";
+  "patient" | "medecin" | "pharmacie" | "clinique" | "secretariat" | "laboratoire" | "admin";
 export const getDemoLogin = () => api.get<{ enabled: boolean }>("/auth/demo-login");
 export const demoLogin = (account: DemoAccount) =>
   api.post<{ user: User }>("/auth/demo-login", { account }).then((r) => r.user);

@@ -49,15 +49,9 @@ def _twiml(text: str) -> HttpResponse:
     )
 
 
-# Intention comprise → réponses du menu à rejouer (1 RDV, 2 mes RDV, 3 annuler, 4 pharmacies, 5-1 ticket).
-INTENT_INPUTS = {"book": ["1"], "mine": ["2"], "cancel": ["3"], "pharma": ["4"], "queue": ["5", "1"]}
+# Intention comprise → réponse du menu à rejouer (1 RDV, 2 mes RDV, 3 annuler, 4 pharmacies).
+INTENT_INPUTS = {"book": ["1"], "mine": ["2"], "cancel": ["3"], "pharma": ["4"]}
 
-
-def _lang_of(phone: str) -> str:
-    from accounts.models import User
-
-    user = User.objects.filter(phone=phone, phone_verified=True).only("preferred_language").first()
-    return user.preferred_language if user and user.preferred_language in ("fr", "wo", "en") else "fr"
 
 
 def _guess(text: str) -> dict:
@@ -68,12 +62,6 @@ def _guess(text: str) -> dict:
 
     doctors = Doctor.objects.filter(is_verified=True, availability__isnull=False)
     cities = list(doctors.values_list("city", flat=True).distinct())
-    try:
-        from queues.models import Facility
-
-        cities += [c for c in Facility.objects.filter(is_active=True).values_list("city", flat=True).distinct() if c not in cities]
-    except Exception:  # noqa: BLE001
-        pass
     found = understand(text, cities)
     if found.get("specialty"):
         spec = Specialty.objects.filter(slug=found["specialty"], doctors__in=doctors).distinct().first()
@@ -91,17 +79,6 @@ def whatsapp(request):
     text = (request.POST.get("Body") or "").strip()[:200]
     if not phone:
         return HttpResponse(status=400)
-    heard = None
-    if int(request.POST.get("NumMedia") or 0) and (request.POST.get("MediaContentType0") or "").startswith("audio/"):
-        # Message vocal : transcrit (wolof, français, anglais) puis traité comme un message écrit.
-        from .texts import TEXTS
-        from .understand import fetch_twilio_media, transcribe
-
-        media = fetch_twilio_media(request.POST.get("MediaUrl0") or "")
-        heard = transcribe(*media) if media else None
-        if not heard:
-            return _twiml(TEXTS[_lang_of(phone)]["not_heard"])
-        text = heard[:200]
     sid = (request.POST.get("MessageSid") or "")[:64]
     from notifications.optout import STOP_REPLY, is_start, is_stop, opt_in, opt_out
 
@@ -116,8 +93,8 @@ def whatsapp(request):
         if sid and session.memo.get("_sid") == sid:
             return _twiml(session.memo.get("_reply", ""))
         expired = timezone.now() - session.updated_at > WHATSAPP_SESSION_TTL
-        guess = _guess(text) if text and not text.isdigit() and (expired or not session.inputs or heard) else {}
-        if guess.get("intent"):
+        guess = _guess(text) if text and not text.isdigit() and (expired or not session.inputs) else {}
+        if guess.get("intent") in INTENT_INPUTS:
             # Demande en phrase libre : le menu reprend directement à la bonne étape.
             session.inputs, session.memo = list(INTENT_INPUTS[guess["intent"]]), {}
             for key in ("spec", "city", "lang"):
@@ -133,10 +110,6 @@ def whatsapp(request):
             text_out = reply.text + "\n\nÉcrivez « menu » pour recommencer."
         else:
             text_out = reply.text
-        if heard:
-            from .texts import TEXTS
-
-            text_out = TEXTS[session.memo.get("_lang") or _lang_of(phone)]["heard"].format(text=heard) + text_out
         if sid:
             session.memo = {**session.memo, "_sid": sid, "_reply": text_out}
         session.save()

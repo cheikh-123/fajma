@@ -1,7 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { AppointmentHistory } from "@/components/AppointmentHistory";
 import { InstallApp } from "@/components/InstallApp";
-import { MyTicketsCard } from "@/components/MyTicketsCard";
 import { MyAsyncCard } from "@/components/MyAsyncCard";
 import { FamilyHelpCard } from "@/components/FamilyHelpCard";
 import { listCareLinks } from "@/api/family";
@@ -248,14 +247,6 @@ function MyAreaPage() {
                 Espace relais
               </Link>
             )}
-            {me?.is_queue_agent && (
-              <Link
-                to="/guichet"
-                className="flex items-center gap-2 rounded-full bg-sunu-teal px-4 py-2.5 text-sm font-semibold text-white"
-              >
-                Accueil hôpital
-              </Link>
-            )}
             {me?.is_lab && (
               <Link
                 to="/laboratoire"
@@ -360,7 +351,6 @@ function MyAreaPage() {
               </div>
             )}
             <MyAsyncCard />
-            <MyTicketsCard />
             <FamilyHelpCard />
             <RelativesPanel />
             <WaitlistPanel />

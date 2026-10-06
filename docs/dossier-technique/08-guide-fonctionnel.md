@@ -227,7 +227,6 @@ internet).
 | Fiche d'urgence consultée | Immédiat (1 par jour) | Patient | Notification |
 | Fiche publiée, compte rattaché | À la validation | Médecin, pharmacien, biologiste | SMS, email |
 | Demande d'aide | Immédiat | Équipe Fajma | Email (`ALERT_EMAILS`) |
-| Ticket d'hôpital | Prise du ticket ; peu de monde devant ; heure de partir ; appel au guichet ; dernier appel | Patient | SMS (ou WhatsApp), notification |
 | Synchronisation des agendas, supervision | Toutes les 10 minutes | — / équipe technique | Alerte email en cas de problème |
 | Purge des données techniques | Chaque nuit | — | — |
 | Sauvegarde chiffrée / test de restauration | Chaque jour / le 1er du mois | — | Alerte en cas d'échec |
@@ -316,43 +315,6 @@ Restent volontairement non modifiables : ordonnances, certificats et comptes-ren
 légaux : on en émet un nouveau), reçus, journal d'audit, organisme et bénéficiaire d'une assurance (on la
 supprime et on la recrée), avis publiés.
 
-## 8.14 Ticket virtuel à l'hôpital
-
-Pour éviter les files d'attente dès l'aube dans les hôpitaux et centres de santé.
-
-**Patient**
-1. Page « Ticket hôpital » (`/hopitaux`) : établissements, services, personnes en attente et attente estimée en
-   direct. Il indique s'il est sur place ou à combien de temps (15 min à 1 h 30), puis « Prendre un ticket ».
-   Sans internet : code USSD de Fajma, choix 5 « Ticket hôpital » (aussi sur WhatsApp), puis « Mon ticket » pour
-   connaître sa place.
-2. Il reçoit un SMS avec son numéro (A12), sa place, l'attente estimée et le lien de suivi (sans connexion).
-3. SMS « c'est bientôt » quand il ne reste que quelques personnes devant (nombre réglé par l'établissement),
-   SMS « partez maintenant » quand l'attente restante rejoint son temps de trajet (plus 10 minutes de marge),
-   puis « c'est votre tour, présentez-vous au box 2 ». La page de suivi vibre et sonne à l'appel.
-4. « Je ne viendrai pas » libère sa place. Un même numéro n'a qu'un ticket actif par service et par jour.
-
-**Accueil de l'établissement** (`/guichet`)
-- « Appeler le suivant » (avec le nom de son guichet), « Reçu », « Absent », « Rappeler », remettre en attente
-  un patient arrivé après son appel.
-- Priorités : femme enceinte, personne âgée, handicap, jeune enfant, urgence ; un ticket prioritaire passe
-  avant les autres en attente.
-- « Ticket au guichet » pour une personne venue sur place, avec ou sans téléphone (SMS en français, wolof ou
-  anglais), imprimable.
-- Suspendre la prise de tickets en ligne (salle pleine, médecin absent) avec un message affiché aux patients.
-- Écran de salle d'attente (`/affichage/…`, sur une télévision) : numéros appelés en grand et guichet,
-  annonce vocale et signal sonore à chaque appel ; aucune donnée personnelle.
-- Responsable : bilan du jour (tickets, reçus, absents, part prise à distance, attente moyenne réelle, rythme,
-  arrivées par heure) et réglage des services (lettre, horaires, jours, tickets par jour, durée moyenne, seuil
-  du SMS « c'est bientôt »).
-
-**Règles**
-- Numéro du jour unique par service (contrainte en base), attribué sous verrou : jamais deux A12.
-- Attente estimée : rythme réel des 10 derniers appels du jour (tous guichets), sinon la durée moyenne déclarée.
-- Trois SMS au plus par ticket (bientôt / partir / appel) ; un « dernier appel » si l'accueil rappelle.
-- Tickets non utilisés expirés automatiquement le lendemain (planificateur).
-- Administration : ajout des établissements (position trouvée par quartier ou ville), rattachement du personnel
-  (agent ou responsable), activation.
-
 ## 8.15 Entraide familiale (« Je paie la santé de mes parents »)
 
 Pour la diaspora et les familles : un proche aide un parent au Sénégal, avec son accord.
@@ -384,21 +346,15 @@ consultations avec le crédit offert (choix « Crédit santé » au paiement).
 - Crédit restant après l'arrêt de l'entraide : remboursé au proche sur demande à l'équipe Fajma.
 - Chaque consultation du dossier par le proche est inscrite au journal d'audit, visible du patient.
 
-## 8.16 WhatsApp : phrases libres et messages vocaux
+## 8.16 WhatsApp : demandes en phrases libres
 
-- Au lieu de taper des numéros, la personne écrit ou **dit** ce qu'elle veut, en wolof, français ou anglais :
-  « Sama doom dafa am yaram » (mon enfant a de la fièvre), « je veux un pédiatre à Thiès », « ticket pour
-  l'hôpital », « quand est mon rendez-vous », « pharmacie de garde ».
-- Fajma reconnaît la demande (rendez-vous, ticket d'hôpital, mes rendez-vous, annulation, pharmacies), la
-  spécialité (y compris par les mots du quotidien : enfant, dents, yeux, cœur, grossesse…) et la ville, puis le
-  menu reprend directement à la bonne étape (par exemple la liste des pédiatres de Thiès). La réponse est en
-  wolof si la personne a parlé wolof.
-- Message vocal : transcrit, puis traité comme un message écrit ; Fajma répète ce qu'il a compris
-  (« J'ai compris : … ») pour que la personne corrige au besoin. Message incompris : invitation à écrire ou
-  à taper « menu ».
-- Transcription : service compatible OpenAI choisi par l'hébergeur (`SPEECH_MODE`, `SPEECH_API_URL`,
-  `SPEECH_API_KEY`, `SPEECH_MODEL` : Whisper, serveur auto-hébergé, modèle wolof) ; à défaut, le modèle de
-  l'assistant (`AI_*`). Le son n'est jamais conservé. Les mots-clés wolof sont à faire relire par un locuteur.
+- Au lieu de taper des numéros, la personne écrit ce qu'elle veut, en wolof, français ou anglais :
+  « Sama doom dafa am yaram » (mon enfant a de la fièvre), « je veux un pédiatre à Thiès », « quand est mon
+  rendez-vous », « pharmacie de garde ».
+- Fajma reconnaît la demande (rendez-vous, mes rendez-vous, annulation, pharmacies), la spécialité (y compris
+  par les mots du quotidien : enfant, dents, yeux, cœur, grossesse…) et la ville, puis le menu reprend
+  directement à la bonne étape. La réponse est en wolof si la personne a écrit en wolof. Sans IA : mots-clés,
+  à faire relire par un locuteur.
 
 ## 8.17 Avis médical écrit (consultation asynchrone)
 

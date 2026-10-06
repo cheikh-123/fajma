@@ -51,8 +51,6 @@ class AuditEvent(BaseModel):
         ("admin_lab_created", "Laboratoire ajouté (administration)"),
         ("admin_lab_updated", "Laboratoire modifié (administration)"),
         ("lab_updated", "Laboratoire modifié (biologiste)"),
-        ("admin_facility_saved", "Établissement à ticket modifié (administration)"),
-        ("queue_service_saved", "Service de file d'attente modifié"),
         ("family_invited", "Entraide familiale : proche invité"),
         ("family_accepted", "Entraide familiale : accord du bénéficiaire"),
         ("family_revoked", "Entraide familiale : accès retiré"),
