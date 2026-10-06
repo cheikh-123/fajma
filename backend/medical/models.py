@@ -108,10 +108,19 @@ class HealthProfile(BaseModel):
     vaccinations = models.TextField(blank=True, max_length=2000)
     emergency_contact = models.CharField(max_length=160, blank=True)
     # Fiche d'urgence publique (QR code) : activée par le patient, qui choisit les informations visibles.
-    EMERGENCY_FIELDS = ["blood_group", "allergies", "treatments", "conditions", "emergency_contact"]
+    EMERGENCY_FIELDS = [
+        "critical_flags", "blood_group", "allergies", "treatments", "conditions", "medical_devices",
+        "emergency_contact", "doctor", "insurance", "weight", "rescuer_notes",
+    ]
     emergency_enabled = models.BooleanField(default=False)
     emergency_token = models.CharField(max_length=64, null=True, blank=True, unique=True)
     emergency_fields = models.JSONField(default=list, blank=True)
+    # Compléments de la fiche d'urgence : alertes vitales (codes de medical/emergency.py), personnes à prévenir
+    # [{name, relation, phone}] (3 au plus), appareils (pacemaker…), note pour les secours.
+    critical_flags = models.JSONField(default=list, blank=True)
+    emergency_contacts = models.JSONField(default=list, blank=True)
+    medical_devices = models.CharField(max_length=300, blank=True)
+    rescuer_notes = models.CharField(max_length=300, blank=True)
     # Mesure à domicile dangereuse : les médecins qui suivent le patient sont prévenus (désactivable).
     alert_doctors = models.BooleanField(default=True)
 
@@ -203,3 +212,23 @@ class PrescriptionRenewal(BaseModel):
         constraints = [
             models.UniqueConstraint(fields=["prescription"], condition=models.Q(status="pending"), name="one_pending_renewal"),
         ]
+
+
+class RelativeEmergencyCard(BaseModel):
+    """
+    Fiche d'urgence d'un proche (enfant, parent âgé) tenue par le titulaire du compte : mêmes informations
+    que pour soi, son propre QR code ; le titulaire est toujours la première personne à prévenir.
+    """
+
+    relative = models.OneToOneField("accounts.Relative", on_delete=models.CASCADE, related_name="emergency_card")
+    enabled = models.BooleanField(default=False)
+    token = models.CharField(max_length=64, null=True, blank=True, unique=True)
+    fields = models.JSONField(default=list, blank=True)
+    blood_group = models.CharField(max_length=3, choices=HealthProfile.BLOOD_GROUPS, blank=True)
+    allergies = models.TextField(blank=True, max_length=2000)
+    conditions = models.TextField(blank=True, max_length=2000)
+    treatments = models.TextField(blank=True, max_length=2000)
+    critical_flags = models.JSONField(default=list, blank=True)
+    emergency_contacts = models.JSONField(default=list, blank=True)
+    medical_devices = models.CharField(max_length=300, blank=True)
+    rescuer_notes = models.CharField(max_length=300, blank=True)

@@ -262,10 +262,13 @@ export function MeasurementsSection() {
 /** Alerte des médecins qui suivent le patient si une mesure est dangereuse (activée par défaut). */
 function AlertDoctorsToggle() {
   const qc = useQueryClient();
-  const { data } = useQuery({ queryKey: ["emergency-card"], queryFn: getEmergencySettings });
+  const { data } = useQuery({
+    queryKey: ["emergency-card", "me"],
+    queryFn: () => getEmergencySettings(),
+  });
   const save = useMutation({
     mutationFn: (alert_doctors: boolean) => updateEmergencySettings({ alert_doctors }),
-    onSuccess: (res) => qc.setQueryData(["emergency-card"], res),
+    onSuccess: (res) => qc.setQueryData(["emergency-card", "me"], res),
     onError: (e) => toast.error(e.message),
   });
   if (!data) return null;

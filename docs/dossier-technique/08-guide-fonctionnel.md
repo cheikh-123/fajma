@@ -88,8 +88,16 @@ d'abord conduit à l'activer ; il est déconnecté après 30 minutes sans activi
 - Documents déposés (PDF, photos), partagés seulement avec les médecins que le patient choisit.
 - « Qui a consulté mon dossier » : chaque accès d'un professionnel est listé.
 - **Télécharger mon dossier (PDF)** : tout le dossier en un document, à remettre à un médecin.
-- **Fiche d'urgence** : à activer ; le patient choisit les informations visibles et télécharge l'image avec le
-  QR code pour son fond d'écran. Un nouveau lien rend l'ancien QR code inutilisable.
+- **Fiche d'urgence** (pour soi et pour chaque proche : enfant, parent âgé) : à activer ; **alertes vitales**
+  affichées en gros en tête (diabétique sous insuline, diabétique, épileptique, drépanocytaire, sous
+  anticoagulant, maladie du cœur, hypertension, asthme, dialyse, allergie grave, hémophile, enceinte, troubles
+  de la mémoire, handicap) ; jusqu'à **3 personnes à prévenir** (nom, lien, téléphone) — pour un proche, le
+  titulaire du compte est toujours prévenu en premier ; appareils médicaux ; note pour les secours ; le patient
+  choisit ce qui est visible (aussi médecin traitant avec son téléphone, assurance, poids). Page des secours
+  en **français, wolof ou anglais**, avec SAMU 1515, pompiers 18, police 17, et pour chaque proche « Appeler »,
+  « WhatsApp » et « Envoyer la position » (lien de carte par SMS). QR code en image de fond d'écran ou **carte de
+  portefeuille** à imprimer (format carte bancaire, recto-verso). Chaque consultation est journalisée et le
+  titulaire est prévenu par SMS (une fois par jour). Un nouveau lien rend l'ancien QR code inutilisable.
 - Télécharger toutes ses données (JSON) ou supprimer son compte.
 
 **Sans smartphone** : prendre rendez-vous par **WhatsApp** ou par le menu **USSD** (tout téléphone, sans

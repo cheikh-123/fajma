@@ -29,31 +29,77 @@ export const decideRenewal = (id: string, decision: "accept" | "refuse", message
   api.post<Renewal>(`/pro/renewals/${id}`, { decision, message });
 
 export type EmergencyField =
-  "blood_group" | "allergies" | "treatments" | "conditions" | "emergency_contact";
+  | "critical_flags"
+  | "blood_group"
+  | "allergies"
+  | "treatments"
+  | "conditions"
+  | "medical_devices"
+  | "emergency_contact"
+  | "doctor"
+  | "insurance"
+  | "weight"
+  | "rescuer_notes";
+
+export type EmergencyContact = { name: string; relation: string; phone: string | null };
 
 export type EmergencySettings = {
   enabled: boolean;
   token: string | null;
   fields: EmergencyField[];
-  alert_doctors: boolean;
+  critical_flags: string[];
+  contacts: EmergencyContact[];
+  medical_devices: string;
+  rescuer_notes: string;
+  flag_choices: string[];
+  alert_doctors?: boolean;
+  /** Fiche d'un proche : le proche et ses informations de santé (il n'a pas de profil propre). */
+  relative?: { id: string; full_name: string };
+  blood_group?: string;
+  allergies?: string;
+  conditions?: string;
+  treatments?: string;
 };
 
-export const getEmergencySettings = () => api.get<EmergencySettings>("/patient/emergency-card");
-export const updateEmergencySettings = (
-  data: Partial<{
-    enabled: boolean;
-    fields: EmergencyField[];
-    regenerate: boolean;
-    alert_doctors: boolean;
-  }>,
-) => api.post<EmergencySettings>("/patient/emergency-card", data);
+export type EmergencyUpdate = Partial<{
+  relative_id: string;
+  enabled: boolean;
+  fields: EmergencyField[];
+  regenerate: boolean;
+  alert_doctors: boolean;
+  critical_flags: string[];
+  contacts: EmergencyContact[];
+  medical_devices: string;
+  rescuer_notes: string;
+  blood_group: string;
+  allergies: string;
+  conditions: string;
+  treatments: string;
+}>;
+
+export const getEmergencySettings = (relativeId?: string) =>
+  api.get<EmergencySettings>("/patient/emergency-card", { relative: relativeId });
+export const updateEmergencySettings = (data: EmergencyUpdate) =>
+  api.post<EmergencySettings>("/patient/emergency-card", data);
 
 export type EmergencyCard = {
   full_name: string;
   age: number | null;
   sex: "F" | "M" | null;
   updated_at: string;
-} & Partial<Record<EmergencyField, string | null>>;
+  for_relative: boolean;
+  critical_flags?: string[];
+  blood_group?: string | null;
+  allergies?: string | null;
+  treatments?: string | null;
+  conditions?: string | null;
+  medical_devices?: string | null;
+  rescuer_notes?: string | null;
+  contacts?: EmergencyContact[];
+  doctor?: { name: string; specialty: string | null; phone: string | null; city: string } | null;
+  insurance?: { insurer: string; member_number: string } | null;
+  weight?: number | null;
+};
 
 export const getEmergencyCard = (token: string) => api.get<EmergencyCard>(`/emergency/${token}`);
 
