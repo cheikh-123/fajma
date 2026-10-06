@@ -104,6 +104,7 @@ INSTALLED_APPS = [
     "econsult",
     "community",
     "partners",
+    "backoffice",
 ]
 
 MIDDLEWARE = [
@@ -113,6 +114,7 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "backoffice.roles.AdminRoleMiddleware",
     "appointments.history.CurrentRequestMiddleware",
     "accounts.security.IdleTimeoutMiddleware",
     "accounts.security.MfaRequiredMiddleware",

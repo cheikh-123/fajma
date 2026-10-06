@@ -10,6 +10,7 @@ import {
 import { useEffect, useState, type ReactNode } from "react";
 import { markHydrated } from "@/lib/first-load";
 import { NotFoundPage } from "@/components/NotFoundPage";
+import { SiteMessageBanner } from "@/components/SiteMessageBanner";
 import { Toaster } from "@/components/ui/sonner";
 import { OfflineBanner } from "@/components/OfflineBanner";
 import { LanguageProvider } from "@/lib/i18n";
@@ -130,6 +131,7 @@ function RootComponent() {
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
       <LanguageProvider>
         <OfflineBanner />
+        <SiteMessageBanner />
         <Outlet />
         <Toaster />
       </LanguageProvider>

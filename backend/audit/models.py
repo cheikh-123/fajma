@@ -62,6 +62,9 @@ class AuditEvent(BaseModel):
         ("admin_campaign_saved", "Campagne sponsorisée modifiée (administration)"),
         ("admin_support_closed", "Demande d'aide traitée (administration)"),
         ("admin_support_reopened", "Demande d'aide rouverte (administration)"),
+        ("admin_announcement", "Annonce groupée envoyée (administration)"),
+        ("admin_settings", "Réglages modifiés (administration)"),
+        ("admin_staff_changed", "Rôle d'un membre de l'équipe modifié (administration)"),
     ]
 
     actor = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name="+")

@@ -92,7 +92,6 @@ def apply_condition(record, data: dict) -> dict | None:
     Enregistre le diagnostic codé du compte-rendu. Maladie à déclaration immédiate (et pas écartée par un test
     négatif) : fiche de déclaration créée, administration Fajma prévenue ; renvoie la consigne au médecin.
     """
-    from django.conf import settings
     from django.utils import timezone
 
     from sunusante.api import ApiError
@@ -134,7 +133,9 @@ def apply_condition(record, data: dict) -> dict | None:
             notify(admin, kind="mdo", title=f"Maladie à déclaration immédiate : {cond.label}",
                    body=f"{STATUSES.get(status, 'Suspect')} — {city or 'ville inconnue'} ({timezone.localdate():%d/%m}). "
                         f"Médecin : {record.doctor.full_name}.", link="/admin#veille", email=True)
-    hotline = getattr(settings, "EPIDEMIC_HOTLINE", "")
+    from backoffice.settings_registry import get_setting
+
+    hotline = get_setting("epidemic_hotline")
     return {
         "condition": cond.label,
         "message": f"{cond.label} : maladie à déclaration immédiate. Déclarez ce cas {STATUSES.get(status, 'suspect').lower()} "

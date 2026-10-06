@@ -42,6 +42,7 @@ from . import activity_report
 from . import epidemio as core_epidemio
 from . import exports
 from . import views as core
+from backoffice import views as backoffice
 
 # /django-admin/ : pas de connexion par mot de passe seul, on passe par la connexion Fajma (double authentification).
 admin.site.login = admin_login
@@ -269,7 +270,14 @@ admin_urls = [
     path("verification", accounts.admin_set_verification),
     path("sms", accounts.admin_sms_reminders),
     path("sms/retry", accounts.admin_retry_sms),
-    path("audit", audit.admin_audit_log),
+    path("audit", backoffice.audit_log),
+    path("search", backoffice.search),
+    path("doctors", backoffice.doctors),
+    path("doctors/<uuid:doctor_id>/overview", backoffice.doctor_overview),
+    path("announcements", backoffice.announcements),
+    path("settings", backoffice.platform_settings),
+    path("staff", backoffice.staff),
+    path("me", backoffice.my_admin_access),
 ]
 
 expertise_urls = [
@@ -321,6 +329,7 @@ urlpatterns = [
     path("api/messages/", include(message_urls)),
     path("api/clinics/", include(clinic_urls)),
     path("api/admin/", include(admin_urls)),
+    path("api/site-info", backoffice.site_info),
     path("api/notifications/twilio-status", notifications.twilio_status),
     # Justificatifs des établissements (cliniques, pharmacies, laboratoires) et accès aux fichiers
     path("api/credentials/<str:owner_type>/<uuid:owner_id>", credentials.owner_credentials),

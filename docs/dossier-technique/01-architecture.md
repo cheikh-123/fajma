@@ -51,6 +51,7 @@ d'être écrits sur le disque (clé conservée hors des sauvegardes).
 | `backend/labs/` | Laboratoires d'analyses : prescription, choix du laboratoire, prélèvement, dépôt des résultats |
 | `backend/support/` | Demandes d'aide envoyées depuis la page « Aide et contact », suivies par l'administration |
 | `backend/partners/` | Partenaires (page publique, logos) et campagnes sponsorisées : charte, validation, emplacements, ciblage ville / langue, statistiques agrégées par jour |
+| `backend/backoffice/` | Outils de l'équipe : rôles des administrateurs (contrôle unique sur toutes les adresses `/api/admin/…`, `roles.py`), réglages modifiables sans technicien (liste fermée et validée, `settings_registry.py`), annonces groupées, recherche globale, fiche 360° du médecin, journal d'audit filtrable et exportable |
 | `backend/community/` | Relais communautaires : habilitation, personnes suivies (accord, repères), alertes, transfert générique du dossier d'un proche vers son propre compte |
 | `backend/econsult/` | Avis médical écrit : offre du médecin (prix, délai), demandes (symptômes, mesures, photos), réponse et ordonnance, délais dépassés remboursés ; chaque demande est un rendez-vous de mode « async » sans durée |
 | `backend/family/` | Entraide familiale : liens d'entraide (accord par code SMS, droits), crédit santé (recharges payées en ligne, journal des mouvements), paiement par un proche, nouvelles au proche |

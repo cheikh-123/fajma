@@ -194,6 +194,20 @@ internet).
 
 ## 8.7 Administration Fajma
 
+- **Menu par rubriques** (à gauche ; en haut sur téléphone), avec le nombre de choses en attente : tableau de
+  bord, à valider, utilisateurs, réseau de soins, finances, santé publique, communication, support, système,
+  ma sécurité. Chaque membre de l'équipe ne voit que les rubriques de son **rôle** (validations, support,
+  finances, santé publique, communication, super-administrateur), donné dans « Système > Équipe et rôles ».
+- **Recherche globale** (en haut) : nom, téléphone, email, n° de l'Ordre, référence d'ordonnance, numéro de
+  reçu ; un médecin ouvre sa **fiche 360°** (coordonnées, justificatifs et pièces manquantes, activité sur
+  90 jours, avis, solde et virements, établissements ; valider, corriger, suspendre), sans contenu médical.
+- **À valider** : uniquement ce qui attend, justificatifs à côté. **Réseau de soins** : un onglet par acteur
+  (médecins filtrables, établissements, pharmacies, laboratoires, relais) ; plus de doublons.
+- **Annonces** à un groupe (ville facultative) : notification, SMS et email au choix, nombre de
+  destinataires affiché avant l'envoi, historique ; SMS limité à 5 000 destinataires et 300 caractères.
+- **Réglages** sans technicien : message en haut du site, email et téléphone de contact, horaires, code
+  USSD, numéro de déclaration des maladies, minimum de virement aux médecins ; valeurs vérifiées, journalisées.
+- **Journal d'audit** : filtres (action, personne, patient, dates), 100 par page, export tableur.
 - Bandeau **« À traiter »** : médecins et établissements à valider, justificatifs à vérifier, justificatifs
   expirés ou qui expirent dans les 30 jours, avis signalés, virements et
   remboursements, demandes d'aide, SMS en échec.

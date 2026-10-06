@@ -28,6 +28,12 @@ from sunusante.api import ApiError, ScopedThrottle, body, forbidden, get_choice,
 
 from audit import log as audit
 
+
+def _admin_role(user):
+    from backoffice.roles import role_of
+
+    return role_of(user)
+
 from . import totp
 from .models import Relative, TwoFactor, User
 
@@ -54,6 +60,7 @@ def user_dict(user: User, session=None) -> dict:
         "phone": user.phone or None,
         "city": user.city or None,
         "is_admin": user.is_staff,
+        "admin_role": _admin_role(user),
         "is_doctor": Doctor.objects.filter(user=user).exists(),
         "is_pharmacist": user.pharmacy_memberships.exists(),
         "is_lab": user.lab_memberships.exists(),
@@ -596,6 +603,11 @@ def require_admin(request) -> User:
     user = require_user(request)
     if not user.is_staff:
         raise forbidden("Accès administrateur requis")
+    # Rôle de l'équipe (en plus du contrôle global backoffice.roles.AdminRoleMiddleware)
+    from backoffice.roles import allowed
+
+    if not allowed(user, request.path):
+        raise forbidden("Votre rôle ne donne pas accès à cette partie de l'administration")
     return user
 
 

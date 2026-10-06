@@ -86,16 +86,3 @@ export const verifyOtp = (data: { phone: string; code?: string; full_name?: stri
 
 export const getMyAccessLog = () =>
   api.get<{ id: string; action: string; who: string; at: string }[]>("/patient/access-log");
-
-export const getAdminAudit = () =>
-  api.get<
-    {
-      id: string;
-      action: string;
-      who: string;
-      patient: string | null;
-      target: string;
-      ip: string | null;
-      at: string;
-    }[]
-  >("/admin/audit");

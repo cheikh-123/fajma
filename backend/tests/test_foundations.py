@@ -127,7 +127,7 @@ class AuditTests(ApiTestCase):
         self.assertTrue(AuditEvent.objects.filter(action="login_failed").exists())
         self.assertEqual(self.client_for(self.p1).get("/api/admin/audit").status_code, 403)
         admin = self.make_user("admin@test.sn", "Admin", is_staff=True)
-        self.assertGreaterEqual(len(self.client_for(admin).get("/api/admin/audit").data), 1)
+        self.assertGreaterEqual(len(self.client_for(admin).get("/api/admin/audit").data["results"]), 1)
 
 
 class OpsTests(ApiTestCase):

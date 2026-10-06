@@ -18,7 +18,13 @@ from sunusante.api import ApiError
 from .models import LedgerEntry, Payment, Payout, Refund, Subscription, SubscriptionPayment
 from .plans import PERIOD_DAYS_PER_MONTH, PLANS, commission_for, effective_plan
 
-MIN_PAYOUT = 5000
+MIN_PAYOUT = 5000  # valeur par défaut ; modifiable dans Administration > Réglages
+
+
+def min_payout() -> int:
+    from backoffice.settings_registry import get_setting
+
+    return int(get_setting("min_payout") or MIN_PAYOUT)
 
 
 def balance(doctor: Doctor) -> int:
@@ -107,8 +113,8 @@ def request_payout(doctor: Doctor, amount: int, method: str, destination: str) -
     if Payout.objects.filter(doctor=doctor, status="requested").exists():
         raise ApiError("Une demande de virement est déjà en cours de traitement")
     available = balance(doctor)
-    if amount < MIN_PAYOUT:
-        raise ApiError(f"Montant minimum : {MIN_PAYOUT} FCFA")
+    if amount < min_payout():
+        raise ApiError(f"Montant minimum : {min_payout()} FCFA")
     if amount > available:
         raise ApiError("Montant supérieur au solde disponible")
     payout = Payout.objects.create(

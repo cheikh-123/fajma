@@ -1,14 +1,7 @@
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
-import { PartnersAdmin } from "@/components/admin/PartnersAdmin";
-import { lazy, Suspense, useState } from "react";
-import { ThemeToggle } from "@/lib/theme";
-import { redirectBeforeHydration } from "@/lib/first-load";
-import { LogoutButton } from "@/components/LogoutButton";
-import { HelpLink } from "@/components/HelpLink";
-import { SupportAdmin } from "@/components/admin/SupportAdmin";
-import { ActivityReport } from "@/components/admin/ActivityReport";
-import { NotificationBell } from "@/components/NotificationBell";
+import { lazy, Suspense, useEffect, useState } from "react";
 import {
+  keepPreviousData,
   queryOptions,
   useMutation,
   useQuery,
@@ -16,19 +9,31 @@ import {
   useSuspenseQuery,
 } from "@tanstack/react-query";
 import {
-  Pencil,
+  Activity,
   Building2,
   Calendar,
   CheckCircle2,
+  ClipboardCheck,
   Heart,
-  MessageSquare,
+  LayoutDashboard,
+  LifeBuoy,
+  Megaphone,
   RefreshCw,
+  Settings,
   ShieldCheck,
   Stethoscope,
+  Users,
   Wallet,
   XCircle,
 } from "lucide-react";
 import { toast } from "sonner";
+import { ThemeToggle } from "@/lib/theme";
+import { redirectBeforeHydration } from "@/lib/first-load";
+import { formatDateTime } from "@/lib/datetime";
+import { LogoutButton } from "@/components/LogoutButton";
+import { HelpLink } from "@/components/HelpLink";
+import { NotificationBell } from "@/components/NotificationBell";
+import { SecuritySection } from "@/components/SecuritySection";
 import {
   getAdminOverview,
   getAdminTodo,
@@ -37,26 +42,40 @@ import {
   listSmsReminders,
   retrySmsReminder,
 } from "@/api/admin";
-import { getAdminAudit } from "@/api/auth";
-import { formatDateTime } from "@/lib/datetime";
+import {
+  getMyAdminAccess,
+  listAdminDoctors,
+  type AdminSection,
+  type SearchResult,
+} from "@/api/backoffice";
+import { ActivityReport } from "@/components/admin/ActivityReport";
+import { CommunityAdmin } from "@/components/admin/CommunityAdmin";
+import { CredentialsAdmin } from "@/components/admin/CredentialsAdmin";
+import { Doctor360 } from "@/components/admin/Doctor360";
+import { EpidemioAdmin } from "@/components/admin/EpidemioAdmin";
 import { FinanceAdmin } from "@/components/admin/FinanceAdmin";
-import { DoctorCorrection } from "@/components/admin/DoctorCorrection";
+import { GlobalSearch } from "@/components/admin/GlobalSearch";
+import { LabsAdmin } from "@/components/admin/LabsAdmin";
+import { PartnersAdmin } from "@/components/admin/PartnersAdmin";
+import { PharmaciesAdmin } from "@/components/admin/PharmaciesAdmin";
 import { PharmacyMembersAdmin } from "@/components/admin/PharmacyMembersAdmin";
 import { ReviewModeration } from "@/components/admin/ReviewModeration";
-import { CredentialsAdmin } from "@/components/admin/CredentialsAdmin";
+import { SupportAdmin } from "@/components/admin/SupportAdmin";
+import { UsersAdmin } from "@/components/admin/UsersAdmin";
+import {
+  AnnouncementsAdmin,
+  AuditLogAdmin,
+  SettingsAdmin,
+  StaffAdmin,
+} from "@/components/admin/BackofficeAdmin";
 // Tableau de pilotage (graphiques, bibliothèque lourde) chargé seulement quand on l'ouvre.
 const AnalyticsDashboard = lazy(() =>
   import("@/components/admin/AnalyticsDashboard").then((m) => ({ default: m.AnalyticsDashboard })),
 );
-import { UsersAdmin } from "@/components/admin/UsersAdmin";
-import { LabsAdmin } from "@/components/admin/LabsAdmin";
-import { CommunityAdmin } from "@/components/admin/CommunityAdmin";
-import { EpidemioAdmin } from "@/components/admin/EpidemioAdmin";
-import { PharmaciesAdmin } from "@/components/admin/PharmaciesAdmin";
-import { SecuritySection } from "@/components/SecuritySection";
 
 const adminQO = queryOptions({ queryKey: ["admin-overview"], queryFn: () => getAdminOverview() });
 const smsQO = queryOptions({ queryKey: ["admin-sms"], queryFn: () => listSmsReminders() });
+const accessQO = queryOptions({ queryKey: ["admin-access"], queryFn: () => getMyAdminAccess() });
 
 export const Route = createFileRoute("/_authenticated/admin")({
   // Réservé à l'équipe Fajma (l'API le vérifie aussi) : les autres comptes retournent à leur espace.
@@ -65,7 +84,11 @@ export const Route = createFileRoute("/_authenticated/admin")({
     if (redirectBeforeHydration("/mon-espace")) return new Promise<never>(() => {});
     throw redirect({ to: "/mon-espace" });
   },
-  loader: ({ context }) => context.queryClient.ensureQueryData(adminQO),
+  loader: ({ context }) =>
+    Promise.all([
+      context.queryClient.ensureQueryData(adminQO),
+      context.queryClient.ensureQueryData(accessQO),
+    ]),
   head: () => ({
     meta: [
       { title: "Administration — Fajma" },
@@ -78,22 +101,531 @@ export const Route = createFileRoute("/_authenticated/admin")({
   component: AdminPage,
 });
 
+type Rubric =
+  | "tableau"
+  | "valider"
+  | "utilisateurs"
+  | "reseau"
+  | "finances"
+  | "sante"
+  | "communication"
+  | "support"
+  | "systeme"
+  | "securite";
+type NetworkTab = "medecins" | "etablissements" | "pharmacies" | "laboratoires" | "relais";
+
+// Rubriques du menu ; « section » = droit nécessaire (rôle de l'équipe, contrôlé aussi par le serveur).
+const RUBRICS: { id: Rubric; label: string; icon: typeof Heart; section: AdminSection | null }[] = [
+  { id: "tableau", label: "Tableau de bord", icon: LayoutDashboard, section: "pilotage" },
+  { id: "valider", label: "À valider", icon: ClipboardCheck, section: "validation" },
+  { id: "utilisateurs", label: "Utilisateurs", icon: Users, section: "support" },
+  { id: "reseau", label: "Réseau de soins", icon: Stethoscope, section: "validation" },
+  { id: "finances", label: "Finances", icon: Wallet, section: "finance" },
+  { id: "sante", label: "Santé publique", icon: Activity, section: "sante" },
+  { id: "communication", label: "Communication", icon: Megaphone, section: "communication" },
+  { id: "support", label: "Support", icon: LifeBuoy, section: "support" },
+  { id: "systeme", label: "Système", icon: Settings, section: "systeme" },
+  { id: "securite", label: "Ma sécurité", icon: ShieldCheck, section: null },
+];
+// Anciennes ancres (liens des notifications, du guide) → nouvelle rubrique et onglet.
+const LEGACY: Record<string, [Rubric, NetworkTab?]> = {
+  pilotage: ["tableau"],
+  rapport: ["tableau"],
+  validation: ["valider"],
+  justificatifs: ["valider"],
+  comptes: ["utilisateurs"],
+  pharmacies: ["reseau", "pharmacies"],
+  pharmaciens: ["reseau", "pharmacies"],
+  laboratoires: ["reseau", "laboratoires"],
+  relais: ["reseau", "relais"],
+  veille: ["sante"],
+  partenaires: ["communication"],
+  avis: ["support"],
+  sms: ["support"],
+  journal: ["systeme"],
+};
+
+const ROLE_LABEL: Record<string, string> = {
+  superadmin: "super-administrateur",
+  validation: "validations",
+  support: "support",
+  finance: "finances",
+  sante: "santé publique",
+  communication: "communication",
+};
+
+type Overview = Awaited<ReturnType<typeof getAdminOverview>>;
+type Todo = Awaited<ReturnType<typeof getAdminTodo>>;
+
 function AdminPage() {
-  const qc = useQueryClient();
   const { data } = useSuspenseQuery(adminQO);
-  const { data: sms } = useQuery(smsQO);
-  // Fiche médecin en cours de correction (nom, spécialité).
-  const [correcting, setCorrecting] = useState<string | null>(null);
-  const verify = useMutation({
+  const { data: access } = useSuspenseQuery(accessQO);
+  const { data: todo } = useQuery({
+    queryKey: ["admin-todo"],
+    queryFn: getAdminTodo,
+    refetchInterval: 60_000,
+  });
+  const [rubric, setRubricState] = useState<Rubric>("tableau");
+  const [tab, setTab] = useState<NetworkTab>("medecins");
+  const [doctor360, setDoctor360] = useState<string | null>(null);
+  const allowed = RUBRICS.filter((r) => r.section === null || access.sections.includes(r.section));
+  const setRubric = (r: Rubric) => {
+    setRubricState(r);
+    window.history.replaceState(null, "", `#${r}`);
+    window.scrollTo({ top: 0 });
+  };
+  useEffect(() => {
+    const read = () => {
+      const h = window.location.hash.slice(1);
+      const [r, t] = LEGACY[h] ?? [h as Rubric];
+      if (RUBRICS.some((x) => x.id === r)) setRubricState(r);
+      if (t) setTab(t);
+    };
+    read();
+    window.addEventListener("hashchange", read);
+    return () => window.removeEventListener("hashchange", read);
+  }, []);
+  const current = allowed.some((r) => r.id === rubric) ? rubric : allowed[0].id;
+
+  // Compteurs du menu : ce qui attend une action dans chaque rubrique.
+  const unverified =
+    data.doctors.filter((d) => !d.is_verified).length +
+    data.clinics.filter((c) => !c.is_verified).length +
+    data.pharmacies.filter((p) => !p.is_verified).length +
+    data.laboratories.filter((l) => !l.is_verified).length;
+  const counts: Partial<Record<Rubric, number>> = {
+    valider: unverified + (todo?.credentials_pending ?? 0) + (todo?.credentials_expiring ?? 0),
+    finances: (todo?.payouts_requested ?? 0) + (todo?.refunds_pending ?? 0),
+    sante: todo?.mdo_to_declare ?? 0,
+    support: (todo?.support_open ?? 0) + (todo?.reviews_reported ?? 0) + (todo?.sms_failed ?? 0),
+  };
+
+  // Résultat de la recherche globale : la fiche 360° pour un médecin, sinon la bonne rubrique.
+  const pick = (r: SearchResult) => {
+    if (r.type === "doctor") return setDoctor360(r.id);
+    const go: Partial<Record<SearchResult["type"], [Rubric, NetworkTab?]>> = {
+      user: ["utilisateurs"],
+      clinic: ["reseau", "etablissements"],
+      pharmacy: ["reseau", "pharmacies"],
+      lab: ["reseau", "laboratoires"],
+      payment: ["finances"],
+    };
+    const target = go[r.type];
+    if (target && allowed.some((x) => x.id === target[0])) {
+      setRubric(target[0]);
+      if (target[1]) setTab(target[1]);
+    }
+    toast.info(`${r.label} — ${r.sub}`);
+  };
+
+  return (
+    <div className="min-h-screen bg-sunu-surface">
+      <header className="sticky top-0 z-40 border-b border-sunu-line bg-sunu-card">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-3 px-4 py-3 sm:px-6">
+          <Link to="/" className="flex items-center gap-2">
+            <span className="grid size-8 place-items-center rounded-lg bg-sunu-green text-white">
+              <ShieldCheck className="size-4" />
+            </span>
+            <span className="font-bold text-sunu-dark">Fajma · Administration</span>
+          </Link>
+          <div className="order-last w-full sm:order-none sm:ml-4 sm:w-auto sm:flex-1">
+            <GlobalSearch onPick={pick} />
+          </div>
+          <div className="ml-auto flex items-center gap-3">
+            <ThemeToggle />
+            <NotificationBell />
+            <HelpLink role="admin" />
+            <LogoutButton />
+          </div>
+        </div>
+      </header>
+      <div className="mx-auto flex max-w-7xl flex-col gap-6 px-4 py-6 sm:px-6 lg:flex-row">
+        <nav
+          aria-label="Rubriques de l'administration"
+          className="-mx-4 flex gap-1 overflow-x-auto px-4 lg:sticky lg:top-24 lg:mx-0 lg:w-56 lg:shrink-0 lg:flex-col lg:self-start lg:overflow-visible lg:px-0"
+        >
+          {allowed.map((r) => {
+            const n = counts[r.id] ?? 0;
+            const active = current === r.id;
+            return (
+              <button
+                key={r.id}
+                onClick={() => setRubric(r.id)}
+                aria-current={active ? "page" : undefined}
+                className={`flex shrink-0 items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-semibold ${active ? "bg-sunu-green text-white" : "text-sunu-ink/70 hover:bg-sunu-card hover:text-sunu-green"}`}
+              >
+                <r.icon className="size-4 shrink-0" />
+                <span className="flex-1">{r.label}</span>
+                {n > 0 && (
+                  <span
+                    className={`rounded-full px-1.5 text-xs ${active ? "bg-white/25" : "bg-sunu-gold/30 text-sunu-dark"}`}
+                  >
+                    {n}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+          <p className="hidden px-3 pt-4 text-xs text-sunu-ink/45 lg:block">
+            Votre rôle : {ROLE_LABEL[access.role] ?? access.role}
+          </p>
+        </nav>
+        <main className="min-w-0 flex-1 space-y-6">
+          {current === "tableau" && (
+            <TableauDeBord data={data} todo={todo} onGo={setRubric} allowed={allowed} />
+          )}
+          {current === "valider" && <AValider data={data} onOpenDoctor={setDoctor360} />}
+          {current === "utilisateurs" && <UsersAdmin />}
+          {current === "reseau" && (
+            <Reseau data={data} tab={tab} setTab={setTab} onOpenDoctor={setDoctor360} />
+          )}
+          {current === "finances" && <FinanceAdmin />}
+          {current === "sante" && <EpidemioAdmin />}
+          {current === "communication" && (
+            <>
+              <AnnouncementsAdmin />
+              <PartnersAdmin />
+            </>
+          )}
+          {current === "support" && (
+            <>
+              <SupportAdmin />
+              <ReviewModeration />
+              <SmsPanel />
+            </>
+          )}
+          {current === "systeme" && (
+            <>
+              <SettingsAdmin />
+              <StaffAdmin />
+              <AuditLogAdmin />
+            </>
+          )}
+          {current === "securite" && <SecuritySection />}
+        </main>
+      </div>
+      {doctor360 && <Doctor360 id={doctor360} onClose={() => setDoctor360(null)} />}
+    </div>
+  );
+}
+
+function TableauDeBord({
+  data,
+  todo,
+  onGo,
+  allowed,
+}: {
+  data: Overview;
+  todo: Todo | undefined;
+  onGo: (r: Rubric) => void;
+  allowed: { id: Rubric }[];
+}) {
+  const revenue = data.payments
+    .filter((p) => p.status === "paid")
+    .reduce((sum, p) => sum + p.amount, 0);
+  const items: [Rubric, string, number][] = todo
+    ? [
+        ["support", "demande(s) d'aide", todo.support_open],
+        ["valider", "médecin(s) à valider", todo.doctors_to_verify],
+        ["sante", "cas à déclaration immédiate non déclaré(s)", todo.mdo_to_declare ?? 0],
+        ["valider", "justificatif(s) à vérifier", todo.credentials_pending],
+        ["valider", "justificatif(s) expiré(s) ou bientôt", todo.credentials_expiring ?? 0],
+        ["valider", "établissement(s) à valider", todo.clinics_to_verify],
+        ["support", "avis signalé(s)", todo.reviews_reported],
+        ["finances", "virement(s) demandé(s)", todo.payouts_requested],
+        ["finances", "remboursement(s) à faire", todo.refunds_pending],
+        ["support", "SMS en échec (7 j)", todo.sms_failed],
+      ]
+    : [];
+  const open = items.filter(([r, , n]) => n > 0 && allowed.some((a) => a.id === r));
+  return (
+    <>
+      <div>
+        <p className="text-xs font-bold uppercase tracking-widest text-sunu-green">Pilotage</p>
+        <h1 className="mt-1 text-2xl font-bold text-sunu-dark">Tableau de bord</h1>
+      </div>
+      <section
+        aria-label="À traiter"
+        className={`rounded-xl border bg-sunu-card p-4 ${open.length ? "border-sunu-gold" : "border-sunu-line"}`}
+      >
+        <p className="text-xs font-bold uppercase tracking-wider text-sunu-ink/50">À traiter</p>
+        {open.length === 0 ? (
+          <p className="mt-1 text-sm text-sunu-teal">Rien en attente. ✓</p>
+        ) : (
+          <div className="mt-2 flex flex-wrap gap-2">
+            {open.map(([r, label, n]) => (
+              <button
+                key={label}
+                onClick={() => onGo(r)}
+                className="rounded-lg bg-sunu-surface px-3 py-1.5 text-sm hover:text-sunu-green"
+              >
+                <b className="text-sunu-dark">{n}</b> {label}
+              </button>
+            ))}
+          </div>
+        )}
+      </section>
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <Stat icon={Stethoscope} label="Médecins" value={data.doctors.length.toString()} />
+        <Stat icon={Building2} label="Établissements" value={data.clinics.length.toString()} />
+        <Stat icon={Calendar} label="Rendez-vous" value={data.appointments.length.toString()} />
+        <Stat
+          icon={Wallet}
+          label="Paiements confirmés"
+          value={`${revenue.toLocaleString("fr-FR")} F`}
+        />
+      </div>
+      <Suspense fallback={<div className="h-64 animate-pulse rounded-xl bg-sunu-card" />}>
+        <AnalyticsDashboard />
+      </Suspense>
+      <ActivityReport />
+    </>
+  );
+}
+
+/** File « À valider » : uniquement ce qui attend, avec les justificatifs à côté. */
+function AValider({ data, onOpenDoctor }: { data: Overview; onOpenDoctor: (id: string) => void }) {
+  const verify = useVerify();
+  const queue: { kind: VerificationKind; id: string; title: string; sub: string }[] = [
+    ...data.doctors
+      .filter((d) => !d.is_verified)
+      .map((d) => ({
+        kind: "doctor" as const,
+        id: d.id,
+        title: d.full_name,
+        sub: `Médecin · ${d.specialty} · ${d.city}`,
+      })),
+    ...data.clinics
+      .filter((c) => !c.is_verified)
+      .map((c) => ({
+        kind: "clinic" as const,
+        id: c.id,
+        title: c.name,
+        sub: `Établissement · ${c.city}`,
+      })),
+    ...data.pharmacies
+      .filter((p) => !p.is_verified)
+      .map((p) => ({
+        kind: "pharmacy" as const,
+        id: p.id,
+        title: p.name,
+        sub: `Pharmacie · ${p.city}`,
+      })),
+    ...data.laboratories
+      .filter((l) => !l.is_verified)
+      .map((l) => ({
+        kind: "laboratory" as const,
+        id: l.id,
+        title: l.name,
+        sub: `Laboratoire · ${l.city}`,
+      })),
+  ];
+  return (
+    <>
+      <div>
+        <h1 className="text-2xl font-bold text-sunu-dark">À valider</h1>
+        <p className="mt-1 text-sm text-sunu-ink/60">
+          Vérifiez les justificatifs (à droite) puis validez. Pour un médecin, « Fiche » montre tout
+          son dossier.
+        </p>
+      </div>
+      <div className="grid gap-6 xl:grid-cols-2">
+        <Panel title={`En attente de validation (${queue.length})`}>
+          {queue.length === 0 ? (
+            <p className="py-8 text-center text-sm text-sunu-teal">Tout est validé. ✓</p>
+          ) : (
+            queue.map((q) => (
+              <div key={q.kind + q.id} className="flex items-center justify-between gap-3 py-3">
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-semibold text-sunu-dark">{q.title}</p>
+                  <p className="text-xs text-sunu-ink/50">{q.sub}</p>
+                </div>
+                {q.kind === "doctor" && (
+                  <button
+                    onClick={() => onOpenDoctor(q.id)}
+                    className="rounded-lg border border-sunu-line px-3 py-2 text-xs font-semibold"
+                  >
+                    Fiche
+                  </button>
+                )}
+                <button
+                  onClick={() => verify.mutate({ kind: q.kind, id: q.id, verified: true })}
+                  disabled={verify.isPending}
+                  className="flex items-center gap-1.5 rounded-lg bg-sunu-green px-3 py-2 text-xs font-semibold text-white"
+                >
+                  <CheckCircle2 className="size-3.5" /> Valider
+                </button>
+              </div>
+            ))
+          )}
+        </Panel>
+        <CredentialsAdmin />
+      </div>
+    </>
+  );
+}
+
+const NETWORK_TABS: [NetworkTab, string][] = [
+  ["medecins", "Médecins"],
+  ["etablissements", "Établissements"],
+  ["pharmacies", "Pharmacies"],
+  ["laboratoires", "Laboratoires"],
+  ["relais", "Relais"],
+];
+
+/** Réseau de soins : un seul endroit par type d'acteur (fiche, validation, membres). */
+function Reseau({
+  data,
+  tab,
+  setTab,
+  onOpenDoctor,
+}: {
+  data: Overview;
+  tab: NetworkTab;
+  setTab: (t: NetworkTab) => void;
+  onOpenDoctor: (id: string) => void;
+}) {
+  const verify = useVerify();
+  const toggles = (
+    kind: VerificationKind,
+    rows: { id: string; name: string; city: string; is_verified: boolean }[],
+    empty: string,
+  ) =>
+    rows.length ? (
+      rows.map((r) => (
+        <Row
+          key={r.id}
+          title={r.name}
+          sub={r.city}
+          verified={r.is_verified}
+          onToggle={() => verify.mutate({ kind, id: r.id, verified: !r.is_verified })}
+        />
+      ))
+    ) : (
+      <p className="py-8 text-center text-sm text-sunu-ink/50">{empty}</p>
+    );
+  return (
+    <>
+      <div className="flex flex-wrap gap-1 rounded-xl border border-sunu-line bg-sunu-card p-1">
+        {NETWORK_TABS.map(([id, label]) => (
+          <button
+            key={id}
+            onClick={() => setTab(id)}
+            className={`rounded-lg px-3 py-1.5 text-sm font-semibold ${tab === id ? "bg-sunu-green text-white" : "text-sunu-ink/70 hover:text-sunu-green"}`}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+      {tab === "medecins" && <DoctorsNetwork onOpen={onOpenDoctor} />}
+      {tab === "etablissements" && (
+        <Panel title={`Établissements (${data.clinics.length})`}>
+          {toggles("clinic", data.clinics, "Aucun établissement inscrit.")}
+        </Panel>
+      )}
+      {tab === "pharmacies" && (
+        <>
+          <PharmaciesAdmin />
+          <Panel title="Pharmacies avec un compte pharmacien : validation">
+            {toggles("pharmacy", data.pharmacies, "Aucune pharmacie avec un compte pharmacien.")}
+          </Panel>
+          <PharmacyMembersAdmin />
+        </>
+      )}
+      {tab === "laboratoires" && (
+        <>
+          <LabsAdmin />
+          <Panel title="Laboratoires avec un compte : validation">
+            {toggles("laboratory", data.laboratories, "Aucun laboratoire avec un compte rattaché.")}
+          </Panel>
+        </>
+      )}
+      {tab === "relais" && <CommunityAdmin />}
+    </>
+  );
+}
+
+function DoctorsNetwork({ onOpen }: { onOpen: (id: string) => void }) {
+  const [q, setQ] = useState("");
+  const [status, setStatus] = useState("all");
+  const [city, setCity] = useState("");
+  const { data } = useQuery({
+    queryKey: ["admin-doctors", q.trim(), status, city.trim()],
+    queryFn: () => listAdminDoctors({ q: q.trim(), status, city: city.trim() }),
+    placeholderData: keepPreviousData,
+  });
+  const field = "rounded-lg border border-sunu-line bg-sunu-surface px-3 py-2 text-sm";
+  return (
+    <Panel title={`Médecins (${data?.length ?? 0})`}>
+      <div className="grid gap-2 pb-3 sm:grid-cols-3">
+        <input
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          placeholder="Nom, n° de l'Ordre, email"
+          aria-label="Rechercher un médecin"
+          className={field}
+        />
+        <select
+          value={status}
+          onChange={(e) => setStatus(e.target.value)}
+          aria-label="Statut"
+          className={field}
+        >
+          <option value="all">Tous</option>
+          <option value="to_verify">À valider</option>
+          <option value="verified">Vérifiés</option>
+        </select>
+        <input
+          value={city}
+          onChange={(e) => setCity(e.target.value)}
+          placeholder="Ville"
+          aria-label="Ville"
+          className={field}
+        />
+      </div>
+      {(data ?? []).map((d) => (
+        <button
+          key={d.id}
+          onClick={() => onOpen(d.id)}
+          className="flex w-full items-center justify-between gap-3 py-3 text-left hover:text-sunu-green"
+        >
+          <span className="min-w-0">
+            <span className="block text-sm font-semibold text-sunu-dark">{d.full_name}</span>
+            <span className="block text-xs text-sunu-ink/50">
+              {d.specialty} · {d.city}
+              {d.active === false && " · compte suspendu"}
+              {d.active === null && " · sans compte"}
+            </span>
+          </span>
+          <span
+            className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ${d.is_verified ? "bg-sunu-teal/15 text-sunu-teal" : "bg-amber-100 text-amber-800"}`}
+          >
+            {d.is_verified ? "Vérifié" : "À valider"}
+          </span>
+        </button>
+      ))}
+    </Panel>
+  );
+}
+
+function useVerify() {
+  const qc = useQueryClient();
+  return useMutation({
     mutationFn: (v: { kind: VerificationKind; id: string; verified: boolean }) =>
       setVerification({ data: v }),
     onSuccess: () => {
       toast.success("Statut mis à jour");
       qc.invalidateQueries({ queryKey: ["admin-overview"] });
       qc.invalidateQueries({ queryKey: ["admin-todo"] });
+      qc.invalidateQueries({ queryKey: ["admin-doctors"] });
     },
     onError: (e) => toast.error(e.message),
   });
+}
+
+function SmsPanel() {
+  const qc = useQueryClient();
+  const { data: sms } = useQuery(smsQO);
   const retry = useMutation({
     mutationFn: (id: string) => retrySmsReminder({ data: { id } }),
     onSuccess: () => {
@@ -102,271 +634,23 @@ function AdminPage() {
     },
     onError: (e) => toast.error(e.message),
   });
-  const revenue = data.payments
-    .filter((p) => p.status === "paid")
-    .reduce((sum, p) => sum + p.amount, 0);
-  const smsFailed = (sms ?? []).filter((s) => s.status === "failed").length;
   return (
-    <div className="min-h-screen bg-sunu-surface">
-      <header className="border-b border-sunu-line bg-sunu-card">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
-          <Link to="/" className="flex items-center gap-2">
-            <span className="grid size-8 place-items-center rounded-lg bg-sunu-green text-white">
-              <ShieldCheck className="size-4" />
-            </span>
-            <span className="font-bold text-sunu-dark">Fajma · Administration</span>
-          </Link>
-          <ThemeToggle className="ml-auto mr-3" />
-          <div className="flex items-center gap-4">
-            <Link to="/" className="hidden text-sm font-semibold text-sunu-green sm:inline">
-              Voir le site
-            </Link>
-            <NotificationBell />
-            <HelpLink role="admin" />
-            <LogoutButton />
-          </div>
-        </div>
-      </header>
-      <main className="mx-auto max-w-7xl px-6 py-10">
-        <div>
-          <p className="text-xs font-bold uppercase tracking-widest text-sunu-green">Pilotage</p>
-          <h1 className="mt-1 text-3xl font-bold text-sunu-dark">Vue d'ensemble</h1>
-        </div>
-        <AdminTodoBar />
-        <nav
-          aria-label="Sections de l'administration"
-          className="sticky top-0 z-30 -mx-6 mt-4 flex gap-1 overflow-x-auto border-y border-sunu-line bg-sunu-surface/95 px-6 py-2 backdrop-blur"
-        >
-          {ADMIN_SECTIONS.map(([id, label]) => (
-            <a
-              key={id}
-              href={`#${id}`}
-              className="shrink-0 rounded-full px-3 py-1 text-xs font-semibold text-sunu-ink/70 hover:bg-sunu-card hover:text-sunu-green"
-            >
-              {label}
-            </a>
-          ))}
-        </nav>
-        <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-          <Stat icon={Stethoscope} label="Médecins" value={data.doctors.length.toString()} />
-          <Stat icon={Building2} label="Cliniques" value={data.clinics.length.toString()} />
-          <Stat icon={Calendar} label="Rendez-vous" value={data.appointments.length.toString()} />
-          <Stat
-            icon={Wallet}
-            label="Paiements confirmés"
-            value={`${revenue.toLocaleString("fr-FR")} F`}
+    <Panel title="Rappels SMS (100 derniers)">
+      {(sms ?? []).length ? (
+        (sms ?? []).map((s) => (
+          <SmsRow
+            key={s.id}
+            sms={s}
+            onRetry={() => retry.mutate(s.id)}
+            retrying={retry.isPending}
           />
-          <Stat icon={MessageSquare} label="SMS en échec" value={smsFailed.toString()} />
-        </div>
-        <div id="pilotage" className="mt-6 scroll-mt-20">
-          <Suspense fallback={<div className="h-64 animate-pulse rounded-xl bg-sunu-surface" />}>
-            <AnalyticsDashboard />
-          </Suspense>
-        </div>
-        <div id="rapport" className="mt-6 scroll-mt-20">
-          <ActivityReport />
-        </div>
-        <div id="validation" className="mt-8 grid scroll-mt-20 gap-6 lg:grid-cols-2">
-          <Panel title="Validation des médecins">
-            {data.doctors.map((d) => (
-              <div key={d.id}>
-                <Row
-                  title={d.full_name}
-                  sub={`${d.specialty} · ${d.city}`}
-                  verified={d.is_verified}
-                  onToggle={() =>
-                    verify.mutate({ kind: "doctor", id: d.id, verified: !d.is_verified })
-                  }
-                  onEdit={() => setCorrecting(correcting === d.id ? null : d.id)}
-                />
-                {correcting === d.id && (
-                  <DoctorCorrection doctor={d} onDone={() => setCorrecting(null)} />
-                )}
-              </div>
-            ))}
-          </Panel>
-          <Panel title="Validation des établissements">
-            {data.clinics.length ? (
-              data.clinics.map((c) => (
-                <Row
-                  key={c.id}
-                  title={c.name}
-                  sub={c.city}
-                  verified={c.is_verified}
-                  onToggle={() =>
-                    verify.mutate({ kind: "clinic", id: c.id, verified: !c.is_verified })
-                  }
-                />
-              ))
-            ) : (
-              <p className="py-8 text-center text-sm text-sunu-ink/50">
-                Aucun établissement inscrit.
-              </p>
-            )}
-          </Panel>
-          <Panel title="Validation des pharmacies partenaires">
-            {data.pharmacies.length ? (
-              data.pharmacies.map((p) => (
-                <Row
-                  key={p.id}
-                  title={p.name}
-                  sub={p.city}
-                  verified={p.is_verified}
-                  onToggle={() =>
-                    verify.mutate({ kind: "pharmacy", id: p.id, verified: !p.is_verified })
-                  }
-                />
-              ))
-            ) : (
-              <p className="py-8 text-center text-sm text-sunu-ink/50">
-                Aucune pharmacie avec un compte pharmacien.
-              </p>
-            )}
-          </Panel>
-          <Panel title="Validation des laboratoires partenaires">
-            {data.laboratories.length ? (
-              data.laboratories.map((l) => (
-                <Row
-                  key={l.id}
-                  title={l.name}
-                  sub={l.city}
-                  verified={l.is_verified}
-                  onToggle={() =>
-                    verify.mutate({ kind: "laboratory", id: l.id, verified: !l.is_verified })
-                  }
-                />
-              ))
-            ) : (
-              <p className="py-8 text-center text-sm text-sunu-ink/50">
-                Aucun laboratoire avec un compte rattaché.
-              </p>
-            )}
-          </Panel>
-        </div>
-        <div id="comptes" className="mt-6 scroll-mt-20">
-          <UsersAdmin />
-        </div>
-        <div id="justificatifs" className="mt-6 scroll-mt-20">
-          <CredentialsAdmin />
-        </div>
-        <div id="finances" className="mt-6 scroll-mt-20">
-          <FinanceAdmin />
-        </div>
-        <div id="pharmacies" className="mt-6 scroll-mt-20">
-          <PharmaciesAdmin />
-        </div>
-        <div id="laboratoires" className="mt-6 scroll-mt-20">
-          <LabsAdmin />
-        </div>
-        <div id="veille" className="mt-6 scroll-mt-20">
-          <EpidemioAdmin />
-        </div>
-        <div id="partenaires" className="mt-6 scroll-mt-20">
-          <PartnersAdmin />
-        </div>
-        <div id="relais" className="mt-6 scroll-mt-20">
-          <CommunityAdmin />
-        </div>
-        <div id="pharmaciens" className="mt-6 scroll-mt-20">
-          <PharmacyMembersAdmin />
-        </div>
-        <div id="support" className="mt-6 scroll-mt-20">
-          <SupportAdmin />
-        </div>
-        <div id="avis" className="mt-6 scroll-mt-20">
-          <ReviewModeration />
-        </div>
-        <div id="sms" className="mt-6 scroll-mt-20">
-          <Panel title="Rappels SMS (100 derniers)">
-            {(sms ?? []).length ? (
-              (sms ?? []).map((s) => (
-                <SmsRow
-                  key={s.id}
-                  sms={s}
-                  onRetry={() => retry.mutate(s.id)}
-                  retrying={retry.isPending}
-                />
-              ))
-            ) : (
-              <p className="py-8 text-center text-sm text-sunu-ink/50">
-                Aucun rappel SMS enregistré pour le moment.
-              </p>
-            )}
-          </Panel>
-        </div>
-        <div id="journal" className="mt-6 scroll-mt-20">
-          <AuditPanel />
-        </div>
-        <div id="securite" className="mt-10 scroll-mt-20">
-          <SecuritySection />
-        </div>
-      </main>
-    </div>
-  );
-}
-
-const ADMIN_SECTIONS = [
-  ["pilotage", "Pilotage"],
-  ["rapport", "Rapport d'activité"],
-  ["support", "Support"],
-  ["validation", "Validations"],
-  ["comptes", "Comptes"],
-  ["justificatifs", "Justificatifs"],
-  ["finances", "Finances"],
-  ["pharmacies", "Pharmacies"],
-  ["laboratoires", "Laboratoires"],
-  ["relais", "Relais"],
-  ["partenaires", "Partenaires et campagnes"],
-  ["veille", "Veille épidémiologique"],
-  ["avis", "Avis"],
-  ["sms", "SMS"],
-  ["journal", "Journal d'audit"],
-  ["securite", "Ma sécurité"],
-] as const;
-
-/** Bandeau « À traiter » : la file de travail du jour, chaque compteur mène à sa section. */
-function AdminTodoBar() {
-  const { data } = useQuery({
-    queryKey: ["admin-todo"],
-    queryFn: getAdminTodo,
-    refetchInterval: 60_000,
-  });
-  if (!data) return null;
-  const items = [
-    ["support", "demande(s) d'aide", data.support_open],
-    ["validation", "médecin(s) à valider", data.doctors_to_verify],
-    ["veille", "cas à déclaration immédiate non déclaré(s)", data.mdo_to_declare ?? 0],
-    ["justificatifs", "justificatif(s) à vérifier", data.credentials_pending],
-    ["justificatifs", "justificatif(s) expiré(s) ou bientôt", data.credentials_expiring ?? 0],
-    ["validation", "établissement(s) à valider", data.clinics_to_verify],
-    ["avis", "avis signalé(s)", data.reviews_reported],
-    ["finances", "virement(s) demandé(s)", data.payouts_requested],
-    ["finances", "remboursement(s) à faire", data.refunds_pending],
-    ["sms", "SMS en échec (7 j)", data.sms_failed],
-  ] as const;
-  const open = items.filter(([, , n]) => n > 0);
-  return (
-    <section
-      aria-label="À traiter"
-      className={`mt-5 rounded-xl border p-4 ${open.length ? "border-sunu-gold bg-sunu-card" : "border-sunu-line bg-sunu-card"}`}
-    >
-      <p className="text-xs font-bold uppercase tracking-wider text-sunu-ink/50">À traiter</p>
-      {open.length === 0 ? (
-        <p className="mt-1 text-sm text-sunu-teal">Rien en attente. ✓</p>
+        ))
       ) : (
-        <div className="mt-2 flex flex-wrap gap-2">
-          {open.map(([id, label, n]) => (
-            <a
-              key={label}
-              href={`#${id}`}
-              className="rounded-lg bg-sunu-surface px-3 py-1.5 text-sm hover:text-sunu-green"
-            >
-              <b className="text-sunu-dark">{n}</b> {label}
-            </a>
-          ))}
-        </div>
+        <p className="py-8 text-center text-sm text-sunu-ink/50">
+          Aucun rappel SMS enregistré pour le moment.
+        </p>
       )}
-    </section>
+    </Panel>
   );
 }
 
@@ -457,13 +741,11 @@ function Row({
   sub,
   verified,
   onToggle,
-  onEdit,
 }: {
   title: string;
   sub: string;
   verified: boolean;
   onToggle: () => void;
-  onEdit?: () => void;
 }) {
   return (
     <div className="flex items-center justify-between gap-3 py-3">
@@ -471,15 +753,6 @@ function Row({
         <p className="text-sm font-semibold text-sunu-dark">{title}</p>
         <p className="text-xs text-sunu-ink/50">{sub}</p>
       </div>
-      {onEdit && (
-        <button
-          onClick={onEdit}
-          aria-label={`Corriger ${title}`}
-          className="text-sunu-ink/40 hover:text-sunu-green"
-        >
-          <Pencil className="size-4" />
-        </button>
-      )}
       <button
         onClick={onToggle}
         className={`flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold ${verified ? "bg-sunu-teal/15 text-sunu-teal" : "bg-amber-100 text-amber-800"}`}
@@ -488,30 +761,5 @@ function Row({
         {verified ? "Vérifié" : "À valider"}
       </button>
     </div>
-  );
-}
-function AuditPanel() {
-  const { data } = useQuery({ queryKey: ["admin-audit"], queryFn: getAdminAudit });
-  return (
-    <Panel title="Journal d'audit (200 derniers évènements)">
-      {(data ?? []).length === 0 ? (
-        <p className="py-8 text-center text-sm text-sunu-ink/50">Aucun évènement.</p>
-      ) : (
-        (data ?? []).map((e) => (
-          <div
-            key={e.id}
-            className="flex flex-wrap items-center justify-between gap-2 py-2 text-sm"
-          >
-            <span>
-              <b className="text-sunu-dark">{e.action}</b> · {e.who}
-              {e.patient && <span className="text-sunu-ink/60"> → dossier de {e.patient}</span>}
-            </span>
-            <span className="text-xs text-sunu-ink/50">
-              {e.ip ?? ""} · {formatDateTime(e.at, { dateStyle: "short", timeStyle: "short" })}
-            </span>
-          </div>
-        ))
-      )}
-    </Panel>
   );
 }

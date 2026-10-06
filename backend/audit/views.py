@@ -3,7 +3,7 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-from sunusante.api import forbidden, iso, require_user
+from sunusante.api import iso, require_user
 
 from .models import AuditEvent
 
@@ -28,29 +28,4 @@ def my_access_log(request):
     )
     return Response(
         [{"id": str(e.id), "action": e.get_action_display(), "who": _actor_label(e), "at": iso(e.created_at)} for e in events]
-    )
-
-
-@api_view(["GET"])
-def admin_audit_log(request):
-    user = require_user(request)
-    if not user.is_staff:
-        raise forbidden("Accès administrateur requis")
-    qs = AuditEvent.objects.select_related("actor__doctor", "patient")
-    action = request.query_params.get("action")
-    if action:
-        qs = qs.filter(action=action)
-    return Response(
-        [
-            {
-                "id": str(e.id),
-                "action": e.get_action_display(),
-                "who": _actor_label(e),
-                "patient": e.patient.full_name if e.patient else None,
-                "target": f"{e.target_type} {e.target_id}".strip(),
-                "ip": e.ip,
-                "at": iso(e.created_at),
-            }
-            for e in qs[:200]
-        ]
     )

@@ -213,14 +213,14 @@ def epidemio(request):
 
 @api_view(["GET"])
 def conditions_catalog(request):
-    from django.conf import settings
+    from backoffice.settings_registry import get_setting
 
     from medical.conditions import TEST_RESULTS, catalog
     from sunusante.api import require_user
 
     require_user(request)
     return Response({"conditions": catalog(), "statuses": STATUSES, "test_results": TEST_RESULTS,
-                     "hotline": settings.EPIDEMIC_HOTLINE or None})
+                     "hotline": get_setting("epidemic_hotline") or None})
 
 
 @api_view(["GET"])

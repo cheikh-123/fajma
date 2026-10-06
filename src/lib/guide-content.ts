@@ -395,15 +395,16 @@ export const GUIDE: GuideRole[] = [
     label: "Administration",
     title: "Guide de l'administration Fajma",
     intro:
-      "Le bandeau « À traiter » en haut de page résume le travail du jour ; chaque compteur mène à sa section.",
+      "Le menu de gauche range l'administration en rubriques ; le chiffre à côté d'une rubrique indique ce qui attend. La barre de recherche en haut retrouve tout : un nom, un téléphone, une référence d'ordonnance ou un numéro de reçu.",
     sections: [
       {
         id: "valider",
         title: "Valider les professionnels",
         steps: [
-          "Section « Justificatifs » : ouvrez chaque pièce, vérifiez-la à la source (Ordre, ministère, registre du commerce) et sa date de validité, puis validez ou refusez avec un motif.",
-          "Section « Validations » : publiez un médecin, une clinique, une pharmacie ou un laboratoire. La publication est refusée tant qu'une pièce obligatoire manque ou a expiré.",
-          "Crayon sur un médecin vérifié : corriger son nom ou sa spécialité, avec un motif (journalisé, le médecin est prévenu).",
+          "Rubrique « À valider » : à gauche, seulement ce qui attend (médecins, établissements, pharmacies, laboratoires) ; à droite, les justificatifs.",
+          "Ouvrez chaque pièce, vérifiez-la à la source (Ordre, ministère, registre du commerce) et sa date de validité, puis validez ou refusez avec un motif.",
+          "Bouton « Valider » : la publication est refusée tant qu'une pièce obligatoire manque ou a expiré.",
+          "« Fiche » sur un médecin : sa fiche 360° (coordonnées, justificatifs, activité, avis, argent), avec les boutons valider, corriger le nom ou la spécialité, suspendre.",
         ],
       },
       {
@@ -412,13 +413,14 @@ export const GUIDE: GuideRole[] = [
         points: [
           "Comptes : rechercher, suspendre ou réactiver, réinitialiser la double authentification (motif obligatoire).",
           "Support : demandes reçues par « Aide et contact » ; répondez par email ou téléphone, puis marquez « traitée ».",
-          "Journal d'audit : chaque action sensible y est enregistrée.",
+          "Journal d'audit (rubrique « Système ») : chaque action sensible ; filtres par action, personne, patient et dates ; export tableur.",
         ],
       },
       {
         id: "reseau",
-        title: "Pharmacies, laboratoires, relais",
+        title: "Réseau de soins",
         points: [
+          "Un onglet par acteur : médecins (filtre statut et ville, fiche 360°), établissements, pharmacies, laboratoires, relais.",
           "Ajoutez et corrigez les pharmacies et laboratoires ; rattachez leur personnel par l'email de leur compte.",
           "Relais communautaires : habilitez un compte (structure, zone) ; suspendez si besoin.",
         ],
@@ -448,6 +450,23 @@ export const GUIDE: GuideRole[] = [
           "Créez la campagne : titre, texte, bouton, lien, couleur, visuel, emplacements, villes, dates. Elle est enregistrée en brouillon.",
           "Vérifiez la charte (pas de médicament sur ordonnance, pas de promesse de guérison) puis « Valider » : elle est diffusée.",
           "Suivez affichages et clics ; téléchargez le rapport pour l'annonceur.",
+        ],
+      },
+      {
+        id: "annonces",
+        title: "Annonces à un groupe",
+        steps: [
+          "Rubrique « Communication » : choisissez les destinataires (médecins, pharmacies, laboratoires, cliniques, relais, patients ou tous) et, au besoin, une ville.",
+          "Le nombre de destinataires s'affiche avant l'envoi.",
+          "Chacun reçoit une notification ; cochez SMS (payant, pour l'important) ou email en plus.",
+        ],
+      },
+      {
+        id: "systeme",
+        title: "Réglages et équipe",
+        points: [
+          "Réglages : message en haut du site (maintenance), contact, horaires, code USSD, numéro de déclaration des maladies, minimum de virement. Sans technicien, chaque changement est journalisé.",
+          "Équipe : donnez l'accès à un collègue par l'email de son compte, avec un rôle (validations, support, finances, santé publique, communication, super-administrateur). Chacun ne voit que sa partie.",
         ],
       },
     ],

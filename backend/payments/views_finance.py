@@ -46,7 +46,7 @@ def pro_finance(request):
     return Response(
         {
             "balance": ledger.balance(doctor),
-            "min_payout": ledger.MIN_PAYOUT,
+            "min_payout": ledger.min_payout(),
             "currency": doctor.currency,
             "totals": {"gross": totals["gross"] or 0, "commission": totals["commission"] or 0, "count": totals["count"]},
             "entries": [

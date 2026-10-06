@@ -37,7 +37,7 @@
 | Médecin remplaçant | Proposé par le titulaire, accepté par le remplaçant (médecin vérifié) ; droits limités à la période et aux patients concernés |
 | Pharmacien | Rattachement à une officine par l'administration, après vérification |
 | Laboratoire d'analyses | Rattachement à un laboratoire par l'administration, après vérification ; ne voit que les prescriptions que les patients lui ont envoyées |
-| Administrateur | Attribution manuelle (compte `is_staff`) ; peut suspendre un compte (sessions coupées) |
+| Administrateur | Accès donné par un super-administrateur (rubrique « Système », journalisé), avec un **rôle** : validations, support, finances, santé publique, communication ou super-administrateur. Chaque rôle n'ouvre que ses rubriques ; le serveur le vérifie deux fois (intergiciel sur toutes les adresses `/api/admin/…` et contrôle dans chaque vue) ; une adresse inconnue est réservée au super-administrateur. Un compte d'équipe sans rôle enregistré est super-administrateur (le fondateur). Personne ne modifie son propre accès |
 
 Tous les rôles autres que « patient » exigent la double authentification (§ 2.2).
 
@@ -137,7 +137,7 @@ exécuté par l'intégration continue.
 
 ## 2.8 Tests de sécurité réalisés
 
-- **328 tests automatisés de l'API**, dont les tentatives d'accès interdites de la matrice § 2.4 (y compris
+- **332 tests automatisés de l'API**, dont les tentatives d'accès interdites de la matrice § 2.4 (y compris
   pour un remplaçant, une secrétaire, un médecin sans lien avec le patient), les manipulations de prix et de
   parts, les fichiers piégés, les doubles réservations, les webhooks non signés, les secrets USSD invalides, la
   réutilisation de session USSD par un autre numéro, les doubles notifications de paiement, le blocage des
