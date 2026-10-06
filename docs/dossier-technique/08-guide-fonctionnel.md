@@ -436,7 +436,7 @@ Pour aider l'État (Direction de la Prévention, districts sanitaires) à repér
 
 ## 8.20 Partenaires et campagnes sponsorisées
 
-**Pour les visiteurs** : page « Nos partenaires » (`/partenaires`) — assurances, opérateurs, pharmacies et
+**Pour les visiteurs** : en haut de l'accueil, un grand bandeau animé aux couleurs de la campagne, avec son visuel ; s'il y a plusieurs campagnes « Accueil » actives (5 au plus, ordre tiré au hasard), elles défilent toutes les 7 secondes (points, flèches, pause au survol ; animations coupées si l'appareil le demande). Bande « Nos partenaires » sur l'accueil (logos qui défilent) et lien « Partenaires » dans le menu ; page « Nos partenaires » (`/partenaires`) — assurances, opérateurs, pharmacies et
 laboratoires, institutions, ONG ; encarts marqués « Sponsorisé » sur l'accueil, la recherche de médecins
 (encart séparé, au-dessus des résultats, qui ne change jamais leur ordre) et l'espace patient.
 

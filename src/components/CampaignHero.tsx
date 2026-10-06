@@ -89,7 +89,9 @@ export function CampaignHero() {
         <span aria-hidden className="fajma-shine pointer-events-none absolute inset-0" />
 
         <div className="relative grid items-center gap-4 md:grid-cols-[1.15fr_1fr]">
-          <div className="fajma-campaign-text z-10 p-6 sm:p-8 md:p-10">
+          <div
+            className={`fajma-campaign-text z-10 p-6 sm:p-8 md:p-10 ${items.length > 1 ? "sm:pl-16 md:pl-16" : ""}`}
+          >
             <p className="inline-flex items-center gap-2 rounded-full bg-white/20 px-3 py-1 text-[11px] font-bold uppercase tracking-widest backdrop-blur">
               Sponsorisé · {c.partner.name}
             </p>
