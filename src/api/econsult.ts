@@ -65,5 +65,8 @@ export const answerAsyncRequest = (
     outcome: NonNullable<AsyncRequest["outcome"]>;
     diagnosis?: string;
     items?: { name: string; posology: string; duration: string }[];
+    condition_code?: string;
+    condition_status?: string;
+    test_result?: string;
   },
 ) => api.post<AsyncRequest>(`/econsult/pro/requests/${id}/answer`, data);

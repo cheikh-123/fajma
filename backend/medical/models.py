@@ -16,6 +16,30 @@ class MedicalRecord(BaseModel):
     diagnosis = models.TextField(blank=True, max_length=2000)
     treatment = models.TextField(blank=True, max_length=3000)
     private_notes = models.TextField(blank=True)
+    # Diagnostic principal codé (medical/conditions.py) : veille épidémiologique et déclarations à l'État.
+    condition_code = models.CharField(max_length=30, blank=True, db_index=True)
+    condition_status = models.CharField(max_length=10, blank=True)  # suspected | probable | confirmed
+    test_result = models.CharField(max_length=10, blank=True)  # positive | negative | not_done | pending
+
+    class Meta:
+        ordering = ["-created_at"]
+
+
+class DiseaseNotification(BaseModel):
+    """
+    Cas d'une maladie à déclaration immédiate (choléra, rougeole, méningite, dengue…) : le médecin est invité à
+    le déclarer au district sanitaire ; l'équipe Fajma est prévenue et suit la déclaration. Aucune identité du
+    patient dans ce suivi : la ville, la date, le médecin (pour l'enquête du district).
+    """
+
+    record = models.OneToOneField(MedicalRecord, on_delete=models.CASCADE, related_name="notification")
+    condition_code = models.CharField(max_length=30)
+    condition_status = models.CharField(max_length=10, blank=True)
+    city = models.CharField(max_length=80, blank=True)
+    region = models.CharField(max_length=80, blank=True)
+    declared_at = models.DateTimeField(null=True, blank=True)
+    declared_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name="+")
+    reference = models.CharField(max_length=80, blank=True)  # n° ou nom de la personne qui a reçu la déclaration
 
     class Meta:
         ordering = ["-created_at"]

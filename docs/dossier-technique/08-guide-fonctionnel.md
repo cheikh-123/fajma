@@ -398,15 +398,38 @@ enfants, malades chroniques), avec les relais de santé qui les connaissent déj
   comptes-rendus, ordonnances, vaccins, mesures, assurances, analyses), qui est créé si besoin ; elle se
   connecte avec son numéro. Le transfert couvre automatiquement toute table liée aux proches.
 
-## 8.19 Veille épidémiologique anonymisée
+## 8.19 Diagnostic codé, déclaration des maladies et veille épidémiologique
 
-- Section « Veille épidémiologique » de l'administration : sur 12 semaines, nombre de consultations par grand
-  syndrome (fièvre / paludisme, dengue, diarrhée / gastro-entérite, toux et infections respiratoires,
-  éruptions de type rougeole ou varicelle, conjonctivite, méningite), par ville du médecin et par semaine,
-  déduit du motif de rendez-vous et du diagnostic.
-- **Anonymat** : seulement des comptes ; toute case de moins de 5 consultations est affichée « <5 » (aussi dans
-  le tableur) ; aucune identité, aucun texte médical ne sort.
-- **Signal** : semaine en cours au-dessus de la moyenne + 2 écarts-types des 8 semaines précédentes, au moins 5
-  cas et une fois et demie l'habitude ; c'est une alerte à vérifier par les autorités, jamais un diagnostic.
-- Export tableur anonymisé, journalisé. Partage avec le ministère de la Santé (Direction de la prévention,
-  district) : après accord de la CDP et convention.
+Pour aider l'État (Direction de la Prévention, districts sanitaires) à repérer et contenir les épidémies.
+
+**Médecin — compte-rendu (et avis écrit)**
+- En plus du texte libre, il choisit le **diagnostic principal** dans une liste avec recherche (44 maladies,
+  codes CIM-10), regroupée comme la Surveillance intégrée de la maladie et la riposte (SIMR) :
+  - **à déclaration immédiate** : choléra, rougeole, méningite, fièvre jaune, dengue, chikungunya, fièvres
+    hémorragiques (Ebola, Marburg, Crimée-Congo, vallée du Rift), paralysie flasque aiguë (polio), tétanos
+    néonatal, diphtérie, mpox, grippe d'un nouveau sous-type, rage, charbon ;
+  - **surveillance hebdomadaire** : paludisme, dysenterie, diarrhée aiguë, typhoïde, pneumonie, syndrome
+    grippal, COVID-19, coqueluche, varicelle, tuberculose, **hépatites A/E, B et C**, VIH, IST, bilharziose,
+    lèpre, conjonctivite, malnutrition aiguë de l'enfant, morsure de serpent ;
+  - **maladies chroniques** : hypertension, diabète, drépanocytose, asthme, maladie rénale, cancer, santé
+    mentale, anémie ; **santé de la mère** : grossesse à risque ; « autre ».
+- Il précise **suspect / probable / confirmé** et le **résultat du test** proposé (TDR palu, test rapide
+  AgHBs, anti-VHC, VIH, NS1 dengue, GeneXpert…). Un test négatif écarte le cas de la veille.
+- **Maladie à déclaration immédiate** : message rouge « déclarez ce cas au district sanitaire dès
+  maintenant » (avec le numéro d'alerte réglé par `EPIDEMIC_HOTLINE`), l'équipe Fajma est prévenue aussitôt,
+  et le cas apparaît en haut de son espace dans « Déclarations à faire » jusqu'à ce qu'il clique
+  « J'ai déclaré ce cas » (à qui, référence).
+
+**Administration — section « Veille épidémiologique »**
+- Cas par maladie, **par région** et par semaine (12 semaines), à partir du diagnostic codé (mots-clés du
+  motif et du diagnostic écrit en secours ; la part codée est affichée). Cases de moins de 5 : « <5 ».
+- **Signaux** : un seul cas de maladie à déclaration immédiate est toujours signalé ; pour les autres,
+  semaine au-dessus de la moyenne + 2 écarts-types des 8 précédentes (au moins 5 cas, 1,5 fois l'habitude).
+- **Déclarations** : liste des cas à déclaration immédiate (maladie, certitude, ville, région, date, médecin
+  et son téléphone pour l'enquête du district), déclarés ou non ; compteur dans « À traiter ».
+- **Exports** : tableur anonymisé (cases masquées) et **rapport hebdomadaire SIMR** (dernière semaine
+  complète, région × maladie, CIM-10, suspects / confirmés, comptes exacts) à transmettre aux autorités dans
+  le cadre d'une convention, après accord de la CDP.
+- Jamais d'identité de patient ni de texte médical dans la veille ; chaque consultation ou export est
+  journalisé. La liste des maladies se modifie en un seul endroit (`backend/medical/conditions.py`), à faire
+  valider par la Division de la surveillance épidémiologique.

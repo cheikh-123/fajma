@@ -330,6 +330,7 @@ function AdminTodoBar() {
   const items = [
     ["support", "demande(s) d'aide", data.support_open],
     ["validation", "médecin(s) à valider", data.doctors_to_verify],
+    ["veille", "cas à déclaration immédiate non déclaré(s)", data.mdo_to_declare ?? 0],
     ["justificatifs", "justificatif(s) à vérifier", data.credentials_pending],
     ["justificatifs", "justificatif(s) expiré(s) ou bientôt", data.credentials_expiring ?? 0],
     ["validation", "établissement(s) à valider", data.clinics_to_verify],

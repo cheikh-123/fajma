@@ -243,6 +243,7 @@ admin_urls = [
     path("laboratories/<uuid:laboratory_id>", labs.admin_update_laboratory),
     path("doctors/<uuid:doctor_id>", accounts.admin_correct_doctor),
     path("epidemio", core_epidemio.epidemio),
+    path("declarations/<uuid:notification_id>", core_epidemio.mark_declared),
     path("community-agents", community.admin_agents),
     path("community-agents/<uuid:agent_id>", community.admin_agent),
     path("pharmacies/<uuid:pharmacy_id>", pharmacy.admin_update_pharmacy),
@@ -327,6 +328,10 @@ urlpatterns = [
     path("api/health", core.health),
     path("api/support", support.create_request),
     path("api/support/mine", support.my_requests),
+    # Diagnostic codé (veille épidémiologique) et déclarations des maladies à déclaration immédiate
+    path("api/pro/conditions", core_epidemio.conditions_catalog),
+    path("api/pro/declarations", core_epidemio.my_declarations),
+    path("api/pro/declarations/<uuid:notification_id>", core_epidemio.mark_declared),
     # Relais communautaires (personnes suivies sans téléphone ni internet)
     path("api/community/", include([
         path("people", community.people),

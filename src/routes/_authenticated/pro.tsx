@@ -1,4 +1,10 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import {
+  ConditionPicker,
+  emptyCondition,
+  type ConditionValue,
+} from "@/components/pro/ConditionPicker";
+import { DeclarationsPanel } from "@/components/pro/DeclarationsPanel";
 import { AsyncPanel } from "@/components/pro/AsyncPanel";
 import { AppointmentHistory } from "@/components/AppointmentHistory";
 import { ThemeToggle } from "@/lib/theme";
@@ -533,6 +539,8 @@ function DoctorDashboard({ profile }: { profile: Profile }) {
         ))}
       </nav>
 
+      <DeclarationsPanel />
+
       {tab === "rdv" && (
         <div className="mt-6">
           <OnboardingChecklist onGo={goTo} />
@@ -777,6 +785,7 @@ function DoctorApptCard({
   });
   const [openRecord, setOpenRecord] = useState(false);
   const [record, setRecord] = useState({ summary: "", diagnosis: "", treatment: "" });
+  const [condition, setCondition] = useState<ConditionValue>(emptyCondition);
   const [rx, setRx] = useState(() => newDraft(appt));
   const navigate = useNavigate();
   const saveRecord = useMutation({
@@ -786,6 +795,7 @@ function DoctorApptCard({
         data: {
           appointment_id: appt.id,
           ...record,
+          ...condition,
           ...(items.length ? { ...rx, items } : {}),
         },
       });
@@ -793,6 +803,8 @@ function DoctorApptCard({
     onSuccess: (res) => {
       setOpenRecord(false);
       setRx(newDraft(appt));
+      setCondition(emptyCondition);
+      if (res.declaration) toast.warning(res.declaration.message, { duration: 20000 });
       qc.invalidateQueries({ queryKey: ["doctor-appointments"] });
       const prescriptionId = res.prescription_id;
       if (prescriptionId) {
@@ -1113,6 +1125,7 @@ function DoctorApptCard({
                 className="min-h-24 rounded-lg border border-sunu-line p-3 text-sm"
               />
             </label>
+            <ConditionPicker value={condition} onChange={setCondition} />
             <label className="grid gap-1 text-xs font-semibold text-sunu-ink/60">
               Traitement conseillé
               <textarea

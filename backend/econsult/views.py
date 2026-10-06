@@ -240,11 +240,14 @@ def answer(request, request_id):
         r.outcome = get_choice(data, "outcome", {k for k, _ in AsyncRequest.OUTCOMES})
         r.status, r.answered_at = "answered", timezone.now()
         r.save(update_fields=["answer", "outcome", "status", "answered_at", "updated_at"])
-        MedicalRecord.objects.update_or_create(
+        record, _ = MedicalRecord.objects.update_or_create(
             appointment=appt,
             defaults={"patient_id": appt.patient_id, "doctor": doctor, "summary": r.answer,
                       "diagnosis": get_str(data, "diagnosis", max_len=2000) or "", "treatment": ""},
         )
+        from medical.conditions import apply_condition
+
+        apply_condition(record, data)
         prescription = create_prescription(appt, doctor, data)
         appt.status = "completed"
         appt.save(update_fields=["status", "updated_at"])

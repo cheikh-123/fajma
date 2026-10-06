@@ -9,7 +9,21 @@ import { api } from "@/api/client";
 type Epidemio = {
   weeks: string[];
   rows: { syndrome: string; city: string; counts: (number | string)[]; total: number | string }[];
-  signals: { syndrome: string; city: string; current: number; usual: number }[];
+  signals: { syndrome: string; city: string; current: number; usual: number; immediate: boolean }[];
+  declarations: {
+    id: string;
+    condition: string;
+    status: string;
+    city: string;
+    region: string;
+    date: string;
+    doctor: string;
+    doctor_phone: string | null;
+    declared_at: string | null;
+    reference: string | null;
+  }[];
+  to_declare: number;
+  coded_share: number | null;
   min_cell: number;
 };
 
@@ -33,12 +47,48 @@ export function EpidemioAdmin() {
         >
           <Download className="size-3.5" /> Tableur (anonymisé)
         </a>
+        <a
+          href="/api/admin/epidemio?weeks=12&export=simr"
+          className="flex items-center gap-1.5 rounded-lg bg-sunu-green px-3 py-1.5 text-xs font-semibold text-white"
+        >
+          <Download className="size-3.5" /> Rapport hebdomadaire SIMR (autorités)
+        </a>
       </div>
       <p className="mt-1 text-xs text-sunu-ink/55">
         Comptes de consultations par grand syndrome (motif et diagnostic), sans aucune donnée
         personnelle ; cases de moins de {data.min_cell} masquées. Un signal est une hausse
         inhabituelle à vérifier, jamais un diagnostic.
       </p>
+      {data.coded_share != null && (
+        <p className="mt-1 text-xs text-sunu-ink/55">
+          {data.coded_share} % des cas viennent d'un diagnostic codé par le médecin (le reste :
+          mots-clés).
+        </p>
+      )}
+      {data.declarations.length > 0 && (
+        <div className="mt-3">
+          <h3 className="text-sm font-bold text-sunu-dark">
+            Maladies à déclaration immédiate ({data.to_declare} non déclarée(s) au district)
+          </h3>
+          <ul className="mt-1 divide-y divide-sunu-line text-xs">
+            {data.declarations.map((d) => (
+              <li key={d.id} className="flex flex-wrap justify-between gap-2 py-1.5">
+                <span>
+                  <b>{d.condition}</b> ({d.status}) · {d.city}
+                  {d.region && d.region !== d.city ? `, ${d.region}` : ""} ·{" "}
+                  {new Date(d.date).toLocaleDateString("fr-FR")} · {d.doctor}
+                  {d.doctor_phone ? ` (${d.doctor_phone})` : ""}
+                </span>
+                <span className={d.declared_at ? "text-sunu-teal" : "font-semibold text-red-700"}>
+                  {d.declared_at
+                    ? `Déclarée${d.reference ? ` : ${d.reference}` : ""}`
+                    : "À déclarer"}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
       {data.signals.length > 0 ? (
         <ul className="mt-3 space-y-1.5">
           {data.signals.map((s) => (
@@ -59,7 +109,7 @@ export function EpidemioAdmin() {
           <thead className="text-left text-sunu-ink/55">
             <tr>
               <th className="py-1.5 pr-3">Syndrome</th>
-              <th className="py-1.5 pr-3">Ville</th>
+              <th className="py-1.5 pr-3">Région</th>
               {data.weeks.map((w) => (
                 <th key={w} className="px-1 py-1.5 text-right font-normal">
                   {shortWeek(w)}

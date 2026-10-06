@@ -641,6 +641,7 @@ def admin_overview(request):
 def admin_todo(request):
     """Compteurs de la file de travail de l'administration (bandeau « À traiter »)."""
     from directory.models import Credential
+    from medical.models import DiseaseNotification
     from payments.models import Payout, Refund
     from support.models import SupportRequest
 
@@ -649,6 +650,8 @@ def admin_todo(request):
         {
             "doctors_to_verify": Doctor.objects.filter(is_verified=False, user__is_active=True).count(),
             "credentials_pending": Credential.objects.filter(status="pending").count(),
+            # Cas de maladies à déclaration immédiate pas encore déclarés au district sanitaire.
+            "mdo_to_declare": DiseaseNotification.objects.filter(declared_at__isnull=True).count(),
             # Pièces validées arrivées à échéance (à faire renouveler) ou qui expirent dans les 30 jours.
             "credentials_expiring": Credential.objects.filter(
                 status="accepted", expires_at__lte=timezone.localdate() + timedelta(days=30)

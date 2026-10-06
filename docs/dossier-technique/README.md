@@ -1,6 +1,6 @@
 # Dossier technique et sécurité — Fajma
 
-**Version du dossier :** 5.4 — 6 octobre 2026
+**Version du dossier :** 5.5 — 6 octobre 2026
 **Périmètre :** code source du dépôt `sante-connect-main` (backend Django, frontend React, déploiement), services tiers.
 **Public visé :** acquéreurs, investisseurs, auditeurs techniques et juridiques, équipe technique reprenant le projet.
 
@@ -26,7 +26,7 @@ ni à Supabase.
 | Messages | Twilio : SMS et WhatsApp ; notifications push du navigateur (Web Push, gratuites) |
 | Téléconsultation | Jitsi Meet (serveur public au démarrage, auto-hébergeable) |
 | Assistant IA | Fournisseur configurable via une API compatible OpenAI (Google Gemini par défaut) |
-| Qualité | 320 tests automatisés de l'API ; parcours de bout en bout dans un navigateur réel pour chaque rôle ; intégration continue GitHub Actions |
+| Qualité | 322 tests automatisés de l'API ; parcours de bout en bout dans un navigateur réel pour chaque rôle ; intégration continue GitHub Actions |
 | Taille du code | ≈ 14 900 lignes Python (hors tests et migrations), ≈ 3 900 lignes de tests, ≈ 32 600 lignes TypeScript/React |
 
 ## 2. Contenu du dossier
@@ -86,7 +86,7 @@ ni à Supabase.
 
 ## 4. Méthode
 
-Dossier établi par lecture intégrale du code source, exécution de la suite de tests de l'API (320 tests) et
+Dossier établi par lecture intégrale du code source, exécution de la suite de tests de l'API (322 tests) et
 de parcours de bout en bout dans un navigateur réel (Chrome et Edge, ordinateur et mobile) : patient, médecin,
 médecin remplaçant, clinique, secrétariat, pharmacien, administrateur, activation obligatoire de la double
 authentification, mode hors ligne sur le build de production.
@@ -138,3 +138,4 @@ Ces points sont signalés **« À vérifier »**.
 | 5.2 | 06/10/2026 | **Relais communautaires** (§ 8.18) : les badiénou gokh et agents de santé de quartier, habilités par l'administration, suivent avec leur accord les personnes sans téléphone ni internet (rendez-vous, vaccins, tension, glycémie), avec un tableau des alertes du jour (tension ou sucre dangereux, vaccins en retard, rendez-vous proches) ; transfert complet du dossier à la personne quand elle a un téléphone (accord par code SMS) |
 | 5.3 | 06/10/2026 | **Veille épidémiologique anonymisée** (§ 8.19) : consultations par grand syndrome (fièvre / paludisme, dengue, diarrhée, respiratoire, éruption, conjonctivite, méningite), par ville et par semaine, cases de moins de 5 masquées, signal de hausse inhabituelle (moyenne + 2 écarts-types), export tableur ; à partager avec les autorités après accord de la CDP |
 | 5.4 | 06/10/2026 | Retrait, à la demande du fondateur, du ticket virtuel à l'hôpital (§ 8.14 supprimé, tables supprimées) et de la transcription des messages vocaux WhatsApp ; les demandes en phrases libres écrites sur WhatsApp restent (§ 8.16) |
+| 5.5 | 06/10/2026 | **Diagnostic codé et déclaration des maladies** (§ 8.19) : dans le compte-rendu (et l'avis écrit), le médecin choisit le diagnostic principal dans une liste de 44 maladies (codes CIM-10, inspirée de la SIMR : maladies à déclaration immédiate, surveillance hebdomadaire dont hépatites A/E, B et C, VIH, tuberculose, maladies chroniques, santé de la mère), suspect / probable / confirmé et résultat du test rapide ; maladie à déclaration immédiate : consigne de déclaration au district, administration prévenue, suivi « déclaré / à déclarer » ; veille par région à partir de ce diagnostic ; rapport hebdomadaire SIMR (région × maladie, suspects / confirmés) pour les autorités |

@@ -170,12 +170,16 @@ export const saveConsultationRecord = ({
     patient_sex?: Sex | "";
     patient_weight_kg?: string;
     instructions?: string;
+    condition_code?: string;
+    condition_status?: string;
+    test_result?: string;
   };
 }) =>
-  api.post<{ ok: true; prescription_id: string | null }>(
-    `/pro/appointments/${data.appointment_id}/record`,
-    data,
-  );
+  api.post<{
+    ok: true;
+    prescription_id: string | null;
+    declaration: { condition: string; message: string } | null;
+  }>(`/pro/appointments/${data.appointment_id}/record`, data);
 
 /** En-tête des ordonnances et certificats : identité professionnelle, signature et cachet. */
 export type PrescriptionHeader = {

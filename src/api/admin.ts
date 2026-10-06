@@ -67,6 +67,7 @@ export type AdminTodo = {
   doctors_to_verify: number;
   credentials_pending: number;
   credentials_expiring: number;
+  mdo_to_declare?: number;
   clinics_to_verify: number;
   reviews_reported: number;
   payouts_requested: number;

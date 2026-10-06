@@ -133,6 +133,7 @@ d'être écrits sur le disque (clé conservée hors des sauvegardes).
 | `labs_laboratory`, `…_laboratorymember`, `…_laborder` | Laboratoires, personnel rattaché, prescriptions d'analyses et résultats |
 | `pharmacy_medicinequery`, `…_medicineanswer` | Demandes de disponibilité d'un médicament et réponses des pharmacies |
 | `support_supportrequest` | Demandes d'aide (nom, contact, sujet, message, statut, note interne) |
+| `medical_medicalrecord` (champs `condition_code`, `condition_status`, `test_result`), `medical_diseasenotification` | Diagnostic principal codé du compte-rendu (catalogue `medical/conditions.py`, CIM-10) ; cas de maladies à déclaration immédiate et leur déclaration au district (date, référence, sans identité du patient) |
 | `econsult_asyncoffer`, `…_asyncrequest` | Offre d'avis écrit du médecin ; demandes (rendez-vous associé, symptômes, mesures, délai, réponse, conclusion) ; photos rangées dans les documents du patient et partagées avec le seul médecin |
 | `family_carelink`, `…_credittopup`, `…_creditentry` | Liens d'entraide (proche aidant, bénéficiaire, droits, accord, retrait, rappels), recharges du crédit santé (reçu numéroté), mouvements du crédit (jamais modifiés ni supprimés, un seul débit et un seul remboursement par paiement) ; `payments_payment.payer` : proche qui a payé |
 | `audit_auditevent` | Journal d'audit (aucune modification ni suppression possible par l'application) |

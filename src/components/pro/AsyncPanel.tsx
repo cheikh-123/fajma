@@ -1,4 +1,9 @@
 /** Espace médecin : proposer l'avis écrit (prix, délai) et répondre aux demandes, ordonnance comprise. */
+import {
+  ConditionPicker,
+  emptyCondition,
+  type ConditionValue,
+} from "@/components/pro/ConditionPicker";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { Clock, Loader2, MessageSquareText, Plus, Trash2 } from "lucide-react";
@@ -135,12 +140,14 @@ function RequestCard({ r }: { r: AsyncRequest }) {
   const [answer, setAnswer] = useState("");
   const [outcome, setOutcome] = useState<NonNullable<AsyncRequest["outcome"]>>("advice");
   const [items, setItems] = useState<{ name: string; posology: string; duration: string }[]>([]);
+  const [condition, setCondition] = useState<ConditionValue>(emptyCondition);
   const send = useMutation({
     mutationFn: () =>
       answerAsyncRequest(r.id, {
         answer,
         outcome: items.length ? "prescription" : outcome,
         items: items.filter((i) => i.name.trim()),
+        ...condition,
       }),
     onSuccess: () => {
       toast.success("Réponse envoyée au patient");
@@ -210,6 +217,7 @@ function RequestCard({ r }: { r: AsyncRequest }) {
           aria-label="Réponse"
           className={field}
         />
+        <ConditionPicker value={condition} onChange={setCondition} />
         <select
           value={items.length ? "prescription" : outcome}
           onChange={(e) => setOutcome(e.target.value as typeof outcome)}

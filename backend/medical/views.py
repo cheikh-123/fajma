@@ -142,7 +142,7 @@ def save_consultation_record(request, appointment_id):
     if not appt.patient_id:
         raise ApiError("Le dossier en ligne est réservé aux patients inscrits sur Fajma")
     data = body(request)
-    _, created = MedicalRecord.objects.update_or_create(
+    record, created = MedicalRecord.objects.update_or_create(
         appointment=appt,
         defaults={
             "patient_id": appt.patient_id,
@@ -153,6 +153,9 @@ def save_consultation_record(request, appointment_id):
         },
     )
     audit.log(request, "record_written", patient=appt.patient, target=appt)
+    from .conditions import apply_condition
+
+    declaration = apply_condition(record, data)
     prescription = create_prescription(appt, doctor, data)
     who = f" pour {appt.relative.full_name}" if appt.relative else ""
     if prescription:
@@ -160,7 +163,7 @@ def save_consultation_record(request, appointment_id):
                body=f"{doctor.full_name} — à retrouver dans votre dossier, à envoyer à votre pharmacie en un clic.", link="/dossier", sms=True)
     elif created:
         notify(appt.patient, kind="record", title=f"Compte-rendu de consultation{who}", body=doctor.full_name, link="/dossier")
-    return Response({"ok": True, "prescription_id": str(prescription.id) if prescription else None})
+    return Response({"ok": True, "prescription_id": str(prescription.id) if prescription else None, "declaration": declaration})
 
 
 def _prescription_for(user, prescription_id) -> Prescription:

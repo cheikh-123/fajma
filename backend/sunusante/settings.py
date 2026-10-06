@@ -322,6 +322,9 @@ AI = {
 }
 
 
+# Numéro à appeler pour déclarer une maladie à déclaration immédiate (district sanitaire, COUS), affiché au médecin.
+EPIDEMIC_HOTLINE = os.environ.get("EPIDEMIC_HOTLINE", "")
+
 # Assistant de prise de notes des médecins : envoie le texte des notes (sans identité du patient) au
 # fournisseur d'IA ci-dessus. À désactiver (false) tant que ce transfert n'est pas autorisé ; une mise en
 # forme locale sans IA reste alors disponible.
