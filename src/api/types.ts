@@ -22,6 +22,8 @@ export type User = {
   is_clinic_staff?: boolean;
   /** Accueil d'un hôpital ou centre de santé (ticket virtuel). */
   is_queue_agent?: boolean;
+  /** Relais communautaire habilité. */
+  is_community_agent?: boolean;
   /** Médecin, pharmacien, clinique ou administrateur : double authentification obligatoire. */
   is_professional?: boolean;
   /** Compte professionnel sans double authentification : il doit l'activer avant d'aller plus loin. */

@@ -33,6 +33,7 @@ import { Route as AuthenticatedMessagesRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedMonEspaceRouteImport } from './routes/_authenticated/mon-espace'
 import { Route as AuthenticatedPharmacieRouteImport } from './routes/_authenticated/pharmacie'
 import { Route as AuthenticatedProRouteImport } from './routes/_authenticated/pro'
+import { Route as AuthenticatedRelaisRouteImport } from './routes/_authenticated/relais'
 import { Route as AuthenticatedSecuriteRouteImport } from './routes/_authenticated/securite'
 import { Route as AffichageFacilityIdRouteImport } from './routes/affichage.$facilityId'
 import { Route as CliniquesIndexRouteImport } from './routes/cliniques.index'
@@ -170,6 +171,11 @@ const AuthenticatedProRoute = AuthenticatedProRouteImport.update({
   path: '/pro',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedRelaisRoute = AuthenticatedRelaisRouteImport.update({
+  id: '/relais',
+  path: '/relais',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedSecuriteRoute = AuthenticatedSecuriteRouteImport.update({
   id: '/securite',
   path: '/securite',
@@ -278,6 +284,7 @@ export interface FileRoutesByFullPath {
   '/mon-espace': typeof AuthenticatedMonEspaceRoute
   '/pharmacie': typeof AuthenticatedPharmacieRoute
   '/pro': typeof AuthenticatedProRoute
+  '/relais': typeof AuthenticatedRelaisRoute
   '/securite': typeof AuthenticatedSecuriteRoute
   '/affichage/$facilityId': typeof AffichageFacilityIdRoute
   '/cliniques/$id': typeof CliniquesIdRoute
@@ -319,6 +326,7 @@ export interface FileRoutesByTo {
   '/mon-espace': typeof AuthenticatedMonEspaceRoute
   '/pharmacie': typeof AuthenticatedPharmacieRoute
   '/pro': typeof AuthenticatedProRoute
+  '/relais': typeof AuthenticatedRelaisRoute
   '/securite': typeof AuthenticatedSecuriteRoute
   '/affichage/$facilityId': typeof AffichageFacilityIdRoute
   '/cliniques/$id': typeof CliniquesIdRoute
@@ -362,6 +370,7 @@ export interface FileRoutesById {
   '/_authenticated/mon-espace': typeof AuthenticatedMonEspaceRoute
   '/_authenticated/pharmacie': typeof AuthenticatedPharmacieRoute
   '/_authenticated/pro': typeof AuthenticatedProRoute
+  '/_authenticated/relais': typeof AuthenticatedRelaisRoute
   '/_authenticated/securite': typeof AuthenticatedSecuriteRoute
   '/affichage/$facilityId': typeof AffichageFacilityIdRoute
   '/cliniques/$id': typeof CliniquesIdRoute
@@ -405,6 +414,7 @@ export interface FileRouteTypes {
     | '/mon-espace'
     | '/pharmacie'
     | '/pro'
+    | '/relais'
     | '/securite'
     | '/affichage/$facilityId'
     | '/cliniques/$id'
@@ -446,6 +456,7 @@ export interface FileRouteTypes {
     | '/mon-espace'
     | '/pharmacie'
     | '/pro'
+    | '/relais'
     | '/securite'
     | '/affichage/$facilityId'
     | '/cliniques/$id'
@@ -488,6 +499,7 @@ export interface FileRouteTypes {
     | '/_authenticated/mon-espace'
     | '/_authenticated/pharmacie'
     | '/_authenticated/pro'
+    | '/_authenticated/relais'
     | '/_authenticated/securite'
     | '/affichage/$facilityId'
     | '/cliniques/$id'
@@ -703,6 +715,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/relais': {
+      id: '/_authenticated/relais'
+      path: '/relais'
+      fullPath: '/relais'
+      preLoaderRoute: typeof AuthenticatedRelaisRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/securite': {
       id: '/_authenticated/securite'
       path: '/securite'
@@ -830,6 +849,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedMonEspaceRoute: typeof AuthenticatedMonEspaceRoute
   AuthenticatedPharmacieRoute: typeof AuthenticatedPharmacieRoute
   AuthenticatedProRoute: typeof AuthenticatedProRoute
+  AuthenticatedRelaisRoute: typeof AuthenticatedRelaisRoute
   AuthenticatedSecuriteRoute: typeof AuthenticatedSecuriteRoute
   AuthenticatedOrdonnanceIdRoute: typeof AuthenticatedOrdonnanceIdRoute
   AuthenticatedPaiementRetourRoute: typeof AuthenticatedPaiementRetourRoute
@@ -849,6 +869,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedMonEspaceRoute: AuthenticatedMonEspaceRoute,
   AuthenticatedPharmacieRoute: AuthenticatedPharmacieRoute,
   AuthenticatedProRoute: AuthenticatedProRoute,
+  AuthenticatedRelaisRoute: AuthenticatedRelaisRoute,
   AuthenticatedSecuriteRoute: AuthenticatedSecuriteRoute,
   AuthenticatedOrdonnanceIdRoute: AuthenticatedOrdonnanceIdRoute,
   AuthenticatedPaiementRetourRoute: AuthenticatedPaiementRetourRoute,

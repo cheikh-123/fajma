@@ -61,6 +61,8 @@ def user_dict(user: User, session=None) -> dict:
         "is_clinic_staff": Clinic.objects.filter(owner=user).exists() or user.clinic_roles.exists(),
         # Accueil d'un hôpital ou centre de santé : arrive sur l'écran du guichet (ticket virtuel).
         "is_queue_agent": user.queue_roles.exists(),
+        # Relais communautaire habilité : arrive sur son tableau des personnes suivies.
+        "is_community_agent": hasattr(user, "community_agent") and user.community_agent.is_active,
         "mfa_enabled": TwoFactor.objects.filter(user=user, enabled=True).exists(),
         "phone_verified": user.phone_verified,
         "preferred_language": user.preferred_language,

@@ -40,6 +40,7 @@ def is_professional(user) -> bool:
         or Clinic.objects.filter(owner=user).exists()
         or ClinicStaff.objects.filter(user=user).exists()
         or user.queue_roles.exists()
+        or hasattr(user, "community_agent")
     )
 
 

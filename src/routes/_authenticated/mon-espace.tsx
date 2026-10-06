@@ -240,6 +240,14 @@ function MyAreaPage() {
                 Espace pharmacie
               </Link>
             )}
+            {me?.is_community_agent && (
+              <Link
+                to="/relais"
+                className="flex items-center gap-2 rounded-full bg-sunu-teal px-4 py-2.5 text-sm font-semibold text-white"
+              >
+                Espace relais
+              </Link>
+            )}
             {me?.is_queue_agent && (
               <Link
                 to="/guichet"

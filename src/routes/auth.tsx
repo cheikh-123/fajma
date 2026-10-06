@@ -128,7 +128,9 @@ function AuthPage() {
                   ? "/clinique"
                   : user.is_queue_agent
                     ? "/guichet"
-                    : "/mon-espace",
+                    : user.is_community_agent
+                      ? "/relais"
+                      : "/mon-espace",
       });
   }
 

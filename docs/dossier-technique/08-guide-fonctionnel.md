@@ -421,3 +421,23 @@ réponse dans la carte « Avis écrits » de son espace ; ordonnance dans son do
   (aussitôt sur le crédit santé s'il l'avait utilisé), puis prévenu.
 - Photos visibles du seul médecin concerné, et seulement une fois la demande payée.
 - Deux demandes en cours au plus par patient et par médecin ; annulation possible avant la réponse.
+
+## 8.18 Relais communautaires
+
+Pour faire entrer dans Fajma les personnes sans smartphone ni internet (personnes âgées, mères et jeunes
+enfants, malades chroniques), avec les relais de santé qui les connaissent déjà.
+
+- **Habilitation** : l'administration habilite un compte (structure : poste de santé, ONG, district ; zone
+  couverte ; 300 personnes au plus par défaut). Le relais arrive sur son espace « Relais » (`/relais`).
+- **Ajouter une personne** : nom, date de naissance, sexe, quartier ou village, téléphone d'un proche, repère
+  (accès à la maison, sans donnée médicale) et **accord obligatoire** : oral devant témoin, formulaire signé,
+  ou accord du tuteur ; chaque ajout est journalisé.
+- **Suivre** : chaque personne est un « proche » du compte du relais ; il prend ses rendez-vous (choix « Pour
+  qui »), reçoit les rappels, note tension, glycémie, poids et vaccins avec les outils habituels.
+- **Alertes du jour**, personnes les plus urgentes en tête : tension ≥ 180/110 ou glycémie ≥ 3 g/L ou < 0,6 g/L
+  (orienter aujourd'hui), tension ≥ 140/90 ou glycémie élevée (consultation à prévoir), vaccins de l'enfant en
+  retard ou à faire, rendez-vous dans les 2 jours (prévenir, accompagner).
+- **Transfert du dossier** : quand la personne a son téléphone, le relais saisit son numéro ; elle reçoit un
+  code par SMS et le lui donne (son accord). Tout son dossier passe sur son propre compte (rendez-vous,
+  comptes-rendus, ordonnances, vaccins, mesures, assurances, analyses), qui est créé si besoin ; elle se
+  connecte avec son numéro. Le transfert couvre automatiquement toute table liée aux proches.

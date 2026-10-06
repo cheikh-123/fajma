@@ -103,6 +103,7 @@ INSTALLED_APPS = [
     "queues",
     "family",
     "econsult",
+    "community",
 ]
 
 MIDDLEWARE = [

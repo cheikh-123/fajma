@@ -57,6 +57,8 @@ class AuditEvent(BaseModel):
         ("family_accepted", "Entraide familiale : accord du bénéficiaire"),
         ("family_revoked", "Entraide familiale : accès retiré"),
         ("family_settings", "Entraide familiale : droits modifiés"),
+        ("community_follow", "Relais : personne suivie (accord recueilli)"),
+        ("community_transfer", "Relais : dossier transféré à la personne"),
         ("admin_support_closed", "Demande d'aide traitée (administration)"),
         ("admin_support_reopened", "Demande d'aide rouverte (administration)"),
     ]

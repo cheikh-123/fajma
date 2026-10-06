@@ -33,6 +33,7 @@ from support import views as support
 from queues import views as queues
 from family import views as family
 from econsult import views as econsult
+from community import views as community
 from medical import ai_notes
 from medical import emergency, record_export, renewals
 
@@ -242,6 +243,8 @@ admin_urls = [
     path("laboratories/<uuid:laboratory_id>", labs.admin_update_laboratory),
     path("doctors/<uuid:doctor_id>", accounts.admin_correct_doctor),
     path("facilities", queues.admin_facilities),
+    path("community-agents", community.admin_agents),
+    path("community-agents/<uuid:agent_id>", community.admin_agent),
     path("facilities/<uuid:facility_id>", queues.admin_facility),
     path("pharmacies/<uuid:pharmacy_id>", pharmacy.admin_update_pharmacy),
     path("reviews", reviews.admin_reviews),
@@ -328,6 +331,13 @@ urlpatterns = [
     # Ticket virtuel (files d'attente des hôpitaux et centres de santé)
     # Entraide familiale (diaspora) : proches aidés, crédit santé, paiement et suivi à distance
     # Avis médical écrit (consultation asynchrone)
+    # Relais communautaires (personnes suivies sans téléphone ni internet)
+    path("api/community/", include([
+        path("people", community.people),
+        path("people/<uuid:follow_id>", community.update_person),
+        path("people/<uuid:follow_id>/transfer", community.start_transfer),
+        path("people/<uuid:follow_id>/transfer/confirm", community.confirm_transfer),
+    ])),
     path("api/econsult/", include([
         path("offer/<uuid:doctor_id>", econsult.public_offer),
         path("requests", econsult.my_requests),
