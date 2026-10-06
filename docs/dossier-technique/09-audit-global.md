@@ -186,7 +186,7 @@ et déménagement des fichiers. Détail des mesures et des procédures : [chapit
 
 | Constat | Gravité | Correctif |
 |---|---|---|
-| **Les tests PostgreSQL de l'intégration continue échouaient depuis la première mise en ligne du code** (les étapes suivantes, contrôles de sécurité Django et failles des bibliothèques Python, ne tournaient donc jamais). Les versions précédentes de ce dossier affirmaient à tort que les tests passaient aussi sous PostgreSQL | **Bloquant** | Corrigé : 333 tests au vert sur PostgreSQL ; contrôles de sécurité Django et `pip-audit` exécutés (aucune faille, un avertissement volontaire : HSTS preload) ; nouvelle étape « migration manquante » |
+| **Les tests PostgreSQL de l'intégration continue échouaient depuis la première mise en ligne du code** (les étapes suivantes, contrôles de sécurité Django et failles des bibliothèques Python, ne tournaient donc jamais). Les versions précédentes de ce dossier affirmaient à tort que les tests passaient aussi sous PostgreSQL | **Bloquant** | Corrigé : 389 tests au vert sur PostgreSQL ; contrôles de sécurité Django et `pip-audit` exécutés (aucune faille, un avertissement volontaire : HSTS preload) ; nouvelle étape « migration manquante » |
 | Erreur PostgreSQL « verrou impossible sur une jointure facultative » : accepter ou refuser un remplacement et décider d'un renouvellement d'ordonnance auraient planté en production (invisible sous SQLite) | **Bloquant** | Verrous limités à la ligne concernée |
 | Suppression d'un compte ou d'une fiche médecin depuis la console technique : comptes-rendus, ordonnances, paiements, messages effacés en cascade | **Important** | Liens protégés (refus de la suppression), testé ; l'effacement légal reste l'anonymisation |
 | Secret de double authentification stocké en clair dans la base | **Important** | Chiffré (clé des fichiers, hors base et hors sauvegardes), secrets existants chiffrés par migration, testé |
@@ -202,7 +202,7 @@ et déménagement des fichiers. Détail des mesures et des procédures : [chapit
 
 ## 9.19 Vérifications après correction
 
-- 333 tests automatisés de l'API, tous au vert sur SQLite **et sur PostgreSQL 17** (vérifié en local ; l'intégration
+- 389 tests automatisés de l'API, tous au vert sur SQLite **et sur PostgreSQL 17** (vérifié en local ; l'intégration
   continue exécute les deux).
 - Typage TypeScript et analyse ESLint sans erreur ; 0 violation d'accessibilité WCAG AA sur les 9 pages contrôlées ;
   recette de l'interface de production : 0 problème sur 78 affichages (§ 9.17).
@@ -249,3 +249,28 @@ faudra alors un index de recherche textuelle (`pg_trgm`), prévu mais inutile au
 
 Reste à la charge de l'hébergement : chiffrement du disque du serveur (les contenus des dossiers sont en clair
 dans la base, comme dans tout logiciel médical consultable ; les fichiers joints sont déjà chiffrés).
+
+## 9.22 Audit complet après les ajouts médicaux (version 6.4)
+
+Revue de l'application entière après l'ajout du contrôle de prescription, de l'imagerie, des actes et de
+l'export FHIR.
+
+| Contrôle | Méthode | Résultat |
+|---|---|---|
+| Droits de **toutes** les adresses de l'API | Test automatique qui balaie les 190 adresses (`tests/test_permissions_sweep.py`) pour un visiteur, un patient et un médecin | Aucune adresse protégée ouverte. Les adresses publiques (annuaire, catalogue des organismes, vérification d'ordonnance…) sont listées explicitement ; une nouvelle adresse est contrôlée automatiquement |
+| Fuite de données par une adresse « professionnelle » | Le test exige une réponse **vide**, pas seulement un accès autorisé | Conforme (agenda, disponibilités, fiche : vides hors de son espace) |
+| Performances sur base chargée (20 508 comptes, 200 000 rendez-vous) | Mesure à chaud | Catalogue des actes 12 ms, contrôle d'une ordonnance 53 ms, feuille de soins 31 ms, export FHIR 23 ms, catalogue des médicaments 5 ms (328 ms au tout premier appel : chargement du catalogue en mémoire) |
+| Accessibilité (WCAG 2.1 AA) | axe-core sur les pages clés, en 1280, 1024 et 768 px, puis sur téléphone (390 px) formulaires ouverts | Aucune violation |
+| Tenue sur téléphone | Mesure du débordement horizontal réel | Corrigé (voir ci-dessous) |
+| Bibliothèques du site et du serveur | `npm audit`, `pip-audit` | Aucune faille connue |
+| Base de données | Migrations, contraintes, clés étrangères | Conformes |
+
+| Constat | Gravité | Correctif |
+|---|---|---|
+| **La page du médecin défilait horizontalement sur téléphone** dès l'ouverture d'un compte-rendu : la liste des maladies (libellés longs) et celle des actes imposaient leur largeur à toute la page | Important | `min-w-0` sur la carte de rendez-vous, le sélecteur de diagnostic et celui des actes ; les actions qui ouvrent un formulaire prennent toute la largeur de la carte. Débordement mesuré : 327 px → 0 |
+| Boutons « Déconnexion », « Aide » et « Contacter l'équipe » réduits à une icône sur téléphone : aucun nom pour la synthèse vocale | Moyen | Nom accessible ajouté (4 écrans) |
+| Le formulaire de prescription d'imagerie était écrasé dans une colonne de 190 px | Mineur | Pleine largeur de la carte |
+| Alerte d'imagerie affichant le code interne (« scanner ») au lieu du libellé | Mineur | Libellé complet |
+| Le filtre des centres par examen utilisait une recherche JSON au comportement différent sur SQLite et PostgreSQL | Moyen | Filtrage en Python : identique sur les deux bases (exigence de portabilité) |
+
+389 tests automatisés au vert sur SQLite et sur PostgreSQL.

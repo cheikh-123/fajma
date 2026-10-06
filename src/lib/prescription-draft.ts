@@ -9,6 +9,8 @@ export type PrescriptionDraft = {
   patient_sex: Sex | "";
   patient_weight_kg: string;
   instructions: string;
+  /** Justification écrite quand le médecin maintient une ordonnance malgré une alerte majeure. */
+  safety_override: string;
 };
 
 export const emptyItem = (): PrescriptionItem => ({
@@ -30,6 +32,7 @@ export function newDraft(appt: DoctorAppointment): PrescriptionDraft {
     patient_sex: subject?.sex ?? "",
     patient_weight_kg: "",
     instructions: "",
+    safety_override: "",
   };
 }
 

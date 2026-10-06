@@ -113,6 +113,15 @@ export const GUIDE: GuideRole[] = [
         ],
       },
       {
+        id: "remboursement",
+        title: "Se faire rembourser et emporter son dossier",
+        points: [
+          "Sous un compte-rendu, « Feuille de soins » apparaît quand le médecin a codé les actes : vous y voyez la base de remboursement, ce que votre organisme (IPM, mutuelle, CMU, assurance) vous rendra et ce qui reste à votre charge. Téléchargez-la et remettez-la à votre organisme.",
+          "« Télécharger mon dossier (PDF) » : tout votre dossier en un document lisible.",
+          "« Format international (FHIR) » : le même dossier dans le langage que comprennent les hôpitaux et les autres logiciels de santé. Utile si vous changez de pays, d'hôpital ou d'application : vous n'êtes jamais prisonnier de Fajma.",
+        ],
+      },
+      {
         id: "dossier",
         title: "Mon dossier médical",
         points: [
@@ -234,9 +243,22 @@ export const GUIDE: GuideRole[] = [
           "Dans la consultation, rédigez le résumé, la conclusion et le traitement. L'assistant de prise de notes peut ranger vos notes dictées : relisez toujours avant d'enregistrer.",
           "Choisissez le diagnostic principal dans la liste (recherche par nom ou code CIM-10), précisez suspect, probable ou confirmé et le résultat du test rapide.",
           "Ajoutez les médicaments de l'ordonnance : elle est signée, avec QR code, et le patient peut l'envoyer à sa pharmacie.",
+          "Pendant que vous écrivez, Fajma vérifie chaque médicament : allergie déclarée, interaction avec un traitement en cours, contre-indication liée à l'état du patient (grossesse, rein, asthme, déficit en G6PD…), limite d'âge. Une alerte majeure demande une justification écrite, conservée avec l'ordonnance.",
+          "« Actes réalisés » (facultatif) : codez les actes selon la nomenclature. Votre tarif reste libre ; cela permet à l'assurance du patient de le rembourser, et lui donne une feuille de soins.",
           "Enregistrez : le patient reçoit compte-rendu et ordonnance dans son dossier.",
         ],
-        tip: "Maladie à déclaration immédiate (choléra, rougeole, méningite, dengue…) : un message rouge vous invite à déclarer le cas au district sanitaire. Une fois fait, cliquez « J'ai déclaré ce cas » dans « Déclarations à faire ».",
+        tip: "Maladie à déclaration immédiate (choléra, rougeole, méningite, dengue…) : un message rouge vous invite à déclarer le cas au district sanitaire. Une fois fait, cliquez « J'ai déclaré ce cas » dans « Déclarations à faire ». Le contrôle des médicaments est une aide : il ne remplace jamais votre jugement, et un médicament hors catalogue est signalé comme non vérifié.",
+      },
+      {
+        id: "examens",
+        title: "Prescrire des analyses ou de l'imagerie",
+        steps: [
+          "Sur le rendez-vous, « Prescrire analyses ou imagerie », puis choisissez l'onglet voulu.",
+          "Imagerie : choisissez le type d'examen (radio, échographie, doppler, scanner, IRM, mammographie…). Les examens courants sont proposés en un clic et la préparation habituelle est remplie pour vous.",
+          "Si l'examen demande un produit de contraste, cochez-le : Fajma vous signale aussitôt les risques (patient sous metformine, insuffisance rénale, allergie à l'iode).",
+          "Grossesse et rayons X, pacemaker et IRM : l'alerte s'affiche avant que le patient ne se déplace.",
+          "Le patient choisit ensuite son laboratoire ou son centre d'imagerie ; seuls ceux qui réalisent l'examen demandé lui sont proposés.",
+        ],
       },
       {
         id: "avis-ecrits",
@@ -329,10 +351,10 @@ export const GUIDE: GuideRole[] = [
   },
   {
     id: "laboratoire",
-    label: "Laboratoire",
-    title: "Guide du laboratoire",
+    label: "Laboratoire et imagerie",
+    title: "Guide du laboratoire et du centre d'imagerie",
     intro:
-      "Recevez les demandes d'analyses et déposez les résultats directement dans le dossier du patient.",
+      "Recevez les demandes d'analyses et d'imagerie, et déposez les résultats directement dans le dossier du patient.",
     sections: [
       {
         id: "demandes",
@@ -341,6 +363,7 @@ export const GUIDE: GuideRole[] = [
           "Colonne « Patients attendus » : les demandes que les patients vous ont adressées.",
           "À l'arrivée du patient, cliquez « Prélèvement effectué ».",
           "Déposez les résultats (PDF ou photo) avec un commentaire : ils rejoignent le dossier du patient, qui est prévenu, ainsi que le médecin prescripteur.",
+          "Dans votre fiche, indiquez ce que vous faites : analyses, imagerie, ou les deux. Pour l'imagerie, cochez les examens que vous réalisez (radio, échographie, scanner, IRM…) : les patients ne vous verront que pour ceux-là, ce qui évite les déplacements inutiles.",
         ],
         tip: "Recherchez une demande par sa référence (LAB-…) ou le nom du patient.",
       },
@@ -466,6 +489,7 @@ export const GUIDE: GuideRole[] = [
         title: "Réglages et équipe",
         points: [
           "Réglages : message en haut du site (maintenance), contact, horaires, code USSD, numéro de déclaration des maladies, minimum de virement. Sans technicien, chaque changement est journalisé.",
+          "Tarifs conventionnels (lettres-clés) : la base de remboursement des actes, convenue avec les organismes. Un acte déjà facturé garde son montant ; seuls les actes suivants utilisent la nouvelle valeur.",
           "Équipe : donnez l'accès à un collègue par l'email de son compte, avec un rôle (validations, support, finances, santé publique, communication, super-administrateur). Chacun ne voit que sa partie.",
         ],
       },

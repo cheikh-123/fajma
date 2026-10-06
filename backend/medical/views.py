@@ -156,6 +156,9 @@ def save_consultation_record(request, appointment_id):
     from .conditions import apply_condition
 
     declaration = apply_condition(record, data)
+    from insurance.billing import billing_for, record_acts
+
+    record_acts(appt, doctor, data.get("acts"))
     prescription = create_prescription(appt, doctor, data)
     who = f" pour {appt.relative.full_name}" if appt.relative else ""
     if prescription:
@@ -163,7 +166,49 @@ def save_consultation_record(request, appointment_id):
                body=f"{doctor.full_name} — à retrouver dans votre dossier, à envoyer à votre pharmacie en un clic.", link="/dossier", sms=True)
     elif created:
         notify(appt.patient, kind="record", title=f"Compte-rendu de consultation{who}", body=doctor.full_name, link="/dossier")
-    return Response({"ok": True, "prescription_id": str(prescription.id) if prescription else None, "declaration": declaration})
+    return Response({
+        "ok": True,
+        "prescription_id": str(prescription.id) if prescription else None,
+        "declaration": declaration,
+        "billing": billing_for(appt),
+    })
+
+
+@api_view(["GET"])
+def medicines_catalog(request):
+    """Catalogue des médicaments pour la saisie assistée de l'ordonnance (médecin)."""
+    from .medicines import catalog
+
+    my_doctor(require_user(request))
+    return Response({"medicines": catalog()})
+
+
+@api_view(["POST"])
+def check_prescription(request, appointment_id):
+    """
+    Contrôle de sécurité pendant la rédaction : {items} → alertes (allergies, interactions, état, âge).
+    Aucune donnée n'est enregistrée ; le même contrôle est refait à l'enregistrement.
+    """
+    user = require_user(request)
+    doctor = my_doctor(user)
+    appt = (
+        Appointment.objects.filter(Q(doctor=doctor) | Q(practitioner=doctor), id=appointment_id)
+        .select_related("patient", "relative")
+        .first()
+    )
+    if not appt:
+        raise not_found("Rendez-vous introuvable")
+    if not appt.patient_id:
+        raise ApiError("Le dossier en ligne est réservé aux patients inscrits sur Fajma")
+    from .safety import check, patient_state, summary
+
+    items = body(request).get("items") or []
+    if not isinstance(items, list):
+        raise ApiError("Liste de médicaments invalide")
+    state = patient_state(appt.patient, appt.relative)
+    result = summary(check([i for i in items[:30] if isinstance(i, dict)], state))
+    result["patient_known"] = state["known"]
+    return Response(result)
 
 
 def _prescription_for(user, prescription_id) -> Prescription:

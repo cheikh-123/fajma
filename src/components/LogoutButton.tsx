@@ -15,6 +15,7 @@ export function LogoutButton() {
         await logout();
         navigate({ to: "/", replace: true });
       }}
+      aria-label="Se déconnecter"
       className="flex items-center gap-1.5 text-sm font-medium text-sunu-ink/60 hover:text-sunu-green"
     >
       <LogOut className="size-4" /> <span className="hidden sm:inline">Déconnexion</span>

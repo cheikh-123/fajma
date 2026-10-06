@@ -1,5 +1,22 @@
-/** Laboratoires d'analyses : prescription, choix du laboratoire, résultats. */
+/**
+ * Plateaux techniques : laboratoires d'analyses et centres d'imagerie (même circuit — prescription,
+ * choix du centre par le patient, résultats dans le dossier).
+ */
 import { api } from "./client";
+import type { SafetyResult } from "./safety";
+
+export type LabKind = "analyses" | "imagerie" | "both";
+
+export type ImagingModality = {
+  code: string;
+  label: string;
+  short: string;
+  prep: string;
+  contrast: boolean;
+  examples: string[];
+};
+export const getImagingModalities = () =>
+  api.get<{ modalities: ImagingModality[] }>("/imaging/modalities").then((r) => r.modalities);
 
 export type Laboratory = {
   id: string;
@@ -11,12 +28,22 @@ export type Laboratory = {
   opening_hours: string | null;
   latitude: number | null;
   longitude: number | null;
+  kind: LabKind;
+  kind_label: string;
+  /** Examens d'imagerie réalisés (vide pour un laboratoire d'analyses). */
+  modalities: string[];
+  modality_labels: string[];
 };
 
 export type LabOrder = {
   id: string;
   reference: string;
   tests: string;
+  kind: "analyses" | "imagerie";
+  kind_label: string;
+  modality: string | null;
+  modality_label: string | null;
+  contrast: boolean;
   instructions: string | null;
   urgent: boolean;
   status: "prescribed" | "sent" | "received" | "completed" | "cancelled";
@@ -40,15 +67,30 @@ export type LabOrder = {
 };
 
 export const listMyLabOrders = () => api.get<LabOrder[]>("/labs/orders");
-export const listLaboratories = (city?: string) =>
-  api.get<Laboratory[]>("/labs/laboratories", { city: city || undefined });
+export const listLaboratories = (params?: { city?: string; kind?: string; modality?: string }) =>
+  api.get<Laboratory[]>("/labs/laboratories", {
+    city: params?.city || undefined,
+    kind: params?.kind || undefined,
+    modality: params?.modality || undefined,
+  });
 export const sendLabOrder = (id: string, laboratory_id: string) =>
   api.post<LabOrder>(`/labs/orders/${id}/send`, { laboratory_id });
 
 export const prescribeLabs = (
   appointmentId: string,
-  data: { tests: string; instructions?: string; urgent?: boolean },
-) => api.post<LabOrder>(`/pro/appointments/${appointmentId}/lab-order`, data);
+  data: {
+    tests: string;
+    instructions?: string;
+    urgent?: boolean;
+    kind?: "analyses" | "imagerie";
+    modality?: string;
+    contrast?: boolean;
+  },
+) =>
+  api.post<LabOrder & { safety?: SafetyResult }>(
+    `/pro/appointments/${appointmentId}/lab-order`,
+    data,
+  );
 export const cancelLabOrder = (id: string) => api.post<LabOrder>(`/pro/lab-orders/${id}/cancel`);
 
 export const getLabDashboard = () =>
@@ -60,6 +102,8 @@ export const labUploadResult = (
 ) => api.post<LabOrder>(`/labs/orders/${id}/result`, data);
 
 type LabFields = {
+  kind?: LabKind;
+  modalities?: string[];
   district?: string;
   address?: string;
   phone?: string;
@@ -79,6 +123,8 @@ export const listAdminLabs = () => api.get<AdminLab[]>("/admin/laboratories");
 export const createLab = (data: {
   name: string;
   city: string;
+  kind?: LabKind;
+  modalities?: string[];
   district?: string;
   address: string;
   phone?: string;

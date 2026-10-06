@@ -1,6 +1,6 @@
 # Dossier technique et sécurité — Fajma
 
-**Version du dossier :** 6.3 — 6 octobre 2026
+**Version du dossier :** 6.4 — 6 octobre 2026
 **Périmètre :** code source du dépôt `sante-connect-main` (backend Django, frontend React, déploiement), services tiers.
 **Public visé :** acquéreurs, investisseurs, auditeurs techniques et juridiques, équipe technique reprenant le projet.
 
@@ -26,7 +26,7 @@ ni à Supabase.
 | Messages | Twilio : SMS et WhatsApp ; notifications push du navigateur (Web Push, gratuites) |
 | Téléconsultation | Jitsi Meet (serveur public au démarrage, auto-hébergeable) |
 | Assistant IA | Fournisseur configurable via une API compatible OpenAI (Google Gemini par défaut) |
-| Qualité | 333 tests automatisés de l'API ; parcours de bout en bout dans un navigateur réel pour chaque rôle ; intégration continue GitHub Actions |
+| Qualité | 389 tests automatisés de l'API ; parcours de bout en bout dans un navigateur réel pour chaque rôle ; intégration continue GitHub Actions |
 | Taille du code | ≈ 14 900 lignes Python (hors tests et migrations), ≈ 3 900 lignes de tests, ≈ 32 600 lignes TypeScript/React |
 
 ## 2. Contenu du dossier
@@ -86,7 +86,7 @@ ni à Supabase.
 
 ## 4. Méthode
 
-Dossier établi par lecture intégrale du code source, exécution de la suite de tests de l'API (333 tests) et
+Dossier établi par lecture intégrale du code source, exécution de la suite de tests de l'API (389 tests) et
 de parcours de bout en bout dans un navigateur réel (Chrome et Edge, ordinateur et mobile) : patient, médecin,
 médecin remplaçant, clinique, secrétariat, pharmacien, administrateur, activation obligatoire de la double
 authentification, mode hors ligne sur le build de production.
@@ -147,3 +147,4 @@ Ces points sont signalés **« À vérifier »**.
 | 6.1 | 06/10/2026 | Administration réorganisée : **menu par rubriques** avec compteurs (tableau de bord, à valider, utilisateurs, réseau de soins, finances, santé publique, communication, support, système) ; file **« À valider »** (seulement ce qui attend, justificatifs à côté) ; doublons pharmacies et laboratoires fusionnés ; **recherche globale** (comptes, médecins, établissements, pharmacies, laboratoires, ordonnances, paiements) ; **fiche 360° du médecin** ; **annonces groupées** (notification, SMS, email ; nombre de destinataires avant envoi) ; page **Réglages** sans technicien (message du site, contact, USSD, numéro de déclaration, minimum de virement) ; **rôles de l'équipe** contrôlés par le serveur ; journal d'audit filtrable, paginé, exportable |
 | 6.2 | 06/10/2026 | **Audit de la base de données** (9.21) : compte PostgreSQL de l'application sans droits d'administrateur (`fajma_app`, créé au premier démarrage, `APP_DB_PASSWORD`) ; sauvegardes obligatoirement chiffrées ; connexion chiffrée exigée vers une base distante ; un établissement n'est plus effaçable par la suppression du compte de son responsable |
 | 6.3 | 06/10/2026 | Suite de l'audit de la base : **restauration vérifiée de bout en bout** (`deploy/restore.sh`, une commande ; le test mensuel relit la sauvegarde avec le compte de l'application, ce qui aurait détecté la panne corrigée ici) ; **annonces groupées envoyées en arrière-plan** par paquets, reprise sans doublon ; mesures des écrans d'administration sur base chargée |
+| 6.4 | 06/10/2026 | **Sécurité de la prescription** : catalogue d'environ 100 médicaments, alertes allergies, interactions, contre-indications (grossesse, rein, asthme, G6PD…) et âge, alerte majeure à justifier par écrit ; **imagerie médicale** de bout en bout (prescription, centre qui réalise l'examen, résultats) avec alertes grossesse et rayons X, pacemaker et IRM, produit de contraste ; **nomenclature des actes** et **feuille de soins** pour les organismes ; **export du dossier au format international HL7 FHIR R4** ; audit complet de l'application (9.22) : balayage des droits sur les 190 adresses, débordement sur téléphone corrigé, accessibilité sans violation |

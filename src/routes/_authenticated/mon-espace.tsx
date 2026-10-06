@@ -197,6 +197,7 @@ function MyAreaPage() {
             <NotificationBell />
             <button
               onClick={signOut}
+              aria-label="Se déconnecter"
               className="flex items-center gap-1.5 text-sm font-medium text-sunu-ink/60 hover:text-sunu-green"
             >
               <LogOut className="size-4" />{" "}

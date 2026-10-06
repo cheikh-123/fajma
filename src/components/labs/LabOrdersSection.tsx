@@ -1,7 +1,10 @@
-/** Dossier patient : analyses prescrites, choix du laboratoire, résultats. */
+/**
+ * Dossier patient : analyses et examens d'imagerie prescrits, choix du laboratoire ou du centre
+ * d'imagerie (seuls ceux qui réalisent l'examen demandé sont proposés), résultats.
+ */
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { FlaskConical, FileText } from "lucide-react";
+import { FlaskConical, FileText, ScanLine } from "lucide-react";
 import { toast } from "sonner";
 import { listLaboratories, listMyLabOrders, sendLabOrder, type LabOrder } from "@/api/labs";
 import { formatDate } from "@/lib/datetime";
@@ -20,7 +23,7 @@ export function LabOrdersSection() {
   return (
     <section id="analyses" className="scroll-mt-6">
       <h2 className="mb-3 flex items-center gap-2 text-lg font-bold text-sunu-dark">
-        <FlaskConical className="size-5 text-sunu-green" /> Analyses ({data.length})
+        <FlaskConical className="size-5 text-sunu-green" /> Analyses et imagerie ({data.length})
       </h2>
       <div className="grid gap-3">
         {data.map((o) => (
@@ -35,11 +38,14 @@ function LabOrderCard({ order }: { order: LabOrder }) {
   const qc = useQueryClient();
   const [choosing, setChoosing] = useState(order.status === "prescribed");
   const [city, setCity] = useState("");
+  const imaging = order.kind === "imagerie";
   const { data: labs } = useQuery({
-    queryKey: ["laboratories", city],
-    queryFn: () => listLaboratories(city),
+    queryKey: ["laboratories", city, order.kind, order.modality],
+    queryFn: () =>
+      listLaboratories({ city, kind: order.kind, modality: order.modality ?? undefined }),
     enabled: choosing,
   });
+  const where = imaging ? "centre d'imagerie" : "laboratoire";
   const send = useMutation({
     mutationFn: (labId: string) => sendLabOrder(order.id, labId),
     onSuccess: (o) => {
@@ -59,7 +65,16 @@ function LabOrderCard({ order }: { order: LabOrder }) {
             {order.doctor.full_name} · {formatDate(order.created_at)}
             {order.for_relative ? ` · pour ${order.for_relative}` : ""}
           </p>
-          <p className="mt-1 whitespace-pre-wrap font-medium text-sunu-dark">{order.tests}</p>
+          <p className="mt-1 flex items-center gap-1.5 font-medium text-sunu-dark">
+            {imaging && <ScanLine className="size-4 shrink-0 text-sunu-green" />}
+            <span className="whitespace-pre-wrap">{order.tests}</span>
+          </p>
+          {order.modality_label && (
+            <p className="text-xs font-semibold text-sunu-green">
+              {order.modality_label}
+              {order.contrast ? " · avec produit de contraste" : ""}
+            </p>
+          )}
           {order.instructions && (
             <p className="mt-1 text-xs text-sunu-ink/60">{order.instructions}</p>
           )}
@@ -107,22 +122,22 @@ function LabOrderCard({ order }: { order: LabOrder }) {
               onClick={() => setChoosing(true)}
               className="text-xs font-semibold text-sunu-green"
             >
-              Changer de laboratoire
+              Changer de {where}
             </button>
           ) : (
             <div className="grid gap-2">
-              <p className="text-xs font-semibold text-sunu-ink/70">
-                Choisissez votre laboratoire :
-              </p>
+              <p className="text-xs font-semibold text-sunu-ink/70">Choisissez votre {where} :</p>
               <input
                 value={city}
                 onChange={(e) => setCity(e.target.value)}
                 placeholder="Ville (ex. Dakar)"
-                aria-label="Ville du laboratoire"
+                aria-label="Ville"
                 className="rounded-lg border border-sunu-line bg-sunu-card px-3 py-2 text-sm"
               />
               {(labs ?? []).length === 0 && (
-                <p className="text-xs text-sunu-ink/50">Aucun laboratoire partenaire trouvé.</p>
+                <p className="text-xs text-sunu-ink/50">
+                  Aucun {where} partenaire ne réalise cet examen{city ? ` à ${city}` : ""}.
+                </p>
               )}
               {(labs ?? []).map((lab) => (
                 <button

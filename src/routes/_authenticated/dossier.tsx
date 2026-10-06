@@ -58,6 +58,8 @@ import { AccessLogSection, PhoneVerification } from "@/components/AccountTrust";
 import { usePrescriptionPdf } from "@/hooks/use-prescription-pdf";
 import { RenewalBox } from "@/components/care/RenewalBox";
 import { MedicalRecordPdfButton } from "@/components/care/MedicalRecordPdfButton";
+import { FhirExportButton } from "@/components/care/FhirExportButton";
+import { CareSheetButton } from "@/components/care/CareSheetButton";
 import { EmergencyCardSection } from "@/components/care/EmergencyCardSection";
 import { formatDate } from "@/lib/datetime";
 import { FajmaMark } from "@/components/FajmaMark";
@@ -144,8 +146,9 @@ function DossierPage() {
           <p className="mt-2 text-sm text-sunu-ink/60">
             Vos informations, comptes-rendus et ordonnances au même endroit.
           </p>
-          <div className="mt-4">
+          <div className="mt-4 flex flex-wrap gap-2">
             <MedicalRecordPdfButton />
+            <FhirExportButton />
           </div>
         </div>
         <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-[320px_1fr]">
@@ -274,6 +277,7 @@ function DossierPage() {
                           <strong>Traitement :</strong> {r.treatment}
                         </p>
                       )}
+                      <CareSheetButton appointmentId={r.appointment_id} />
                     </article>
                   ))}
                 </div>

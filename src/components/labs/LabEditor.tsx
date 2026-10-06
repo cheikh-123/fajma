@@ -1,12 +1,25 @@
 /**
- * Fiche d'un laboratoire : téléphone, horaires, adresse et quartier (modifiés par le laboratoire lui-même) ;
- * nom et ville en plus pour l'administration. La position sur la carte suit le quartier ou la ville.
+ * Fiche d'un plateau technique (laboratoire d'analyses, centre d'imagerie, ou les deux) : téléphone,
+ * horaires, adresse, quartier et examens d'imagerie réalisés, modifiés par le centre lui-même ; nom et
+ * ville en plus pour l'administration. La position sur la carte suit le quartier ou la ville.
  */
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { FlaskConical, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { adminUpdateLab, updateMyLab, type Laboratory } from "@/api/labs";
+import {
+  adminUpdateLab,
+  getImagingModalities,
+  updateMyLab,
+  type LabKind,
+  type Laboratory,
+} from "@/api/labs";
+
+const KINDS: [LabKind, string][] = [
+  ["analyses", "Analyses médicales"],
+  ["imagerie", "Imagerie médicale"],
+  ["both", "Analyses et imagerie"],
+];
 
 export function LabEditor({
   lab,
@@ -26,19 +39,31 @@ export function LabEditor({
     phone: lab.phone ?? "",
     opening_hours: lab.opening_hours ?? "",
   });
+  const [kind, setKind] = useState<LabKind>(lab.kind);
+  const [modalities, setModalities] = useState<string[]>(lab.modalities ?? []);
+  const { data: catalog } = useQuery({
+    queryKey: ["imaging-modalities"],
+    queryFn: getImagingModalities,
+    staleTime: Infinity,
+  });
+  const doesImaging = kind === "imagerie" || kind === "both";
+  const toggle = (code: string) =>
+    setModalities((v) => (v.includes(code) ? v.filter((c) => c !== code) : [...v, code]));
   const save = useMutation({
     mutationFn: (): Promise<unknown> =>
       admin
-        ? adminUpdateLab(lab.id, form)
+        ? adminUpdateLab(lab.id, { ...form, kind, modalities })
         : updateMyLab({
             laboratory_id: lab.id,
             district: form.district,
             address: form.address,
             phone: form.phone,
             opening_hours: form.opening_hours,
+            kind,
+            modalities,
           }),
     onSuccess: () => {
-      toast.success("Fiche du laboratoire enregistrée");
+      toast.success("Fiche enregistrée");
       qc.invalidateQueries({ queryKey: ["lab-dashboard"] });
       qc.invalidateQueries({ queryKey: ["admin-labs"] });
       onDone?.();
@@ -144,6 +169,48 @@ export function LabEditor({
           className={field}
         />
       </label>
+      <label className="grid gap-1 text-xs font-semibold text-sunu-ink/60 sm:col-span-2">
+        Ce que fait cet établissement
+        <select
+          value={kind}
+          onChange={(e) => setKind(e.target.value as LabKind)}
+          aria-label="Type d'établissement"
+          className={field}
+        >
+          {KINDS.map(([value, label]) => (
+            <option key={value} value={value}>
+              {label}
+            </option>
+          ))}
+        </select>
+      </label>
+      {doesImaging && (
+        <fieldset className="sm:col-span-2">
+          <legend className="text-xs font-semibold text-sunu-ink/60">
+            Examens d'imagerie réalisés (les patients ne vous verront que pour ceux-ci)
+          </legend>
+          <div className="mt-1 flex flex-wrap gap-2">
+            {(catalog ?? []).map((m) => (
+              <label
+                key={m.code}
+                className={`cursor-pointer rounded-lg border px-2.5 py-1.5 text-xs ${
+                  modalities.includes(m.code)
+                    ? "border-sunu-green bg-sunu-green-soft text-sunu-green"
+                    : "border-sunu-line text-sunu-ink/70"
+                }`}
+              >
+                <input
+                  type="checkbox"
+                  checked={modalities.includes(m.code)}
+                  onChange={() => toggle(m.code)}
+                  className="sr-only"
+                />
+                {m.label}
+              </label>
+            ))}
+          </div>
+        </fieldset>
+      )}
       <div className="flex gap-2 sm:col-span-2">
         <button
           disabled={save.isPending}

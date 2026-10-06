@@ -37,6 +37,8 @@
 | Médecin remplaçant | Proposé par le titulaire, accepté par le remplaçant (médecin vérifié) ; droits limités à la période et aux patients concernés |
 | Pharmacien | Rattachement à une officine par l'administration, après vérification |
 | Laboratoire d'analyses | Rattachement à un laboratoire par l'administration, après vérification ; ne voit que les prescriptions que les patients lui ont envoyées |
+| Aide à la prescription | Le contrôle (allergies, interactions, contre-indications, âge) est **une aide, jamais une autorisation** : le médecin reste seul responsable. Une alerte majeure arrête l'enregistrement tant qu'une justification écrite n'est pas donnée ; cette justification est conservée avec l'ordonnance et inscrite au journal. Le contrôle est refait côté serveur : il ne peut pas être contourné depuis le navigateur. Un médicament absent du catalogue est explicitement signalé comme non vérifié |
+| Export du dossier au format FHIR | Réservé au titulaire du compte (ses données et celles de ses proches), journalisé comme tout export ; aucune pièce jointe n'y figure (les fichiers restent chiffrés et se téléchargent séparément) |
 | Application → base PostgreSQL | Compte `fajma_app` sans droits d'administrateur PostgreSQL (vérifié : création de base ou de compte, exécution de commandes sur le serveur, lecture de ses fichiers refusées) ; connexion chiffrée exigée si la base est sur une autre machine ; aucune requête SQL écrite à la main (pas d'injection SQL) |
 | Administrateur | Accès donné par un super-administrateur (rubrique « Système », journalisé), avec un **rôle** : validations, support, finances, santé publique, communication ou super-administrateur. Chaque rôle n'ouvre que ses rubriques ; le serveur le vérifie deux fois (intergiciel sur toutes les adresses `/api/admin/…` et contrôle dans chaque vue) ; une adresse inconnue est réservée au super-administrateur. Un compte d'équipe sans rôle enregistré est super-administrateur (le fondateur). Personne ne modifie son propre accès |
 
@@ -138,7 +140,7 @@ exécuté par l'intégration continue.
 
 ## 2.8 Tests de sécurité réalisés
 
-- **333 tests automatisés de l'API**, dont les tentatives d'accès interdites de la matrice § 2.4 (y compris
+- **389 tests automatisés de l'API**, dont les tentatives d'accès interdites de la matrice § 2.4 (y compris
   pour un remplaçant, une secrétaire, un médecin sans lien avec le patient), les manipulations de prix et de
   parts, les fichiers piégés, les doubles réservations, les webhooks non signés, les secrets USSD invalides, la
   réutilisation de session USSD par un autre numéro, les doubles notifications de paiement, le blocage des

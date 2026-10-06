@@ -1,4 +1,5 @@
 /** Espace médecin : fiche, agenda, disponibilités, motifs, comptes-rendus. */
+import type { Billing } from "./acts";
 import { api } from "./client";
 import type {
   AppointmentStatus,
@@ -170,15 +171,18 @@ export const saveConsultationRecord = ({
     patient_sex?: Sex | "";
     patient_weight_kg?: string;
     instructions?: string;
+    safety_override?: string;
     condition_code?: string;
     condition_status?: string;
     test_result?: string;
+    acts?: { code: string; quantity: number }[];
   };
 }) =>
   api.post<{
     ok: true;
     prescription_id: string | null;
     declaration: { condition: string; message: string } | null;
+    billing: Billing;
   }>(`/pro/appointments/${data.appointment_id}/record`, data);
 
 /** En-tête des ordonnances et certificats : identité professionnelle, signature et cachet. */

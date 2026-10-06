@@ -192,6 +192,40 @@ internet).
 - **Justificatifs du laboratoire** (§ 8.12) : tant qu'ils ne sont pas validés, le laboratoire n'est pas
   proposé aux patients.
 
+## 8.6 bis Sécurité de la prescription, imagerie, actes et export international
+
+**Contrôle de l'ordonnance (médecin).** Pendant la rédaction, chaque médicament est confronté au dossier du
+patient : allergie déclarée (au médicament ou à sa famille, avec les allergies croisées pénicillines –
+céphalosporines), interaction avec un traitement en cours (lu dans le profil de santé **et** dans les
+ordonnances encore valables) ou avec un autre médicament de la même ordonnance, contre-indication liée à
+l'état du patient (grossesse — reconstituée depuis le carnet de santé —, allaitement, asthme, maladie rénale,
+insuffisance cardiaque, hypertension, diabète, épilepsie, drépanocytose, **déficit en G6PD**, ulcère, maladie
+du foie, trouble de la coagulation, glaucome), limite d'âge (aspirine avant 16 ans, cyclines avant 8 ans,
+codéine et tramadol avant 12 ans…) et prudence après 75 ans. Trois niveaux : alerte majeure, précaution,
+information. Une alerte majeure **arrête l'enregistrement** tant que le médecin n'a pas écrit pourquoi il
+maintient sa prescription ; la justification est conservée et journalisée. Catalogue : environ 100 médicaments
+de la liste nationale (dénominations communes et noms commerciaux courants), reconnus même écrits avec une
+faute d'accent ou sous leur nom de marque.
+
+**Imagerie médicale.** Même circuit que les analyses : le médecin prescrit (type d'examen, examens courants
+proposés, préparation remplie automatiquement, produit de contraste), le patient choisit son centre — seuls
+ceux qui réalisent l'examen demandé lui sont proposés —, le centre dépose les résultats dans le dossier.
+Alertes propres à l'imagerie : **grossesse et rayons X**, **appareil implanté et IRM** (pacemaker, valve,
+éclat métallique), **produit de contraste** chez un patient sous metformine, insuffisant rénal ou allergique
+à l'iode. Un établissement déclare lui-même ce qu'il fait : analyses, imagerie, ou les deux.
+
+**Actes et feuille de soins.** Le médecin code les actes réalisés selon la nomenclature des lettres-clés
+(C, CS, K, B, Z, SF, AMI, D…) : le tarif de base est la valeur de la lettre multipliée par le coefficient.
+Son prix reste libre ; les actes donnent la **base opposable** à l'organisme. Le patient télécharge une
+**feuille de soins** (même en-tête et même bas de page que l'ordonnance) indiquant les actes cotés, la base
+de remboursement, la somme payée, un éventuel dépassement non remboursable, la part de l'organisme et son
+reste à charge. Les valeurs des lettres-clés se modifient dans « Administration > Système » ; un acte déjà
+facturé garde son montant.
+
+**Export au format international.** Dans son dossier, le patient télécharge « Format international (FHIR) » :
+son dossier complet en HL7 FHIR R4, avec les codes reconnus partout (CIM-10 pour les diagnostics, LOINC pour
+les mesures). Il peut le remettre à un hôpital ou à une autre application sans ressaisie.
+
 ## 8.7 Administration Fajma
 
 - **Menu par rubriques** (à gauche ; en haut sur téléphone), avec le nombre de choses en attente : tableau de

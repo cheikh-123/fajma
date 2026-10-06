@@ -60,11 +60,13 @@ export function ConditionPicker({
   const field = "rounded-lg border border-sunu-line bg-sunu-card px-2 py-1.5 text-sm";
 
   return (
-    <fieldset className="grid gap-2 rounded-xl border border-sunu-line p-3">
+    <fieldset className="grid min-w-0 gap-2 rounded-xl border border-sunu-line p-3">
       <legend className="px-1 text-xs font-semibold text-sunu-ink/60">
         Diagnostic principal (veille sanitaire, facultatif)
       </legend>
-      <div className="flex flex-wrap gap-2">
+      {/* min-w-0 : sans lui, la liste des maladies (libellés longs) impose sa largeur et fait
+          déborder la page sur un téléphone. */}
+      <div className="flex min-w-0 flex-wrap gap-2">
         <label className="flex min-w-0 flex-1 items-center gap-1.5 rounded-lg border border-sunu-line px-2">
           <Search className="size-3.5 text-sunu-ink/40" />
           <input
@@ -85,7 +87,7 @@ export function ConditionPicker({
             })
           }
           aria-label="Diagnostic principal"
-          className={`${field} min-w-0 flex-1`}
+          className={`${field} w-full min-w-0 flex-1`}
         >
           <option value="">— Aucun —</option>
           {groups.map(([group, items]) => (

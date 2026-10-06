@@ -17,7 +17,7 @@ SECTION_BY_PREFIX = {
     "support": "support", "users": "support", "reviews": "support", "sms": "support",
     "epidemio": "sante", "declarations": "sante",
     "partners": "communication", "campaigns": "communication", "announcements": "communication",
-    "settings": "systeme", "staff": "systeme", "audit": "systeme",
+    "settings": "systeme", "act-letters": "systeme", "staff": "systeme", "audit": "systeme",
 }
 ROLE_SECTIONS = {
     "superadmin": {"pilotage", "validation", "finance", "support", "sante", "communication", "systeme"},

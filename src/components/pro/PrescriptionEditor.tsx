@@ -4,42 +4,13 @@
  * Rappelle les allergies et traitements en cours déclarés par le patient.
  */
 import { useQuery } from "@tanstack/react-query";
+import { useEffect, useMemo, useState } from "react";
 import { AlertTriangle, Plus, Trash2 } from "lucide-react";
 import { getPatientFile } from "@/api/doctor";
+import { checkPrescription, getMedicines, type SafetyResult } from "@/api/safety";
+import { SafetyAlerts } from "@/components/pro/SafetyAlerts";
 import type { DoctorAppointment, PrescriptionItem, Sex } from "@/api/types";
 import { emptyItem, type PrescriptionDraft } from "@/lib/prescription-draft";
-
-// Médicaments courants (DCI) proposés pendant la saisie ; le médecin peut écrire n'importe quel nom.
-const COMMON_DRUGS = [
-  "Paracétamol",
-  "Ibuprofène",
-  "Diclofénac",
-  "Amoxicilline",
-  "Amoxicilline + acide clavulanique",
-  "Azithromycine",
-  "Ciprofloxacine",
-  "Doxycycline",
-  "Cotrimoxazole",
-  "Métronidazole",
-  "Artéméther + luméfantrine",
-  "Artésunate + amodiaquine",
-  "Quinine",
-  "Albendazole",
-  "Mébendazole",
-  "Sels de réhydratation orale (SRO)",
-  "Zinc",
-  "Fer + acide folique",
-  "Oméprazole",
-  "Cétirizine",
-  "Salbutamol",
-  "Prednisolone",
-  "Metformine",
-  "Glibenclamide",
-  "Amlodipine",
-  "Hydrochlorothiazide",
-  "Losartan",
-  "Nifédipine",
-];
 
 const box = "rounded-lg border border-sunu-line bg-sunu-card px-2.5 py-1.5 text-sm";
 
@@ -60,12 +31,49 @@ export function PrescriptionEditor({
     staleTime: 60_000,
   });
   const hp = file?.health_profile;
+  // Catalogue national : saisie assistée (DCI et noms commerciaux) et reconnaissance par le contrôle.
+  const { data: medicines } = useQuery({
+    queryKey: ["medicines"],
+    queryFn: getMedicines,
+    staleTime: Infinity,
+  });
+  const suggestions = useMemo(
+    () =>
+      (medicines ?? [])
+        .flatMap((m) => [m.dci, ...m.brands])
+        .sort((a, b) => a.localeCompare(b, "fr")),
+    [medicines],
+  );
+  // Contrôle de sécurité : relancé peu après la dernière frappe, jamais à chaque caractère.
+  const [safety, setSafety] = useState<SafetyResult | null>(null);
+  const [checking, setChecking] = useState(false);
+  const filled = value.items.filter((it) => it.name.trim());
+  const signature = JSON.stringify(filled.map((it) => it.name.trim().toLowerCase()));
+  useEffect(() => {
+    if (!appt.patient_id || filled.length === 0) {
+      setSafety(null);
+      return;
+    }
+    let cancelled = false;
+    setChecking(true);
+    const timer = setTimeout(() => {
+      checkPrescription(appt.id, filled)
+        .then((r) => !cancelled && setSafety(r))
+        .catch(() => !cancelled && setSafety(null))
+        .finally(() => !cancelled && setChecking(false));
+    }, 600);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [signature, appt.id, appt.patient_id]);
   const set = (patch: Partial<PrescriptionDraft>) => onChange({ ...value, ...patch });
   const setItem = (i: number, patch: Partial<PrescriptionItem>) =>
     set({ items: value.items.map((it, j) => (j === i ? { ...it, ...patch } : it)) });
 
   return (
-    <div className="rounded-xl border border-sunu-line p-3">
+    <div className="min-w-0 rounded-xl border border-sunu-line p-3">
       <p className="text-xs font-bold uppercase tracking-wider text-sunu-green">
         Ordonnance{" "}
         <span className="font-normal normal-case text-sunu-ink/50">
@@ -91,7 +99,7 @@ export function PrescriptionEditor({
         </div>
       )}
 
-      <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
+      <div className="mt-3 grid min-w-0 grid-cols-2 gap-2 sm:grid-cols-3">
         <label className="text-[11px] font-semibold text-sunu-ink/60">
           Date de naissance
           <input
@@ -127,7 +135,7 @@ export function PrescriptionEditor({
       </div>
 
       <datalist id="common-drugs">
-        {COMMON_DRUGS.map((d) => (
+        {suggestions.map((d) => (
           <option key={d} value={d} />
         ))}
       </datalist>
@@ -196,6 +204,12 @@ export function PrescriptionEditor({
           </li>
         ))}
       </ol>
+      <SafetyAlerts
+        result={safety}
+        checking={checking}
+        override={value.safety_override}
+        onOverride={(v) => set({ safety_override: v })}
+      />
       <button
         type="button"
         onClick={() => set({ items: [...value.items, emptyItem()] })}
@@ -204,7 +218,7 @@ export function PrescriptionEditor({
         <Plus className="size-3.5" /> Ajouter un médicament
       </button>
 
-      <div className="mt-3 grid gap-2 sm:grid-cols-2">
+      <div className="mt-3 grid min-w-0 gap-2 sm:grid-cols-2">
         <label className="text-[11px] font-semibold text-sunu-ink/60">
           Renouvellement
           <select

@@ -63,6 +63,7 @@ function GuidePage() {
           <ThemeToggle className="ml-auto" />
           <Link
             to="/aide"
+            aria-label="Contacter l'équipe Fajma"
             className="flex items-center gap-1.5 text-sm font-medium text-sunu-ink/60 hover:text-sunu-green"
           >
             <LifeBuoy className="size-4" />{" "}

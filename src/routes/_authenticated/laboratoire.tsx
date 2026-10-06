@@ -16,7 +16,10 @@ import { ageAt } from "@/lib/prescription-text";
 
 export const Route = createFileRoute("/_authenticated/laboratoire")({
   head: () => ({
-    meta: [{ title: "Espace laboratoire — Fajma" }, { name: "robots", content: "noindex" }],
+    meta: [
+      { title: "Espace laboratoire et imagerie — Fajma" },
+      { name: "robots", content: "noindex" },
+    ],
   }),
   component: LabPage,
 });
@@ -40,10 +43,10 @@ function LabPage() {
       <div className="mx-auto max-w-lg px-6 py-16 text-center">
         <FlaskConical className="mx-auto size-10 text-sunu-ink/30" />
         <h1 className="mt-4 text-xl font-bold text-sunu-dark">
-          Espace réservé aux laboratoires partenaires
+          Espace réservé aux laboratoires et centres d'imagerie partenaires
         </h1>
         <p className="mt-2 text-sm text-sunu-ink/60">
-          Votre compte n'est pas encore rattaché à un laboratoire. Contactez l'équipe Fajma pour
+          Votre compte n'est pas encore rattaché à un établissement. Contactez l'équipe Fajma pour
           être vérifié.
         </p>
         <Link to="/" className="mt-6 inline-block text-sm font-semibold text-sunu-green">
@@ -79,7 +82,7 @@ function LabPage() {
       </header>
       <main className="mx-auto max-w-7xl px-6 py-8">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <h1 className="text-2xl font-bold text-sunu-dark">Demandes d'analyses</h1>
+          <h1 className="text-2xl font-bold text-sunu-dark">Demandes d'examens</h1>
           <input
             value={q}
             onChange={(e) => setQ(e.target.value)}
@@ -186,6 +189,12 @@ function OrderCard({ order }: { order: LabOrder }) {
       <p className="mt-2 whitespace-pre-wrap rounded-lg bg-sunu-surface px-2.5 py-2 font-medium text-sunu-dark">
         {order.tests}
       </p>
+      {order.modality_label && (
+        <p className="mt-1 text-[11px] font-bold uppercase tracking-wider text-sunu-green">
+          {order.modality_label}
+          {order.contrast ? " · avec produit de contraste" : ""}
+        </p>
+      )}
       {order.instructions && <p className="mt-1 text-xs text-sunu-ink/60">{order.instructions}</p>}
       <p className="mt-1 text-[11px] text-sunu-ink/50">
         Prescrit par {order.doctor.full_name} le {formatDate(order.created_at)}

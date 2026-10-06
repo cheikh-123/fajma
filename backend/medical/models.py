@@ -72,6 +72,8 @@ class Prescription(BaseModel):
     patient_info = models.JSONField(default=dict, blank=True)  # {name, birth_date, sex, weight_kg}
     issuer = models.JSONField(default=dict, blank=True)  # voir medical.issuer.issuer_snapshot
     renewal_reminded_at = models.DateTimeField(null=True, blank=True)  # rappel « demandez le renouvellement »
+    # Contrôle de sécurité (medical/safety.py) : {alerts, major, moderate, info, override_reason, checked_at}.
+    safety = models.JSONField(default=dict, blank=True)
 
     class Meta:
         ordering = ["-created_at"]

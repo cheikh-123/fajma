@@ -47,7 +47,8 @@ export function LabsAdmin() {
     <section className="rounded-xl border border-sunu-line bg-sunu-card p-5">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h2 className="flex items-center gap-2 font-bold text-sunu-dark">
-          <FlaskConical className="size-5 text-sunu-green" /> Laboratoires ({data?.length ?? 0})
+          <FlaskConical className="size-5 text-sunu-green" /> Laboratoires et centres d'imagerie (
+          {data?.length ?? 0})
         </h2>
         <button
           onClick={() => setAdding((v) => !v)}
@@ -124,7 +125,13 @@ export function LabsAdmin() {
         {(data ?? []).map((lab) => (
           <div key={lab.id} className="py-3 text-sm">
             <p className="flex items-center justify-between gap-2 font-semibold text-sunu-dark">
-              {lab.name}
+              <span>
+                {lab.name}
+                <span className="ml-2 text-xs font-normal text-sunu-ink/55">
+                  {lab.kind_label}
+                  {lab.modality_labels.length ? ` : ${lab.modality_labels.join(", ")}` : ""}
+                </span>
+              </span>
               <button
                 onClick={() => setEditing(editing === lab.id ? null : lab.id)}
                 aria-label={`Modifier ${lab.name}`}

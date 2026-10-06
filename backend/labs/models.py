@@ -7,7 +7,14 @@ from sunusante.models import BaseModel
 
 
 class Laboratory(BaseModel):
+    """Plateau technique : laboratoire d'analyses, centre d'imagerie, ou les deux."""
+
+    KINDS = [("analyses", "Analyses médicales"), ("imagerie", "Imagerie médicale"), ("both", "Analyses et imagerie")]
+
     name = models.CharField(max_length=160)
+    kind = models.CharField(max_length=10, choices=KINDS, default="analyses")
+    # Examens d'imagerie réalisés (codes de labs/imaging.py) ; vide pour un laboratoire d'analyses seul.
+    modalities = models.JSONField(default=list, blank=True)
     city = models.CharField(max_length=80)
     district = models.CharField(max_length=80, blank=True)
     address = models.CharField(max_length=200)
@@ -52,7 +59,13 @@ class LabOrder(BaseModel):
         ("cancelled", "Annulée"),
     ]
 
+    KINDS = [("analyses", "Analyses"), ("imagerie", "Imagerie")]
+
     reference = models.CharField(max_length=16, unique=True, default=new_lab_reference)
+    kind = models.CharField(max_length=10, choices=KINDS, default="analyses", db_index=True)
+    # Imagerie seulement : type d'examen (labs/imaging.py) et injection d'un produit de contraste.
+    modality = models.CharField(max_length=14, blank=True)
+    contrast = models.BooleanField(default=False)
     appointment = models.ForeignKey("appointments.Appointment", null=True, blank=True, on_delete=models.SET_NULL, related_name="lab_orders")
     doctor = models.ForeignKey("directory.Doctor", on_delete=models.PROTECT, related_name="lab_orders")
     patient = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="lab_orders")

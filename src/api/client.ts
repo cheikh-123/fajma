@@ -8,6 +8,8 @@ export class ApiError extends Error {
   constructor(
     message: string,
     public status: number,
+    /** Corps complet de la réponse : certaines erreurs portent des détails (alertes d'une ordonnance). */
+    public data?: unknown,
   ) {
     super(message);
   }
@@ -111,7 +113,7 @@ async function request<T>(
       const back = window.location.pathname + window.location.search;
       window.location.assign(`/auth?expired=1&redirect=${encodeURIComponent(back)}`);
     }
-    throw new ApiError(message, res.status);
+    throw new ApiError(message, res.status, data);
   }
   return data as T;
 }

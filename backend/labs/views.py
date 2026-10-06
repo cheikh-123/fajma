@@ -13,9 +13,10 @@ from appointments.views import my_doctor
 from audit import log as audit
 from medical.models import DocumentShare, MedicalDocument
 from notifications.service import notify
-from sunusante.api import ApiError, body, forbidden, get_str, get_uuid, iso, not_found, require_user
+from sunusante.api import ApiError, body, forbidden, get_choice, get_str, get_uuid, iso, not_found, require_user
 from sunusante.uploads import decode_upload, store
 
+from . import imaging
 from .models import LabOrder, Laboratory, LaboratoryMember
 
 
@@ -28,6 +29,10 @@ def lab_dict(lab: Laboratory) -> dict:
         "address": lab.address,
         "phone": lab.phone or None,
         "opening_hours": lab.opening_hours or None,
+        "kind": lab.kind,
+        "kind_label": lab.get_kind_display(),
+        "modalities": list(lab.modalities or []),
+        "modality_labels": [imaging.label(m) for m in (lab.modalities or [])],
         "latitude": lab.latitude,
         "longitude": lab.longitude,
     }
@@ -39,6 +44,11 @@ def order_dict(o: LabOrder, *, for_lab: bool = False) -> dict:
         "id": str(o.id),
         "reference": o.reference,
         "tests": o.tests,
+        "kind": o.kind,
+        "kind_label": o.get_kind_display(),
+        "modality": o.modality or None,
+        "modality_label": imaging.label(o.modality) if o.modality else None,
+        "contrast": o.contrast,
         "instructions": o.instructions or None,
         "urgent": o.urgent,
         "status": o.status,
@@ -75,7 +85,11 @@ def _orders():
 
 @api_view(["POST"])
 def prescribe(request, appointment_id):
-    """{tests, instructions?, urgent?} : prescription d'analyses lors d'une consultation."""
+    """
+    {tests, instructions?, urgent?, kind?, modality?, contrast?} : prescription d'analyses ou d'imagerie.
+    Les alertes propres à l'imagerie (grossesse et rayons X, appareil implanté et IRM, produit de
+    contraste chez un patient sous metformine ou insuffisant rénal) sont renvoyées au médecin.
+    """
     doctor = my_doctor(require_user(request))
     appt = (
         Appointment.objects.filter(Q(doctor=doctor) | Q(practitioner=doctor), id=appointment_id, status__in=("confirmed", "completed"))
@@ -86,6 +100,11 @@ def prescribe(request, appointment_id):
     if not appt:
         raise not_found("Rendez-vous introuvable (confirmé ou terminé, avec un patient inscrit)")
     data = body(request)
+    kind = get_choice(data, "kind", {"analyses", "imagerie"}, default="analyses")
+    modality = (get_str(data, "modality", max_len=14) or "") if kind == "imagerie" else ""
+    if kind == "imagerie" and modality not in imaging.CODES:
+        raise ApiError("Type d'examen d'imagerie inconnu")
+    contrast = bool(data.get("contrast")) and kind == "imagerie"
     order = LabOrder.objects.create(
         appointment=appt,
         doctor=doctor,
@@ -94,12 +113,22 @@ def prescribe(request, appointment_id):
         tests=get_str(data, "tests", required=True, min_len=3, max_len=2000),
         instructions=get_str(data, "instructions", max_len=300) or "",
         urgent=bool(data.get("urgent")),
+        kind=kind,
+        modality=modality,
+        contrast=contrast,
     )
-    audit.log(request, "record_written", patient=appt.patient, target=order, kind="analyses")
-    notify(appt.patient, kind="lab_order", title="Analyses prescrites",
-           body=f"{doctor.full_name} vous a prescrit des analyses. Choisissez votre laboratoire dans votre dossier.",
+    audit.log(request, "record_written", patient=appt.patient, target=order, kind=kind)
+    where = "votre centre d'imagerie" if kind == "imagerie" else "votre laboratoire"
+    notify(appt.patient, kind="lab_order",
+           title="Imagerie prescrite" if kind == "imagerie" else "Analyses prescrites",
+           body=f"{doctor.full_name} vous a prescrit un examen. Choisissez {where} dans votre dossier.",
            link="/dossier#analyses", sms=True)
-    return Response(order_dict(order))
+    result = order_dict(order)
+    if kind == "imagerie":
+        from medical.safety import check_imaging
+
+        result["safety"] = check_imaging(appt.patient, appt.relative, modality, contrast)
+    return Response(result)
 
 
 def orders_for_doctor(doctor, patient) -> list[dict]:
@@ -117,12 +146,27 @@ def my_lab_orders(request):
 
 @api_view(["GET"])
 def laboratories(request):
-    """Laboratoires partenaires (au moins un compte rattaché), filtrables par ville."""
+    """
+    Plateaux techniques partenaires (au moins un compte rattaché), filtrables par ville.
+    ?kind=imagerie&modality=scanner : seulement les centres qui réalisent cet examen.
+    """
     require_user(request)
     qs = Laboratory.objects.filter(members__isnull=False, is_verified=True).distinct()
     if city := (request.query_params.get("city") or "").strip():
         qs = qs.filter(city__icontains=city)
-    return Response([lab_dict(lab) for lab in qs[:200]])
+    asked = request.query_params.get("kind") or ""
+    modality = ""
+    if asked == "imagerie":
+        qs = qs.filter(kind__in=["imagerie", "both"])
+        modality = (request.query_params.get("modality") or "").strip()
+    elif asked == "analyses":
+        qs = qs.filter(kind__in=["analyses", "both"])
+    labs = list(qs[:200])
+    if modality:
+        # Filtré en Python : la recherche dans un champ JSON ne se comporte pas de la même façon sur
+        # SQLite et PostgreSQL, et la liste des examens d'un centre tient en quelques entrées.
+        labs = [lab for lab in labs if modality in (lab.modalities or [])]
+    return Response([lab_dict(lab) for lab in labs])
 
 
 @api_view(["POST"])
@@ -141,6 +185,13 @@ def send_to_lab(request, order_id):
     )
     if not lab:
         raise not_found("Laboratoire introuvable")
+    if order.kind == "imagerie":
+        if lab.kind not in ("imagerie", "both"):
+            raise ApiError("Ce centre ne fait pas d'imagerie médicale")
+        if order.modality and order.modality not in (lab.modalities or []):
+            raise ApiError(f"Ce centre ne réalise pas cet examen ({imaging.label(order.modality)})")
+    elif lab.kind == "imagerie":
+        raise ApiError("Ce centre ne fait pas d'analyses médicales")
     order.laboratory, order.status, order.sent_at = lab, "sent", timezone.now()
     order.save(update_fields=["laboratory", "status", "sent_at", "updated_at"])
     for m in lab.members.select_related("user"):
@@ -253,6 +304,15 @@ def _apply_lab_fields(lab: Laboratory, data: dict, *, admin: bool) -> None:
         lab.phone = get_str(data, "phone", max_len=30) or ""
     if "opening_hours" in data:
         lab.opening_hours = get_str(data, "opening_hours", max_len=160) or ""
+    if "kind" in data:
+        lab.kind = get_choice(data, "kind", {k for k, _ in Laboratory.KINDS}, default=lab.kind)
+    if "modalities" in data:
+        raw = data.get("modalities") or []
+        if not isinstance(raw, list) or any(m not in imaging.CODES for m in raw):
+            raise ApiError("Examens d'imagerie inconnus")
+        lab.modalities = [m.code for m in imaging.MODALITIES if m.code in raw]
+    if lab.kind == "analyses":
+        lab.modalities = []
     if (lab.city, lab.district, lab.address) != place_before:
         found = (localities.find(lab.district) if lab.district else None) or localities.find(lab.city)
         if found:
@@ -362,3 +422,10 @@ def cancel_order(request, order_id):
     order.save(update_fields=["status", "updated_at"])
     notify(order.patient, kind="lab_order", title="Analyses annulées", body=f"{doctor.full_name} a annulé la prescription {order.reference}.", link="/dossier#analyses")
     return Response(order_dict(order))
+
+
+@api_view(["GET"])
+def imaging_modalities(request):
+    """Types d'examens d'imagerie : saisie du médecin, et déclaration par un centre de ce qu'il réalise."""
+    require_user(request)
+    return Response({"modalities": imaging.catalog()})

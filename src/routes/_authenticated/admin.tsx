@@ -63,6 +63,7 @@ import { ReviewModeration } from "@/components/admin/ReviewModeration";
 import { SupportAdmin } from "@/components/admin/SupportAdmin";
 import { UsersAdmin } from "@/components/admin/UsersAdmin";
 import {
+  ActLettersAdmin,
   AnnouncementsAdmin,
   AuditLogAdmin,
   SettingsAdmin,
@@ -297,6 +298,7 @@ function AdminPage() {
           {current === "systeme" && (
             <>
               <SettingsAdmin />
+              <ActLettersAdmin />
               <StaffAdmin />
               <AuditLogAdmin />
             </>

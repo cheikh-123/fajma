@@ -21,9 +21,11 @@ class ApiError(exceptions.APIException):
     status_code = status.HTTP_400_BAD_REQUEST
     default_detail = "Requête invalide"
 
-    def __init__(self, message: str, code: int = status.HTTP_400_BAD_REQUEST):
+    def __init__(self, message: str, code: int = status.HTTP_400_BAD_REQUEST, **extra):
         super().__init__(message)
         self.status_code = code
+        # Données jointes à l'erreur (ex. alertes d'une ordonnance) : fusionnées dans la réponse.
+        self.extra = extra
 
 
 logger = logging.getLogger(__name__)
@@ -59,7 +61,7 @@ def exception_handler(exc: Exception, context: dict) -> Response | None:
     elif isinstance(exc, exceptions.Throttled):
         response.data = {"error": "Trop de requêtes, réessayez dans un instant."}
     elif isinstance(response.data, dict) and "detail" in response.data:
-        response.data = {"error": str(response.data["detail"])}
+        response.data = {"error": str(response.data["detail"]), **getattr(exc, "extra", {})}
     elif isinstance(response.data, (dict, list)):
         response.data = {"error": "Données invalides", "fields": response.data}
     return response

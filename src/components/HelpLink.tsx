@@ -11,6 +11,7 @@ export function HelpLink({ role = "patient" }: { role?: GuideRoleId }) {
     <Link
       to="/guide"
       search={{ role }}
+      aria-label="Aide et guide d'utilisation"
       className="flex items-center gap-1.5 text-sm font-medium text-sunu-ink/60 hover:text-sunu-green"
     >
       <LifeBuoy className="size-4" /> <span className="hidden sm:inline">Aide</span>

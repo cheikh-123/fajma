@@ -35,7 +35,8 @@ from econsult import views as econsult
 from community import views as community
 from partners import views as partners
 from medical import ai_notes
-from medical import emergency, record_export, renewals
+from medical import emergency, fhir, record_export, renewals
+from insurance import billing
 
 from . import analytics as core_analytics
 from . import activity_report
@@ -100,6 +101,7 @@ patient_urls = [
     path("health-profile", medical.my_health_profile),
     path("emergency-card", emergency.my_emergency_settings),
     path("medical-record", record_export.my_medical_record),
+    path("medical-record/fhir", fhir.my_record_fhir),
     path("renewals", renewals.my_renewals),
     path("renewals/<uuid:renewal_id>/cancel", renewals.cancel_renewal),
     path("access-log", audit.my_access_log),
@@ -131,6 +133,7 @@ pro_urls = [
     path("appointments", appointments.doctor_appointments),
     path("appointments/<uuid:appointment_id>/status", appointments.doctor_update_status),
     path("appointments/<uuid:appointment_id>/record", medical.save_consultation_record),
+    path("appointments/<uuid:appointment_id>/prescription-check", medical.check_prescription),
     path("appointments/<uuid:appointment_id>/ai-draft", ai_notes.draft_record),
     path("appointments/<uuid:appointment_id>/arrived", appointments.doctor_mark_arrived),
     path("appointments/<uuid:appointment_id>/history", appointments.doctor_appointment_history),
@@ -276,6 +279,7 @@ admin_urls = [
     path("doctors/<uuid:doctor_id>/overview", backoffice.doctor_overview),
     path("announcements", backoffice.announcements),
     path("settings", backoffice.platform_settings),
+    path("act-letters", billing.admin_act_letters),
     path("staff", backoffice.staff),
     path("me", backoffice.my_admin_access),
 ]
@@ -350,6 +354,10 @@ urlpatterns = [
     path("api/campaigns/<uuid:campaign_id>/image", partners.campaign_image),
     # Diagnostic codé (veille épidémiologique) et déclarations des maladies à déclaration immédiate
     path("api/pro/conditions", core_epidemio.conditions_catalog),
+    path("api/pro/medicines", medical.medicines_catalog),
+    path("api/pro/acts", billing.acts_catalog),
+    path("api/appointments/<uuid:appointment_id>/care-sheet", billing.care_sheet),
+    path("api/imaging/modalities", labs.imaging_modalities),
     path("api/pro/declarations", core_epidemio.my_declarations),
     path("api/pro/declarations/<uuid:notification_id>", core_epidemio.mark_declared),
     # Relais communautaires (personnes suivies sans téléphone ni internet)

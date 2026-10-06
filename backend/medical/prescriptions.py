@@ -15,11 +15,13 @@ from sunusante.api import ApiError, get_int, get_str, iso
 
 from .issuer import issuer_public, issuer_snapshot, missing_mentions, require_started
 from .models import Prescription
+from .safety import check, patient_state, summary
 
 MAX_ITEMS = 15
 VALIDITY_MONTHS = {1, 3, 6, 12}
 DEFAULT_VALIDITY_MONTHS = 3
 MAX_RENEWALS = 11
+MIN_OVERRIDE_REASON = 10  # longueur minimale de la justification d'une alerte majeure
 
 
 def _item(raw) -> dict:
@@ -93,6 +95,7 @@ def create_prescription(appt, doctor, data: dict) -> Prescription | None:
             "Avant de délivrer une ordonnance, complétez dans « Ordonnances : en-tête et signature » : " + ", ".join(missing) + "."
         )
     items = [_item(raw) for raw in raw_items]
+    safety = run_safety(appt.patient, appt.relative, items, get_str(data, "safety_override", max_len=500) or "")
     months = get_int(data, "validity_months", default=DEFAULT_VALIDITY_MONTHS)
     if months not in VALIDITY_MONTHS:
         raise ApiError("Durée de validité invalide")
@@ -119,7 +122,30 @@ def create_prescription(appt, doctor, data: dict) -> Prescription | None:
             "weight_kg": _weight(data),
         },
         issuer=issuer_snapshot(doctor, appt),
+        safety=safety,
     )
+
+
+
+def run_safety(patient, relative, items: list[dict], override: str) -> dict:
+    """
+    Contrôle de sécurité avant d'enregistrer. Une alerte majeure non justifiée arrête l'enregistrement et
+    renvoie les alertes au médecin ; justifiée, elle est conservée avec l'ordonnance.
+    """
+    if not items:
+        return {}
+    from django.utils import timezone
+
+    result = summary(check(items, patient_state(patient, relative)))
+    override = (override or "").strip()
+    if result["blocking"] and len(override) < MIN_OVERRIDE_REASON:
+        raise ApiError(
+            "Cette ordonnance comporte une alerte majeure. Vérifiez-la ; pour la maintenir, indiquez pourquoi.",
+            safety=result,
+        )
+    result["override_reason"] = override if result["blocking"] else ""
+    result["checked_at"] = iso(timezone.now())
+    return result
 
 
 def prescription_dict(p: Prescription) -> dict:
@@ -153,4 +179,5 @@ def prescription_dict(p: Prescription) -> dict:
             "account_holder": p.patient.full_name if p.relative_id else None,
         },
         "verify_url": f"{settings.PUBLIC_SITE_URL}/verifier/{p.reference}",
+        "safety_notice": bool((p.safety or {}).get("override_reason")),
     }

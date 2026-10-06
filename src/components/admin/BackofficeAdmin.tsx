@@ -1,7 +1,7 @@
 /** Annonces groupées, réglages de la plateforme, équipe et rôles, journal d'audit filtrable. */
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { Download, Megaphone, Send, Settings, Users, ScrollText } from "lucide-react";
+import { Coins, Download, Megaphone, Send, Settings, Users, ScrollText } from "lucide-react";
 import { toast } from "sonner";
 import {
   getAuditLog,
@@ -14,6 +14,7 @@ import {
   setStaff,
   type AuditFilters,
 } from "@/api/backoffice";
+import { getActLetters, saveActLetters } from "@/api/acts";
 import { formatDateTime } from "@/lib/datetime";
 
 const input =
@@ -449,6 +450,61 @@ export function AuditLogAdmin() {
           </button>
         </div>
       )}
+    </Card>
+  );
+}
+
+/** Valeur des lettres-clés de la nomenclature : change quand une nouvelle convention est signée. */
+export function ActLettersAdmin() {
+  const qc = useQueryClient();
+  const { data } = useQuery({ queryKey: ["act-letters"], queryFn: getActLetters });
+  const [draft, setDraft] = useState<Record<string, string>>({});
+  const save = useMutation({
+    mutationFn: () =>
+      saveActLetters(
+        Object.fromEntries(Object.entries(draft).map(([k, v]) => [k, Number(v)])) as Record<
+          string,
+          number
+        >,
+      ),
+    onSuccess: (res) => {
+      toast.success("Tarifs enregistrés : les actes déjà facturés ne changent pas");
+      setDraft({});
+      qc.setQueryData(["act-letters"], res);
+      qc.invalidateQueries({ queryKey: ["acts-catalog"] });
+    },
+    onError: (e) => toast.error(e.message),
+  });
+  return (
+    <Card icon={Coins} title="Tarifs conventionnels (lettres-clés)">
+      <p className="text-sm text-sunu-ink/60">
+        Base de remboursement des actes, convenue avec les organismes (IPM, mutuelles, CMU). Un acte
+        déjà facturé garde son montant : seuls les actes suivants utilisent la nouvelle valeur.
+      </p>
+      <div className="mt-3 grid gap-3 sm:grid-cols-2">
+        {(data?.letters ?? []).map((l) => (
+          <label key={l.code} className="text-sm">
+            <span className="font-semibold text-sunu-dark">{l.code}</span> — {l.label}
+            <input
+              type="number"
+              min={10}
+              value={draft[l.code] ?? String(l.value)}
+              onChange={(e) => setDraft({ ...draft, [l.code]: e.target.value })}
+              className={input}
+            />
+            {l.value !== l.default && (
+              <span className="text-xs text-sunu-ink/45">Valeur d'origine : {l.default} F</span>
+            )}
+          </label>
+        ))}
+      </div>
+      <button
+        disabled={save.isPending || Object.keys(draft).length === 0}
+        onClick={() => save.mutate()}
+        className="mt-4 rounded-lg bg-sunu-green px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+      >
+        Enregistrer
+      </button>
     </Card>
   );
 }

@@ -85,6 +85,7 @@ import { MoveAppointmentForm } from "@/components/MoveAppointmentForm";
 import { SecretariatPanel } from "@/components/pro/SecretariatPanel";
 import { PrescriptionHeaderPanel } from "@/components/pro/PrescriptionHeaderPanel";
 import { PrescriptionEditor } from "@/components/pro/PrescriptionEditor";
+import { ActsPicker, type ActChoice } from "@/components/pro/ActsPicker";
 import { filledItems, newDraft } from "@/lib/prescription-draft";
 import { SecuritySection } from "@/components/SecuritySection";
 import { markCashPaid } from "@/api/payments";
@@ -228,6 +229,7 @@ function ProPage() {
             <NotificationBell />
             <button
               onClick={signOut}
+              aria-label="Se déconnecter"
               className="flex items-center gap-1.5 text-sm font-medium text-sunu-ink/60 hover:text-sunu-green"
             >
               <LogOut className="size-4" /> <span className="hidden sm:inline">Déconnexion</span>
@@ -787,6 +789,7 @@ function DoctorApptCard({
   const [record, setRecord] = useState({ summary: "", diagnosis: "", treatment: "" });
   const [condition, setCondition] = useState<ConditionValue>(emptyCondition);
   const [rx, setRx] = useState(() => newDraft(appt));
+  const [acts, setActs] = useState<ActChoice[]>([]);
   const navigate = useNavigate();
   const saveRecord = useMutation({
     mutationFn: () => {
@@ -796,6 +799,7 @@ function DoctorApptCard({
           appointment_id: appt.id,
           ...record,
           ...condition,
+          ...(acts.length ? { acts } : {}),
           ...(items.length ? { ...rx, items } : {}),
         },
       });
@@ -804,6 +808,7 @@ function DoctorApptCard({
       setOpenRecord(false);
       setRx(newDraft(appt));
       setCondition(emptyCondition);
+      setActs([]);
       if (res.declaration) toast.warning(res.declaration.message, { duration: 20000 });
       qc.invalidateQueries({ queryKey: ["doctor-appointments"] });
       const prescriptionId = res.prescription_id;
@@ -828,7 +833,7 @@ function DoctorApptCard({
   return (
     <div
       id={`rdv-${appt.id}`}
-      className="flex scroll-mt-24 flex-col gap-3 rounded-2xl border border-sunu-line bg-sunu-card p-5 md:flex-row md:flex-wrap md:items-center"
+      className="flex min-w-0 scroll-mt-24 flex-col gap-3 rounded-2xl border border-sunu-line bg-sunu-card p-5 md:flex-row md:flex-wrap md:items-center"
     >
       <div className="grid size-14 shrink-0 place-items-center rounded-xl bg-sunu-green-soft text-sunu-green">
         <div className="text-center">
@@ -960,16 +965,17 @@ function DoctorApptCard({
             )}
           </details>
         )}
-        {appt.patient_id &&
-          canWrite &&
-          (appt.status === "confirmed" || appt.status === "completed") && (
-            <>
-              <VaccineAction appointmentId={appt.id} />
-              <IssueDocumentAction appointmentId={appt.id} />
-              <LabOrderAction appointmentId={appt.id} />
-            </>
-          )}
       </div>
+      {/* Pleine largeur de la carte : ces actions ouvrent des formulaires qui ont besoin de place. */}
+      {appt.patient_id &&
+        canWrite &&
+        (appt.status === "confirmed" || appt.status === "completed") && (
+          <div className="flex w-full min-w-0 basis-full flex-wrap items-center gap-x-4">
+            <VaccineAction appointmentId={appt.id} />
+            <IssueDocumentAction appointmentId={appt.id} />
+            <LabOrderAction appointmentId={appt.id} />
+          </div>
+        )}
       {(onConfirm || onCancel || onDone) &&
         (appt.status === "pending" || appt.status === "confirmed") && (
           <div className="flex flex-wrap gap-2">
@@ -1103,10 +1109,10 @@ function DoctorApptCard({
       )}
       {openRepeat && <RepeatForm appt={appt} onDone={() => setOpenRepeat(false)} />}
       {openRecord && (
-        <div className="w-full border-t border-sunu-line pt-4 md:basis-full">
+        <div className="w-full min-w-0 border-t border-sunu-line pt-4 md:basis-full">
           <AiNotesAssistant appointmentId={appt.id} current={record} onDraft={setRecord} />
-          <div className="grid gap-3 sm:grid-cols-2">
-            <label className="grid gap-1 text-xs font-semibold text-sunu-ink/60">
+          <div className="grid min-w-0 gap-3 sm:grid-cols-2">
+            <label className="grid min-w-0 gap-1 text-xs font-semibold text-sunu-ink/60">
               Résumé de la consultation *
               <textarea
                 required
@@ -1135,6 +1141,9 @@ function DoctorApptCard({
                 className="min-h-24 rounded-lg border border-sunu-line p-3 text-sm"
               />
             </label>
+          </div>
+          <div className="mt-3">
+            <ActsPicker value={acts} onChange={setActs} />
           </div>
           <div className="mt-3">
             <MissingMentions compact />
@@ -1183,7 +1192,7 @@ function RepeatForm({ appt, onDone }: { appt: Appt; onDone: () => void }) {
     onError: (e) => toast.error(e.message),
   });
   return (
-    <div className="w-full border-t border-sunu-line pt-4 md:basis-full">
+    <div className="w-full min-w-0 border-t border-sunu-line pt-4 md:basis-full">
       <p className="text-xs text-sunu-ink/60">
         {appt.series
           ? `Ajouter des séances à la suite de la série (${appt.series.total} séance(s) prévues), même horaire et même motif.`

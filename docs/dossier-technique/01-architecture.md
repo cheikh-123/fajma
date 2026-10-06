@@ -51,6 +51,12 @@ d'être écrits sur le disque (clé conservée hors des sauvegardes).
 | `backend/labs/` | Laboratoires d'analyses : prescription, choix du laboratoire, prélèvement, dépôt des résultats |
 | `backend/support/` | Demandes d'aide envoyées depuis la page « Aide et contact », suivies par l'administration |
 | `backend/partners/` | Partenaires (page publique, logos) et campagnes sponsorisées : charte, validation, emplacements, ciblage ville / langue, statistiques agrégées par jour |
+| `backend/medical/medicines.py` | Catalogue des médicaments (liste nationale des médicaments essentiels du Sénégal), familles d'allergie, interactions, contre-indications selon l'état du patient, limites d'âge. Fichier unique à faire valider par la Direction de la Pharmacie |
+| `backend/medical/safety.py` | Contrôle de sécurité d'une ordonnance et d'un examen d'imagerie : reconstitue l'état du patient (allergies, traitements en cours, maladies, grossesse, âge) et produit les alertes |
+| `backend/medical/fhir.py` | Export du dossier au format international **HL7 FHIR R4** (Patient, Encounter, Condition, MedicationRequest, Observation, DiagnosticReport, Immunization…) |
+| `backend/labs/imaging.py` | Types d'examens d'imagerie (radio, échographie, doppler, scanner, IRM, mammographie…), préparation et examens courants |
+| `backend/insurance/acts.py` | Nomenclature des actes professionnels : lettres-clés et coefficients ; le tarif de base est le produit des deux |
+| `backend/insurance/billing.py` | Codage des actes d'une consultation, calcul de la base de remboursement, feuille de soins, tarifs conventionnels |
 | `backend/backoffice/` | Outils de l'équipe : rôles des administrateurs (contrôle unique sur toutes les adresses `/api/admin/…`, `roles.py`), réglages modifiables sans technicien (liste fermée et validée, `settings_registry.py`), annonces groupées, recherche globale, fiche 360° du médecin, journal d'audit filtrable et exportable |
 | `backend/community/` | Relais communautaires : habilitation, personnes suivies (accord, repères), alertes, transfert générique du dossier d'un proche vers son propre compte |
 | `backend/econsult/` | Avis médical écrit : offre du médecin (prix, délai), demandes (symptômes, mesures, photos), réponse et ordonnance, délais dépassés remboursés ; chaque demande est un rendez-vous de mode « async » sans durée |
