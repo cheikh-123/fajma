@@ -321,6 +321,15 @@ AI = {
     ),
 }
 
+# Messages vocaux WhatsApp (wolof, français, anglais) : service de transcription compatible OpenAI.
+# Vide : la configuration AI_* ci-dessus est réutilisée (modèle qui écoute l'audio, ex. Gemini).
+SPEECH = {
+    "MODE": os.environ.get("SPEECH_MODE", "transcriptions"),  # transcriptions | chat
+    "API_URL": os.environ.get("SPEECH_API_URL", ""),
+    "API_KEY": os.environ.get("SPEECH_API_KEY", ""),
+    "MODEL": os.environ.get("SPEECH_MODEL", ""),
+}
+
 # Assistant de prise de notes des médecins : envoie le texte des notes (sans identité du patient) au
 # fournisseur d'IA ci-dessus. À désactiver (false) tant que ce transfert n'est pas autorisé ; une mise en
 # forme locale sans IA reste alors disponible.

@@ -145,7 +145,8 @@ class Flow:
 
     def book(self) -> Reply:
         doctors = Doctor.objects.filter(is_verified=True, availability__isnull=False).distinct()
-        spec_id = self.choose(
+        # Spécialité et ville devinées dans un message libre (« un pédiatre à Thiès », message vocal) : sautées.
+        spec_id = self.memo.get("_spec") or self.choose(
             self.tr("specialty"),
             lambda: [
                 (str(s.id), s.name)
@@ -153,7 +154,10 @@ class Flow:
             ],
             key="spec",
         )
-        city = self.choose(
+        prefilled_city = self.memo.get("_city")
+        if prefilled_city and not doctors.filter(specialty_id=spec_id, city=prefilled_city).exists():
+            prefilled_city = None
+        city = prefilled_city or self.choose(
             self.tr("city"),
             lambda: [(c, c) for c in doctors.filter(specialty_id=spec_id).values_list("city", flat=True).distinct().order_by("city")],
             key="city",
@@ -255,7 +259,8 @@ class Flow:
         from queues.models import Facility, QueueService
 
         open_facilities = Facility.objects.filter(is_active=True, services__isnull=False).distinct()
-        city = self.choose(
+        prefilled = self.memo.get("_city")
+        city = prefilled if prefilled and open_facilities.filter(city=prefilled).exists() else self.choose(
             self.tr("city"),
             lambda: [(c, c) for c in open_facilities.values_list("city", flat=True).distinct().order_by("city")],
             key="qcity",

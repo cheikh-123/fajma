@@ -186,7 +186,7 @@ et déménagement des fichiers. Détail des mesures et des procédures : [chapit
 
 | Constat | Gravité | Correctif |
 |---|---|---|
-| **Les tests PostgreSQL de l'intégration continue échouaient depuis la première mise en ligne du code** (les étapes suivantes, contrôles de sécurité Django et failles des bibliothèques Python, ne tournaient donc jamais). Les versions précédentes de ce dossier affirmaient à tort que les tests passaient aussi sous PostgreSQL | **Bloquant** | Corrigé : 318 tests au vert sur PostgreSQL ; contrôles de sécurité Django et `pip-audit` exécutés (aucune faille, un avertissement volontaire : HSTS preload) ; nouvelle étape « migration manquante » |
+| **Les tests PostgreSQL de l'intégration continue échouaient depuis la première mise en ligne du code** (les étapes suivantes, contrôles de sécurité Django et failles des bibliothèques Python, ne tournaient donc jamais). Les versions précédentes de ce dossier affirmaient à tort que les tests passaient aussi sous PostgreSQL | **Bloquant** | Corrigé : 321 tests au vert sur PostgreSQL ; contrôles de sécurité Django et `pip-audit` exécutés (aucune faille, un avertissement volontaire : HSTS preload) ; nouvelle étape « migration manquante » |
 | Erreur PostgreSQL « verrou impossible sur une jointure facultative » : accepter ou refuser un remplacement et décider d'un renouvellement d'ordonnance auraient planté en production (invisible sous SQLite) | **Bloquant** | Verrous limités à la ligne concernée |
 | Suppression d'un compte ou d'une fiche médecin depuis la console technique : comptes-rendus, ordonnances, paiements, messages effacés en cascade | **Important** | Liens protégés (refus de la suppression), testé ; l'effacement légal reste l'anonymisation |
 | Secret de double authentification stocké en clair dans la base | **Important** | Chiffré (clé des fichiers, hors base et hors sauvegardes), secrets existants chiffrés par migration, testé |
@@ -202,7 +202,7 @@ et déménagement des fichiers. Détail des mesures et des procédures : [chapit
 
 ## 9.19 Vérifications après correction
 
-- 318 tests automatisés de l'API, tous au vert sur SQLite **et sur PostgreSQL 17** (vérifié en local ; l'intégration
+- 321 tests automatisés de l'API, tous au vert sur SQLite **et sur PostgreSQL 17** (vérifié en local ; l'intégration
   continue exécute les deux).
 - Typage TypeScript et analyse ESLint sans erreur ; 0 violation d'accessibilité WCAG AA sur les 9 pages contrôlées ;
   recette de l'interface de production : 0 problème sur 78 affichages (§ 9.17).

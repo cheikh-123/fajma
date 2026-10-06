@@ -137,7 +137,7 @@ exécuté par l'intégration continue.
 
 ## 2.8 Tests de sécurité réalisés
 
-- **318 tests automatisés de l'API**, dont les tentatives d'accès interdites de la matrice § 2.4 (y compris
+- **321 tests automatisés de l'API**, dont les tentatives d'accès interdites de la matrice § 2.4 (y compris
   pour un remplaçant, une secrétaire, un médecin sans lien avec le patient), les manipulations de prix et de
   parts, les fichiers piégés, les doubles réservations, les webhooks non signés, les secrets USSD invalides, la
   réutilisation de session USSD par un autre numéro, les doubles notifications de paiement, le blocage des

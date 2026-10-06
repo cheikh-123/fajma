@@ -8,6 +8,8 @@ TEXTS = {
     "fr": {
         "home": "Fajma - santé\n",
         "book": "Prendre rendez-vous",
+        "heard": "🎙️ J'ai compris : « {text} »\n\n",
+        "not_heard": "Désolé, je n'ai pas compris ce message vocal. Écrivez votre demande (ex. « pédiatre à Thiès ») ou « menu ».",
         "queue": "Ticket hôpital (file d'attente)",
         "q_menu": "Ticket hôpital :",
         "q_take": "Prendre un ticket",
@@ -62,6 +64,8 @@ TEXTS = {
     "wo": {
         "home": "Fajma - wér-gi-yaram\n",
         "book": "Jël ndaje",
+        "heard": "🎙️ Lii laa dégg : « {text} »\n\n",
+        "not_heard": "Baal ma, dégguma sa kàddu. Binddal li nga bëgg (misaal « doktoor xale ca Thiès ») walla « menu ».",
         "queue": "Tike opitaal (toog ngir xaar)",
         "q_menu": "Tike opitaal :",
         "q_take": "Jël tike",
@@ -116,6 +120,8 @@ TEXTS = {
     "en": {
         "home": "Fajma - health\n",
         "book": "Book an appointment",
+        "heard": "🎙️ I understood: \"{text}\"\n\n",
+        "not_heard": "Sorry, I could not understand this voice message. Type your request (e.g. \"pediatrician in Thies\") or \"menu\".",
         "queue": "Hospital ticket (queue)",
         "q_menu": "Hospital ticket:",
         "q_take": "Take a ticket",

@@ -173,3 +173,41 @@ class SeoTests(ApiTestCase):
         self.doctor.is_verified = False
         self.doctor.save()
         self.assertEqual(self.client.get(f"/seo/medecins/{self.doctor.id}").status_code, 404)
+
+
+@override_settings(TWILIO={"AUTH_TOKEN": TOKEN, "ACCOUNT_SID": "AC1", "SMS_FROM": "", "WHATSAPP_FROM": "", "STATUS_TOKEN": ""}, PUBLIC_SITE_URL=SITE)
+class FreeTextAndVoiceTests(ApiTestCase):
+    """Phrases libres et messages vocaux (wolof, français, anglais) : le menu reprend à la bonne étape."""
+
+    def say(self, text: str = "", phone: str = PHONE, **extra):
+        WhatsAppBotTests.sid += 1
+        params = {"From": f"whatsapp:{phone}", "Body": text, "MessageSid": f"SMV{WhatsAppBotTests.sid}", **extra}
+        res = self.client.post("/api/bots/whatsapp", params, HTTP_X_TWILIO_SIGNATURE=twilio_sign(f"{SITE}/api/bots/whatsapp", params))
+        return re.search(r"<Message>(.*)</Message>", res.content.decode(), re.S).group(1)
+
+    def test_understand(self):
+        from bots.understand import understand
+
+        self.assertEqual(understand("Sama doom dafa am yaram"), {"lang": "wo", "intent": "book", "specialty": "pediatrie"})
+        self.assertEqual(understand("je veux un pédiatre à Thiès", ["Dakar", "Thiès"])["city"], "Thiès")
+        self.assertEqual(understand("ticket pour l'hôpital de Fann")["intent"], "queue")
+        self.assertEqual(understand("quand est mon rendez-vous")["intent"], "mine")
+        self.assertEqual(understand("I need a dentist")["specialty"], "dentiste")
+        self.assertEqual(understand("Bonjour"), {})
+
+    def test_free_text_jumps_to_doctors(self):
+        out = self.say("Je cherche un médecin généraliste à Dakar")
+        self.assertIn("Dr Test", out)  # spécialité et ville sautées : liste des médecins directement
+
+    def test_voice_message_is_transcribed(self):
+        audio = {"NumMedia": "1", "MediaUrl0": "https://api.twilio.com/media/1", "MediaContentType0": "audio/ogg"}
+        with (
+            self.settings(SPEECH={"MODE": "transcriptions", "API_URL": "https://stt.example/v1/audio/transcriptions", "API_KEY": "k", "MODEL": "w"}),
+            __import__("unittest").mock.patch("bots.understand.fetch_twilio_media", return_value=(b"OggS", "audio/ogg")),
+            __import__("unittest").mock.patch("bots.understand.transcribe", return_value="Dama bëgg doktoor bu généraliste ca Dakar"),
+        ):
+            out = self.say("", **audio)
+        self.assertIn("Lii laa dégg", out)  # réponse en wolof, avec ce qui a été compris
+        self.assertIn("Dr Test", out)
+        with __import__("unittest").mock.patch("bots.understand.fetch_twilio_media", return_value=None):
+            self.assertIn("pas compris", self.say("", phone="+221770000077", **audio))

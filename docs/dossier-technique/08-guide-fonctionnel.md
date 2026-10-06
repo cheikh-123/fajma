@@ -383,3 +383,19 @@ consultations avec le crédit offert (choix « Crédit santé » au paiement).
   enregistré, part du médecin retirée).
 - Crédit restant après l'arrêt de l'entraide : remboursé au proche sur demande à l'équipe Fajma.
 - Chaque consultation du dossier par le proche est inscrite au journal d'audit, visible du patient.
+
+## 8.16 WhatsApp : phrases libres et messages vocaux
+
+- Au lieu de taper des numéros, la personne écrit ou **dit** ce qu'elle veut, en wolof, français ou anglais :
+  « Sama doom dafa am yaram » (mon enfant a de la fièvre), « je veux un pédiatre à Thiès », « ticket pour
+  l'hôpital », « quand est mon rendez-vous », « pharmacie de garde ».
+- Fajma reconnaît la demande (rendez-vous, ticket d'hôpital, mes rendez-vous, annulation, pharmacies), la
+  spécialité (y compris par les mots du quotidien : enfant, dents, yeux, cœur, grossesse…) et la ville, puis le
+  menu reprend directement à la bonne étape (par exemple la liste des pédiatres de Thiès). La réponse est en
+  wolof si la personne a parlé wolof.
+- Message vocal : transcrit, puis traité comme un message écrit ; Fajma répète ce qu'il a compris
+  (« J'ai compris : … ») pour que la personne corrige au besoin. Message incompris : invitation à écrire ou
+  à taper « menu ».
+- Transcription : service compatible OpenAI choisi par l'hébergeur (`SPEECH_MODE`, `SPEECH_API_URL`,
+  `SPEECH_API_KEY`, `SPEECH_MODEL` : Whisper, serveur auto-hébergé, modèle wolof) ; à défaut, le modèle de
+  l'assistant (`AI_*`). Le son n'est jamais conservé. Les mots-clés wolof sont à faire relire par un locuteur.
