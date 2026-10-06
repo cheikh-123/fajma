@@ -44,7 +44,7 @@ export function CampaignSlot({
   return (
     <aside
       aria-label="Contenu sponsorisé"
-      className={`flex items-center gap-4 rounded-2xl border border-sunu-line bg-sunu-card p-4 ${className}`}
+      className={`flex flex-wrap items-center gap-x-4 gap-y-3 rounded-2xl border border-sunu-line bg-sunu-card p-4 ${className}`}
     >
       {data.partner.logo_url ? (
         <img
@@ -57,7 +57,7 @@ export function CampaignSlot({
           <Megaphone className="size-5" />
         </span>
       )}
-      <div className="min-w-0 flex-1">
+      <div className="min-w-0 flex-1 basis-56">
         <p className="text-[10px] font-bold uppercase tracking-widest text-sunu-ink/45">
           Sponsorisé · {data.partner.name}
         </p>
@@ -66,7 +66,7 @@ export function CampaignSlot({
       </div>
       <button
         onClick={open}
-        className="shrink-0 rounded-full border border-sunu-green px-3 py-1.5 text-xs font-semibold text-sunu-green hover:bg-sunu-green-soft"
+        className="w-full shrink-0 rounded-full border border-sunu-green px-3 py-1.5 text-xs font-semibold text-sunu-green hover:bg-sunu-green-soft sm:w-auto"
       >
         {data.cta_label}
       </button>
