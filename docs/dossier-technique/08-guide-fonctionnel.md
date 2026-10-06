@@ -433,3 +433,26 @@ Pour aider l'État (Direction de la Prévention, districts sanitaires) à repér
 - Jamais d'identité de patient ni de texte médical dans la veille ; chaque consultation ou export est
   journalisé. La liste des maladies se modifie en un seul endroit (`backend/medical/conditions.py`), à faire
   valider par la Division de la surveillance épidémiologique.
+
+## 8.20 Partenaires et campagnes sponsorisées
+
+**Pour les visiteurs** : page « Nos partenaires » (`/partenaires`) — assurances, opérateurs, pharmacies et
+laboratoires, institutions, ONG ; encarts marqués « Sponsorisé » sur l'accueil, la recherche de médecins
+(encart séparé, au-dessus des résultats, qui ne change jamais leur ordre) et l'espace patient.
+
+**Administration** (section « Partenaires et campagnes ») :
+- ajouter un partenaire (nom, type, description, site, logo, affichage public ou non) ;
+- créer une campagne (partenaire, catégorie : prévention, assurance, service de santé, produit sans
+  ordonnance ; titre, texte, bouton et lien ; emplacements ; villes et langues ; dates) : enregistrée en
+  brouillon, diffusée seulement après « Valider » et confirmation de la conformité à la charte ; toute
+  modification la remet en brouillon ;
+- suspendre une campagne ; affichages, clics et taux de clic ; rapport tableur pour l'annonceur (par jour et
+  emplacement).
+
+**Charte publicitaire** (CGU, article 11) : seulement prévention et santé publique, assurances et mutuelles,
+services de santé, produits sans ordonnance autorisés ; interdits : médicament sur ordonnance, promesse de
+guérison, médecin mis en avant contre paiement, contenu sponsorisé dans le dossier médical, une ordonnance ou
+une téléconsultation. Les textes contenant des mots interdits (« ordonnance », « antibiotique », « miracle »,
+« guérison garantie »…) sont refusés automatiquement. Ciblage par ville et langue seulement, jamais par les
+données de santé ; statistiques agrégées, aucune donnée personnelle transmise. Charte à faire relire par un
+juriste et l'Ordre des médecins.

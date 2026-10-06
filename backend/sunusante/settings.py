@@ -103,6 +103,7 @@ INSTALLED_APPS = [
     "family",
     "econsult",
     "community",
+    "partners",
 ]
 
 MIDDLEWARE = [

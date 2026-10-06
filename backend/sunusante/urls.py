@@ -33,6 +33,7 @@ from support import views as support
 from family import views as family
 from econsult import views as econsult
 from community import views as community
+from partners import views as partners
 from medical import ai_notes
 from medical import emergency, record_export, renewals
 
@@ -243,6 +244,10 @@ admin_urls = [
     path("laboratories/<uuid:laboratory_id>", labs.admin_update_laboratory),
     path("doctors/<uuid:doctor_id>", accounts.admin_correct_doctor),
     path("epidemio", core_epidemio.epidemio),
+    path("partners", partners.admin_partners),
+    path("campaigns", partners.admin_campaigns),
+    path("campaigns/<uuid:campaign_id>/status", partners.admin_campaign_status),
+    path("campaigns/<uuid:campaign_id>/report.csv", partners.admin_campaign_report),
     path("declarations/<uuid:notification_id>", core_epidemio.mark_declared),
     path("community-agents", community.admin_agents),
     path("community-agents/<uuid:agent_id>", community.admin_agent),
@@ -328,6 +333,11 @@ urlpatterns = [
     path("api/health", core.health),
     path("api/support", support.create_request),
     path("api/support/mine", support.my_requests),
+    # Partenaires et campagnes sponsorisées (charte : partners/models.py)
+    path("api/partners", partners.public_partners),
+    path("api/partners/<uuid:partner_id>/logo", partners.partner_logo),
+    path("api/campaigns", partners.campaign_for),
+    path("api/campaigns/<uuid:campaign_id>/click", partners.campaign_click),
     # Diagnostic codé (veille épidémiologique) et déclarations des maladies à déclaration immédiate
     path("api/pro/conditions", core_epidemio.conditions_catalog),
     path("api/pro/declarations", core_epidemio.my_declarations),

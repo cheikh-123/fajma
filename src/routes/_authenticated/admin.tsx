@@ -1,4 +1,5 @@
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { PartnersAdmin } from "@/components/admin/PartnersAdmin";
 import { lazy, Suspense, useState } from "react";
 import { ThemeToggle } from "@/lib/theme";
 import { redirectBeforeHydration } from "@/lib/first-load";
@@ -260,6 +261,9 @@ function AdminPage() {
         <div id="veille" className="mt-6 scroll-mt-20">
           <EpidemioAdmin />
         </div>
+        <div id="partenaires" className="mt-6 scroll-mt-20">
+          <PartnersAdmin />
+        </div>
         <div id="relais" className="mt-6 scroll-mt-20">
           <CommunityAdmin />
         </div>
@@ -312,6 +316,7 @@ const ADMIN_SECTIONS = [
   ["pharmacies", "Pharmacies"],
   ["laboratoires", "Laboratoires"],
   ["relais", "Relais"],
+  ["partenaires", "Partenaires et campagnes"],
   ["veille", "Veille épidémiologique"],
   ["avis", "Avis"],
   ["sms", "SMS"],

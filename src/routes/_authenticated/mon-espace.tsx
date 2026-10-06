@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { CampaignSlot } from "@/components/CampaignSlot";
 import { AppointmentHistory } from "@/components/AppointmentHistory";
 import { InstallApp } from "@/components/InstallApp";
 import { MyAsyncCard } from "@/components/MyAsyncCard";
@@ -351,6 +352,7 @@ function MyAreaPage() {
               </div>
             )}
             <MyAsyncCard />
+            <CampaignSlot placement="patient" city={me?.city} />
             <FamilyHelpCard />
             <RelativesPanel />
             <WaitlistPanel />

@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { CampaignSlot } from "@/components/CampaignSlot";
 import { useQuery, useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { useState } from "react";
 import { z } from "zod";
@@ -293,6 +294,8 @@ function MedecinsPage() {
       </div>
 
       <main className="mx-auto grid max-w-7xl grid-cols-1 gap-8 px-4 py-8 sm:px-6 lg:grid-cols-[240px_1fr]">
+        {/* Encart sponsorisé séparé des résultats : il ne change jamais l'ordre des médecins. */}
+        <CampaignSlot placement="search" city={search.city} className="lg:col-span-2" />
         <aside className="min-w-0">
           <h3 className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-sunu-ink/50">
             <Filter className="size-3.5" /> {t("search.specialties")}

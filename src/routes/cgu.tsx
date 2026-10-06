@@ -126,8 +126,28 @@ function CguPage() {
           .
         </p>
       </section>
+      <section id="publicite">
+        <h2>11. Partenaires et charte publicitaire</h2>
+        <p>
+          Fajma peut afficher des contenus sponsorisés, toujours signalés par la mention «
+          Sponsorisé » et validés par l'équipe Fajma avant diffusion. Sont seuls acceptés : les
+          campagnes de prévention et de santé publique, les offres d'assurance ou de mutuelle, les
+          services de santé et les produits vendus sans ordonnance autorisés au Sénégal.
+        </p>
+        <p>
+          Sont interdits : la publicité pour un médicament soumis à prescription, toute promesse de
+          guérison, toute mise en avant d'un médecin contre paiement (l'ordre des médecins affichés
+          ne dépend jamais d'un partenariat), et tout contenu sponsorisé dans le dossier médical,
+          une ordonnance ou une téléconsultation.
+        </p>
+        <p>
+          Les contenus ne sont ciblés que par ville et par langue, jamais à partir de vos données de
+          santé. Les partenaires reçoivent seulement des statistiques globales (affichages, clics),
+          sans aucune donnée personnelle.
+        </p>
+      </section>
       <section>
-        <h2>11. Droit applicable</h2>
+        <h2>12. Droit applicable</h2>
         <p>
           Les présentes conditions sont soumises au droit sénégalais. À défaut d'accord amiable, les
           tribunaux de Dakar sont compétents. Contact :{" "}

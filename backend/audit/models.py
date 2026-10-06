@@ -58,6 +58,8 @@ class AuditEvent(BaseModel):
         ("community_follow", "Relais : personne suivie (accord recueilli)"),
         ("community_transfer", "Relais : dossier transféré à la personne"),
         ("mdo_declared", "Maladie à déclaration immédiate déclarée au district"),
+        ("admin_partner_saved", "Partenaire modifié (administration)"),
+        ("admin_campaign_saved", "Campagne sponsorisée modifiée (administration)"),
         ("admin_support_closed", "Demande d'aide traitée (administration)"),
         ("admin_support_reopened", "Demande d'aide rouverte (administration)"),
     ]

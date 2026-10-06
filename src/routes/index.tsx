@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { CampaignSlot } from "@/components/CampaignSlot";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -341,6 +342,10 @@ function Landing() {
         </div>
       </section>
 
+      <div className="mx-auto max-w-7xl px-6 pt-10">
+        <CampaignSlot placement="home" />
+      </div>
+
       {/* DOCTORS DISPO */}
       <section id="rdv" className="reveal mx-auto max-w-7xl px-6 py-24">
         <div className="mb-10 flex flex-col items-start justify-between gap-4 md:flex-row md:items-end">
@@ -590,6 +595,7 @@ function Landing() {
                 { label: "Assistant symptômes", to: "/assistant" },
                 { label: "Pharmacies", to: "/pharmacies" },
                 { label: "Aider un proche au Sénégal", to: "/famille" },
+                { label: "Nos partenaires", to: "/partenaires" },
                 { label: "Aide et contact", to: "/aide" },
               ]}
             />
