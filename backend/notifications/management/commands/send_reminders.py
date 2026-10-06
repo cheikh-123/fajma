@@ -41,6 +41,9 @@ class Command(BaseCommand):
         from directory.credentials import send_expiry_reminders
 
         expiring = send_expiry_reminders(now)
+        from medical.emergency import send_emergency_reminders
+
+        emergency = send_emergency_reminders(now)
         from family.logic import send_family_reminders
 
         family = send_family_reminders(now)

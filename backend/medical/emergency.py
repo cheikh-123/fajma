@@ -37,6 +37,12 @@ CRITICAL_FLAGS = [
     "dialyse", "allergie_grave", "hemophilie", "enceinte", "memoire", "handicap",
 ]
 MAX_CONTACTS = 3
+STALE_DAYS = 365  # fiche non mise à jour depuis un an : signalé aux secours
+REMIND_DAYS = 180  # rappel « votre fiche est-elle à jour ? »
+# Jamais dans le résumé médical montré aux secours, même si le patient l'a activé.
+SENSITIVE_CODES = {"vih", "ist", "sante_mentale"}
+SENSITIVE_WORDS = ("vih", "hiv", "sida", "seropositi", "séropositi", "syphilis", "gonococ", "chlamyd", "ist ", "psychi",
+                   "depress", "dépress", "schizo", "bipolaire", "suicid", "avortement", "ivg")
 
 
 class EmergencyThrottle(ScopedThrottle):
@@ -94,6 +100,107 @@ def _apply_common(obj, data: dict) -> None:
             setattr(obj, key, get_str(data, key, max_len=300) or "")
 
 
+def _apply_health(obj, data: dict) -> None:
+    """Groupe sanguin, allergies, antécédents, traitements (profil de santé, ou fiche du proche)."""
+    if "blood_group" in data:
+        bg = data.get("blood_group") or ""
+        if bg and bg not in dict(HealthProfile.BLOOD_GROUPS):
+            raise ApiError("Groupe sanguin invalide")
+        obj.blood_group = bg
+    for key in ("allergies", "conditions", "treatments"):
+        if key in data:
+            setattr(obj, key, get_str(data, key, max_len=2000) or "")
+
+
+def _is_sensitive(code: str, *texts: str) -> bool:
+    if code in SENSITIVE_CODES:
+        return True
+    joined = " ".join(t or "" for t in texts).lower() + " "
+    return any(w in joined for w in SENSITIVE_WORDS)
+
+
+def _active_prescriptions(user, relative):
+    from .models import MedicalRecord, Prescription
+
+    today = timezone.localdate()
+    sensitive_appts = {
+        r.appointment_id for r in MedicalRecord.objects.filter(patient=user, appointment__relative=relative)
+        if _is_sensitive(r.condition_code, r.diagnosis, r.treatment)
+    }
+    rows = Prescription.objects.filter(patient=user, relative=relative).select_related("doctor").order_by("-created_at")[:20]
+    out = []
+    for p in rows:
+        recent = p.created_at.date() >= today - timedelta(days=90)
+        if not ((p.valid_until and p.valid_until >= today) or (not p.valid_until and recent)):
+            continue
+        if p.appointment_id in sensitive_appts or _is_sensitive("", p.content, " ".join(i.get("name", "") for i in p.items or [])):
+            continue
+        out.append(p)
+    return out[:3]
+
+
+def _item_text(i: dict) -> str:
+    return " — ".join(x for x in (i.get("name"), i.get("posology")) if x)
+
+
+def suggested_treatments(user, relative, current: str) -> list[str]:
+    """Médicaments des ordonnances en cours absents de « Traitements en cours » (à valider par le patient)."""
+    have = (current or "").lower()
+    seen, out = set(), []
+    for p in _active_prescriptions(user, relative):
+        # Anciennes ordonnances en texte libre : une ligne par médicament.
+        items = p.items or [{"name": line.strip(" -•*	")} for line in (p.content or "").splitlines() if line.strip(" -•*	")][:8]
+        for i in items:
+            name = (i.get("name") or "").strip()
+            if name and name.lower() not in have and name.lower() not in seen:
+                seen.add(name.lower())
+                out.append(_item_text(i))
+    return out[:10]
+
+
+def medical_summary(user, relative) -> dict:
+    """
+    Résumé pour les secours, si le patient l'a choisi : conclusions des 3 dernières consultations (12 mois) et
+    ordonnances en cours. Jamais les notes privées des médecins ni les diagnostics sensibles (VIH, IST, santé
+    mentale…).
+    """
+    from .conditions import BY_CODE
+    from .models import MedicalRecord
+
+    since = timezone.now() - timedelta(days=365)
+    records = []
+    for r in (MedicalRecord.objects.filter(patient=user, appointment__relative=relative, created_at__gte=since)
+              .select_related("doctor__specialty").order_by("-created_at")[:10]):
+        if _is_sensitive(r.condition_code, r.diagnosis, r.treatment):
+            continue
+        conclusion = r.diagnosis or (BY_CODE[r.condition_code].label if r.condition_code in BY_CODE else "")
+        if not conclusion and not r.treatment:
+            continue
+        records.append({"date": r.created_at.date().isoformat(), "doctor": r.doctor.full_name,
+                        "specialty": r.doctor.specialty.name if r.doctor.specialty_id else None,
+                        "conclusion": conclusion[:240] or None, "treatment": (r.treatment or "")[:240] or None})
+        if len(records) == 3:
+            break
+    prescriptions = [
+        {"date": p.created_at.date().isoformat(), "doctor": p.doctor.full_name,
+         "items": [_item_text(i) for i in (p.items or [])][:8] or ([p.content[:200]] if p.content else [])}
+        for p in _active_prescriptions(user, relative)
+    ]
+    return {"records": records, "prescriptions": prescriptions}
+
+
+def _missing(obj, contacts: list) -> list[str]:
+    """Informations choisies mais vides (le patient est invité à les compléter)."""
+    is_self = isinstance(obj, HealthProfile)
+    fields = set((obj.emergency_fields if is_self else obj.fields) or DEFAULT_FIELDS)
+    checks = {
+        "blood_group": bool(obj.blood_group), "allergies": bool(obj.allergies), "treatments": bool(obj.treatments),
+        "conditions": bool(obj.conditions), "medical_devices": bool(obj.medical_devices),
+        "rescuer_notes": bool(obj.rescuer_notes), "critical_flags": bool(obj.critical_flags), "emergency_contact": bool(contacts),
+    }
+    return [f for f, ok in checks.items() if f in fields and not ok]
+
+
 def settings_dict(obj, relative: Relative | None = None) -> dict:
     is_self = isinstance(obj, HealthProfile) or obj is None
     enabled = bool(obj and (obj.emergency_enabled if is_self else obj.enabled) and (obj.emergency_token if is_self else obj.token))
@@ -107,12 +214,16 @@ def settings_dict(obj, relative: Relative | None = None) -> dict:
         "rescuer_notes": (obj.rescuer_notes or "") if obj else "",
         "flag_choices": CRITICAL_FLAGS,
     }
+    data.update({k: (getattr(obj, k) or "") if obj else "" for k in ("blood_group", "allergies", "conditions", "treatments")})
     if is_self:
         data["alert_doctors"] = obj.alert_doctors if obj else True
+        owner = obj.user if obj else None
     else:
         data["relative"] = {"id": str(relative.id), "full_name": relative.full_name}
-        data.update({k: getattr(obj, k) or "" for k in ("blood_group", "allergies", "conditions", "treatments")} if obj else
-                    {k: "" for k in ("blood_group", "allergies", "conditions", "treatments")})
+        owner = relative.owner
+    data["missing"] = _missing(obj, data["contacts"]) if obj else []
+    data["suggested_treatments"] = suggested_treatments(owner, relative, data["treatments"]) if owner else []
+    data["stale"] = bool(obj and obj.updated_at < timezone.now() - timedelta(days=STALE_DAYS))
     return data
 
 
@@ -134,14 +245,7 @@ def my_emergency_settings(request):
         if request.method == "POST":
             card = card or RelativeEmergencyCard(relative=relative)
             _apply_common(card, data)
-            if "blood_group" in data:
-                bg = data.get("blood_group") or ""
-                if bg and bg not in dict(HealthProfile.BLOOD_GROUPS):
-                    raise ApiError("Groupe sanguin invalide")
-                card.blood_group = bg
-            for key in ("allergies", "conditions", "treatments"):
-                if key in data:
-                    setattr(card, key, get_str(data, key, max_len=2000) or "")
+            _apply_health(card, data)
             if "enabled" in data:
                 card.enabled = bool(data.get("enabled"))
                 if card.enabled and not card.fields:
@@ -155,6 +259,7 @@ def my_emergency_settings(request):
     if request.method == "POST":
         hp = hp or HealthProfile(user=user)
         _apply_common(hp, data)
+        _apply_health(hp, data)
         if "alert_doctors" in data:
             hp.alert_doctors = bool(data.get("alert_doctors"))
         if "enabled" in data:
@@ -228,7 +333,8 @@ def public_card(request, token):
         raise not_found("Fiche d'urgence introuvable ou désactivée")
     if not owner.is_active:
         raise not_found("Fiche d'urgence introuvable ou désactivée")
-    card = {**person, "updated_at": src.updated_at.isoformat(), "for_relative": relative is not None}
+    card = {**person, "updated_at": src.updated_at.isoformat(), "for_relative": relative is not None,
+            "stale": src.updated_at < timezone.now() - timedelta(days=STALE_DAYS)}
     for field in ("blood_group", "allergies", "treatments", "conditions", "medical_devices", "rescuer_notes", "critical_flags"):
         if field in shown:
             card[field] = getattr(src, field) or (None if field != "critical_flags" else [])
@@ -240,6 +346,8 @@ def public_card(request, token):
         card["insurance"] = _insurance(owner, relative)
     if "weight" in shown:
         card["weight"] = _weight(owner, relative)
+    if "medical_summary" in shown:
+        card["medical_summary"] = medical_summary(owner, relative)
     audit.log(request, "emergency_card_viewed", patient=owner, relative=str(relative.id) if relative else None)
     # Le titulaire est prévenu (une fois par jour) : une consultation inattendue doit l'alerter.
     if not Notification.objects.filter(
@@ -249,3 +357,25 @@ def public_card(request, token):
         notify(owner, kind="emergency_card_viewed", title=title,
                body="Si ce n'était pas lors d'une urgence, créez un nouveau lien depuis votre dossier.", link="/dossier", sms=True)
     return Response(card)
+
+
+def send_emergency_reminders(now=None) -> int:
+    """Fiches actives non mises à jour depuis 6 mois : « votre fiche est-elle à jour ? » (planificateur)."""
+    now = now or timezone.now()
+    limit = now - timedelta(days=REMIND_DAYS)
+    sent = 0
+    for hp in HealthProfile.objects.filter(emergency_enabled=True, updated_at__lt=limit).select_related("user"):
+        if hp.emergency_reminded_at and hp.emergency_reminded_at > limit:
+            continue
+        notify(hp.user, kind="emergency_review", title="Votre fiche d'urgence est-elle à jour ?",
+               body="Traitements, allergies, personnes à prévenir : vérifiez-la en 1 minute.", link="/dossier", sms=True)
+        HealthProfile.objects.filter(pk=hp.pk).update(emergency_reminded_at=now)
+        sent += 1
+    for card in RelativeEmergencyCard.objects.filter(enabled=True, updated_at__lt=limit).select_related("relative__owner"):
+        if card.reminded_at and card.reminded_at > limit:
+            continue
+        notify(card.relative.owner, kind="emergency_review", title=f"La fiche d'urgence de {card.relative.full_name} est-elle à jour ?",
+               body="Traitements, allergies, personnes à prévenir : vérifiez-la en 1 minute.", link="/dossier", sms=True)
+        RelativeEmergencyCard.objects.filter(pk=card.pk).update(reminded_at=now)
+        sent += 1
+    return sent

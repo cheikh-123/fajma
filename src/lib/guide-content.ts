@@ -121,6 +121,7 @@ export const GUIDE: GuideRole[] = [
           "« Qui a consulté mon dossier » : chaque accès d'un professionnel est listé.",
           "Fiche d'urgence : cochez vos alertes vitales (diabétique sous insuline, épileptique, drépanocytaire, enceinte…), ajoutez jusqu'à 3 personnes à prévenir, vos appareils médicaux et une note pour les secours, puis choisissez ce qui est visible.",
           "Une fiche aussi pour chaque proche (enfant, parent âgé) : vous êtes toujours la première personne prévenue.",
+          "Option « Résumé de mes médecins » : les secours voient les conclusions de vos 3 dernières consultations et vos ordonnances en cours (jamais les notes privées ni les diagnostics sensibles). Fajma vous propose aussi d'ajouter les médicaments de vos ordonnances à « Traitements en cours », signale ce qui manque et vous rappelle tous les 6 mois de vérifier votre fiche.",
           "Mettez le QR code en fond d'écran ou imprimez la carte de portefeuille. Les secours voient la fiche en français, wolof ou anglais, appellent le SAMU ou vos proches et peuvent leur envoyer leur position. Vous êtes prévenu par SMS à chaque consultation.",
           "Téléchargez tout votre dossier en PDF pour le remettre à un médecin.",
         ],

@@ -39,7 +39,8 @@ export type EmergencyField =
   | "doctor"
   | "insurance"
   | "weight"
-  | "rescuer_notes";
+  | "rescuer_notes"
+  | "medical_summary";
 
 export type EmergencyContact = { name: string; relation: string; phone: string | null };
 
@@ -52,6 +53,12 @@ export type EmergencySettings = {
   medical_devices: string;
   rescuer_notes: string;
   flag_choices: string[];
+  /** Informations cochées mais vides. */
+  missing: EmergencyField[];
+  /** Médicaments des ordonnances en cours absents de « Traitements en cours ». */
+  suggested_treatments: string[];
+  /** Pas de mise à jour depuis plus d'un an. */
+  stale: boolean;
   alert_doctors?: boolean;
   /** Fiche d'un proche : le proche et ses informations de santé (il n'a pas de profil propre). */
   relative?: { id: string; full_name: string };
@@ -99,6 +106,17 @@ export type EmergencyCard = {
   doctor?: { name: string; specialty: string | null; phone: string | null; city: string } | null;
   insurance?: { insurer: string; member_number: string } | null;
   weight?: number | null;
+  stale: boolean;
+  medical_summary?: {
+    records: {
+      date: string;
+      doctor: string;
+      specialty: string | null;
+      conclusion: string | null;
+      treatment: string | null;
+    }[];
+    prescriptions: { date: string; doctor: string; items: string[] }[];
+  };
 };
 
 export const getEmergencyCard = (token: string) => api.get<EmergencyCard>(`/emergency/${token}`);

@@ -98,6 +98,13 @@ d'abord conduit à l'activer ; il est déconnecté après 30 minutes sans activi
   « WhatsApp » et « Envoyer la position » (lien de carte par SMS). QR code en image de fond d'écran ou **carte de
   portefeuille** à imprimer (format carte bancaire, recto-verso). Chaque consultation est journalisée et le
   titulaire est prévenu par SMS (une fois par jour). Un nouveau lien rend l'ancien QR code inutilisable.
+  Option **« Résumé de mes médecins »** (décochée par défaut) : conclusions des 3 dernières consultations
+  (12 mois) et ordonnances en cours ; jamais les notes privées des médecins ni les diagnostics sensibles (codes
+  VIH, IST, santé mentale, ou mots correspondants). Fajma propose d'ajouter les médicaments des ordonnances en
+  cours à « Traitements en cours » (un clic, rien d'automatique), signale les informations cochées mais vides,
+  rappelle par SMS tous les 6 mois de vérifier la fiche, et indique aux secours une fiche vieille de plus d'un
+  an. Le QR code n'expire pas (un accident n'a pas de date ; carte et fond d'écran restent valables) : il reste
+  révocable à tout moment et chaque consultation est signalée par SMS.
 - Télécharger toutes ses données (JSON) ou supprimer son compte.
 
 **Sans smartphone** : prendre rendez-vous par **WhatsApp** ou par le menu **USSD** (tout téléphone, sans

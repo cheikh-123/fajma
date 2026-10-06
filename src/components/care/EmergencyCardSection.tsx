@@ -42,7 +42,13 @@ const FIELDS: { id: EmergencyField; label: string; hint: string }[] = [
   { id: "insurance", label: "Assurance", hint: "IPM, mutuelle, n° d'adhérent pour l'hôpital" },
   { id: "weight", label: "Poids", hint: "dernière mesure, utile pour les doses" },
   { id: "rescuer_notes", label: "Note pour les secours", hint: "langue parlée, handicap…" },
+  {
+    id: "medical_summary",
+    label: "Résumé de mes médecins",
+    hint: "conclusions des 3 dernières consultations et ordonnances en cours ; jamais les notes privées ni les diagnostics sensibles (VIH, IST, santé mentale)",
+  },
 ];
+const FIELD_LABEL = Object.fromEntries(FIELDS.map((f) => [f.id, f.label]));
 const BLOOD = ["", "A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
 
 export function EmergencyCardSection() {
@@ -226,7 +232,38 @@ function CardEditor({ relativeId }: { relativeId?: string }) {
 
       <div className="mt-5 grid gap-5 lg:grid-cols-2">
         <div className="space-y-4">
-          {data.relative && (
+          {data.stale && (
+            <p className="rounded-lg bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-900">
+              Cette fiche n'a pas été mise à jour depuis plus d'un an : vérifiez traitements et
+              personnes à prévenir, puis enregistrez.
+            </p>
+          )}
+          {data.missing.length > 0 && (
+            <p className="rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-900">
+              <b>À compléter</b> (les secours liraient « Non renseigné ») :{" "}
+              {data.missing.map((m) => FIELD_LABEL[m] ?? m).join(", ")}.
+            </p>
+          )}
+          {data.suggested_treatments.length > 0 && (
+            <div className="rounded-lg bg-sunu-green-soft px-3 py-2 text-xs text-sunu-dark">
+              <p>
+                <b>Médicaments de vos ordonnances en cours</b>, absents de « Traitements en cours »
+                : {data.suggested_treatments.join(" ; ")}
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  const current = (val("treatments") ?? "").trim();
+                  const next = [current, ...data.suggested_treatments].filter(Boolean).join("\n");
+                  update.mutate({ treatments: next });
+                }}
+                className="mt-1.5 rounded-lg bg-sunu-green px-3 py-1.5 font-semibold text-white"
+              >
+                Les ajouter à ma fiche
+              </button>
+            </div>
+          )}
+          {
             <fieldset className="grid gap-2">
               <legend className="text-xs font-semibold text-sunu-ink/60">Santé de {name}</legend>
               <select
@@ -259,13 +296,7 @@ function CardEditor({ relativeId }: { relativeId?: string }) {
                 />
               ))}
             </fieldset>
-          )}
-          {!data.relative && (
-            <p className="rounded-lg bg-sunu-surface px-3 py-2 text-xs text-sunu-ink/60">
-              Groupe sanguin, allergies, traitements et antécédents viennent de votre profil de
-              santé (ci-dessus).
-            </p>
-          )}
+          }
 
           <fieldset>
             <legend className="text-xs font-semibold text-sunu-ink/60">Alertes vitales</legend>

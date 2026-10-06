@@ -10,6 +10,7 @@ import {
   BadgeInfo,
   Cpu,
   Droplet,
+  FileText,
   Loader2,
   MapPin,
   MessageCircle,
@@ -119,6 +120,12 @@ function EmergencyPage() {
               </div>
             </div>
 
+            {data.stale && (
+              <p className="mt-4 rounded-xl bg-[#fef3c7] px-3 py-2 text-sm font-semibold text-[#92400e]">
+                {t.stale}
+              </p>
+            )}
+
             {flags.length > 0 && (
               <div className="mt-5 rounded-2xl border-2 border-[#dc2626] bg-[#fef2f2] p-4">
                 <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#b91c1c]">
@@ -195,6 +202,52 @@ function EmergencyPage() {
                   )}
                 </Item>
               )}
+              {data.medical_summary &&
+                (data.medical_summary.records.length > 0 ||
+                  data.medical_summary.prescriptions.length > 0) && (
+                  <Item icon={<FileText className="size-5 text-[#047857]" />} label={t.summary}>
+                    {data.medical_summary.records.length > 0 && (
+                      <>
+                        <span className="block text-xs font-bold uppercase text-[#6b7280]">
+                          {t.consults}
+                        </span>
+                        <ul className="mb-2 mt-1 space-y-1.5 text-sm font-normal">
+                          {data.medical_summary.records.map((r, i) => (
+                            <li key={i}>
+                              <b>{new Date(r.date).toLocaleDateString(LOCALE[lang])}</b> ·{" "}
+                              {r.doctor}
+                              {r.specialty ? ` (${r.specialty})` : ""}
+                              {r.conclusion && <span className="block">{r.conclusion}</span>}
+                              {r.treatment && (
+                                <span className="block text-[#4b5563]">{r.treatment}</span>
+                              )}
+                            </li>
+                          ))}
+                        </ul>
+                      </>
+                    )}
+                    {data.medical_summary.prescriptions.length > 0 && (
+                      <>
+                        <span className="block text-xs font-bold uppercase text-[#6b7280]">
+                          {t.prescriptions}
+                        </span>
+                        <ul className="mt-1 space-y-1.5 text-sm font-normal">
+                          {data.medical_summary.prescriptions.map((p, i) => (
+                            <li key={i}>
+                              <b>{new Date(p.date).toLocaleDateString(LOCALE[lang])}</b> ·{" "}
+                              {p.doctor}
+                              {p.items.map((it, k) => (
+                                <span key={k} className="block">
+                                  • {it}
+                                </span>
+                              ))}
+                            </li>
+                          ))}
+                        </ul>
+                      </>
+                    )}
+                  </Item>
+                )}
               {data.insurance && (
                 <Item icon={<ShieldPlus className="size-5 text-[#0f766e]" />} label={t.insurance}>
                   {data.insurance.insurer} · {t.member} {data.insurance.member_number}

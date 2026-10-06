@@ -110,7 +110,7 @@ class HealthProfile(BaseModel):
     # Fiche d'urgence publique (QR code) : activée par le patient, qui choisit les informations visibles.
     EMERGENCY_FIELDS = [
         "critical_flags", "blood_group", "allergies", "treatments", "conditions", "medical_devices",
-        "emergency_contact", "doctor", "insurance", "weight", "rescuer_notes",
+        "emergency_contact", "doctor", "insurance", "weight", "rescuer_notes", "medical_summary",
     ]
     emergency_enabled = models.BooleanField(default=False)
     emergency_token = models.CharField(max_length=64, null=True, blank=True, unique=True)
@@ -121,6 +121,7 @@ class HealthProfile(BaseModel):
     emergency_contacts = models.JSONField(default=list, blank=True)
     medical_devices = models.CharField(max_length=300, blank=True)
     rescuer_notes = models.CharField(max_length=300, blank=True)
+    emergency_reminded_at = models.DateTimeField(null=True, blank=True)  # rappel « fiche à jour ? » tous les 6 mois
     # Mesure à domicile dangereuse : les médecins qui suivent le patient sont prévenus (désactivable).
     alert_doctors = models.BooleanField(default=True)
 
@@ -232,3 +233,4 @@ class RelativeEmergencyCard(BaseModel):
     emergency_contacts = models.JSONField(default=list, blank=True)
     medical_devices = models.CharField(max_length=300, blank=True)
     rescuer_notes = models.CharField(max_length=300, blank=True)
+    reminded_at = models.DateTimeField(null=True, blank=True)  # rappel « fiche à jour ? » tous les 6 mois

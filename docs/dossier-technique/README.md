@@ -1,6 +1,6 @@
 # Dossier technique et sécurité — Fajma
 
-**Version du dossier :** 5.9 — 6 octobre 2026
+**Version du dossier :** 6.0 — 6 octobre 2026
 **Périmètre :** code source du dépôt `sante-connect-main` (backend Django, frontend React, déploiement), services tiers.
 **Public visé :** acquéreurs, investisseurs, auditeurs techniques et juridiques, équipe technique reprenant le projet.
 
@@ -26,7 +26,7 @@ ni à Supabase.
 | Messages | Twilio : SMS et WhatsApp ; notifications push du navigateur (Web Push, gratuites) |
 | Téléconsultation | Jitsi Meet (serveur public au démarrage, auto-hébergeable) |
 | Assistant IA | Fournisseur configurable via une API compatible OpenAI (Google Gemini par défaut) |
-| Qualité | 327 tests automatisés de l'API ; parcours de bout en bout dans un navigateur réel pour chaque rôle ; intégration continue GitHub Actions |
+| Qualité | 328 tests automatisés de l'API ; parcours de bout en bout dans un navigateur réel pour chaque rôle ; intégration continue GitHub Actions |
 | Taille du code | ≈ 14 900 lignes Python (hors tests et migrations), ≈ 3 900 lignes de tests, ≈ 32 600 lignes TypeScript/React |
 
 ## 2. Contenu du dossier
@@ -86,7 +86,7 @@ ni à Supabase.
 
 ## 4. Méthode
 
-Dossier établi par lecture intégrale du code source, exécution de la suite de tests de l'API (327 tests) et
+Dossier établi par lecture intégrale du code source, exécution de la suite de tests de l'API (328 tests) et
 de parcours de bout en bout dans un navigateur réel (Chrome et Edge, ordinateur et mobile) : patient, médecin,
 médecin remplaçant, clinique, secrétariat, pharmacien, administrateur, activation obligatoire de la double
 authentification, mode hors ligne sur le build de production.
@@ -143,3 +143,4 @@ Ces points sont signalés **« À vérifier »**.
 | 5.7 | 06/10/2026 | Campagnes : grand bandeau animé en haut de l'accueil (visuel, couleur de la campagne, entrée animée, zoom lent, reflet, bouton qui attire l'œil) et carrousel de 5 campagnes au plus (7 s, points, flèches, pause au survol, ordre aléatoire) ; visuel et couleur choisis dans l'administration ; accueil : bande « Nos partenaires » (logos qui défilent) et lien « Partenaires » dans le menu |
 | 5.8 | 06/10/2026 | **Guide d'utilisation dans l'application** (§ 8.21) : page `/guide` avec un chapitre par espace (patient, famille, médecin, clinique et secrétariat, pharmacie, laboratoire, relais, administration), étapes numérotées et astuces, sommaire, recherche dans tous les chapitres, impression ; le lien « Aide » de chaque espace ouvre son chapitre ; liens depuis « Aide et contact » et le pied de page |
 | 5.9 | 06/10/2026 | **Fiche d'urgence complète** (§ 8.2) : alertes vitales en tête (14 : diabétique sous insuline, épileptique, drépanocytaire, sous anticoagulant, enceinte…), 3 personnes à prévenir (appel, WhatsApp, envoi de la position des secours par SMS), appareils médicaux, note pour les secours, médecin traitant, assurance, poids ; page des secours en français, wolof ou anglais avec SAMU, pompiers et police ; fiche pour chaque proche (le titulaire est toujours prévenu en premier) ; carte de portefeuille à imprimer ; SMS au titulaire à chaque consultation |
+| 6.0 | 06/10/2026 | Fiche d'urgence : **résumé des médecins** au choix du patient (conclusions des 3 dernières consultations sur 12 mois et ordonnances en cours ; jamais les notes privées ni les diagnostics sensibles : VIH, IST, santé mentale) ; médicaments des ordonnances en cours proposés pour « Traitements en cours » (validation d'un clic) ; informations cochées mais vides signalées ; rappel SMS tous les 6 mois « votre fiche est-elle à jour ? » ; mention aux secours si la fiche date de plus d'un an ; QR code sans date d'expiration (révocable, consultation signalée par SMS) |
