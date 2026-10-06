@@ -5,9 +5,9 @@
 # Chiffrée (AES-256) si BACKUP_PASSPHRASE est défini, conservée BACKUP_KEEP_DAYS jours (30 par défaut).
 # À copier ensuite hors du serveur (rclone, scp…) : une sauvegarde sur la même machine ne protège pas d'une panne.
 #
-# Restauration :
-#   openssl enc -d -aes-256-cbc -pbkdf2 -pass env:BACKUP_PASSPHRASE -in fajma-XXXX.tar.gz.enc | tar -xz
-#   pg_restore --clean --no-owner -d "$DATABASE_URL" base.dump   puis recopier private_media/
+# Restauration : une seule commande, qui remet aussi les droits au compte de l'application (sans quoi
+# l'application restaurée ne pourrait plus lire ses propres données) :
+#   docker compose run --rm backup sh /restore.sh /backups/fajma-XXXX.tar.gz.enc
 # (procédure vérifiée : copie identique table par table, voir docs/dossier-technique/04-exploitation.md).
 # Les fichiers sont chiffrés : sans FILE_ENCRYPTION_KEYS (conservée à part), ils sont illisibles.
 set -eu

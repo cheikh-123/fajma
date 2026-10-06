@@ -62,6 +62,20 @@ class BackofficeTests(ApiTestCase):
         self.assertEqual(c.post("/api/admin/announcements", {"audience": "doctors", "title": "x", "body": "abc"}, format="json").status_code, 400)
         self.assertEqual(c.post("/api/admin/announcements", {"audience": "doctors", "title": "Titre", "body": "Message ok", "link": "https://evil.com"}, format="json").status_code, 400)
 
+    def test_announcement_survives_interruption(self):
+        """L'annonce est enregistree avant l'envoi, et une relance ne previent personne deux fois."""
+        from backoffice.tasks import send_announcement_task
+
+        c = self.client_for(self.admin)
+        res = c.post("/api/admin/announcements", {"audience": "all", "title": "Information", "body": "Message pour tous"}, format="json")
+        self.assertEqual(res.status_code, 200, res.data)
+        a = Announcement.objects.get()
+        total = Notification.objects.filter(title="Information").count()
+        self.assertEqual(a.recipients, total)
+        self.assertGreaterEqual(total, 3)
+        send_announcement_task.func(str(a.id))  # relance apres une panne
+        self.assertEqual(Notification.objects.filter(title="Information").count(), total)
+
     def test_search_overview_and_audit(self):
         c = self.client_for(self.admin)
         results = c.get("/api/admin/search?q=" + self.doctor.full_name[:5]).data["results"]

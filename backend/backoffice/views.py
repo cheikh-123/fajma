@@ -22,8 +22,10 @@ from audit.models import AuditEvent
 from sunusante.api import ApiError, body, get_choice, get_str, iso, not_found
 
 from . import settings_registry as reg
+from .audience import MAX_RECIPIENTS, SMS_MAX_RECIPIENTS, resolve
 from .models import Announcement, StaffRole
 from .roles import role_of, sections_of
+from .tasks import send_announcement_task
 
 # ── Recherche globale ─────────────────────────────────────────────────
 
@@ -144,60 +146,21 @@ def doctor_overview(request, doctor_id):
 # ── Annonces groupées ─────────────────────────────────────────────────
 
 
-def _audience(audience: str, city: str):
-    from clinics.models import Clinic, ClinicStaff
-    from community.models import CommunityAgent
-    from directory.models import Doctor
-    from labs.models import LaboratoryMember
-    from pharmacy.models import PharmacyMember
-
-    users = User.objects.filter(is_active=True)
-    c = city.strip()
-    if audience == "doctors":
-        qs = Doctor.objects.filter(is_verified=True, user__isnull=False)
-        if c:
-            qs = qs.filter(city__iexact=c)
-        return users.filter(id__in=qs.values("user_id"))
-    if audience == "pharmacies":
-        qs = PharmacyMember.objects.all()
-        if c:
-            qs = qs.filter(pharmacy__city__iexact=c)
-        return users.filter(id__in=qs.values("user_id"))
-    if audience == "labs":
-        qs = LaboratoryMember.objects.all()
-        if c:
-            qs = qs.filter(laboratory__city__iexact=c)
-        return users.filter(id__in=qs.values("user_id"))
-    if audience == "clinics":
-        owners = Clinic.objects.filter(kind="clinic")
-        staff = ClinicStaff.objects.all()
-        if c:
-            owners, staff = owners.filter(city__iexact=c), staff.filter(clinic__city__iexact=c)
-        return users.filter(Q(id__in=owners.values("owner_id")) | Q(id__in=staff.values("user_id")))
-    if audience == "relais":
-        return users.filter(id__in=CommunityAgent.objects.filter(is_active=True).values("user_id"))
-    pros = Q(is_staff=True) | Q(id__in=Doctor.objects.values("user_id")) | Q(id__in=PharmacyMember.objects.values("user_id"))
-    qs = users.exclude(pros) if audience == "patients" else users
-    if c:
-        qs = qs.filter(city__iexact=c)
-    return qs
-
-
 @api_view(["GET", "POST"])
 def announcements(request):
     """
     GET : annonces envoyées ; ?preview=1&audience=&city= : nombre de destinataires.
-    POST {audience, city?, title, body, link?, sms?, email?} : envoi (notification toujours, SMS et email au choix).
+    POST {audience, city?, title, body, link?, sms?, email?} : l'annonce est enregistrée puis envoyée en
+    arrière-plan (notification pour chacun, SMS et email au choix) : des milliers d'envois ne peuvent pas
+    tenir dans une requête web.
     """
-    from notifications.service import notify
-
     admin = require_admin(request)
     keys = {k for k, _ in Announcement.AUDIENCES}
     if request.method == "GET" and request.query_params.get("preview"):
         aud = request.query_params.get("audience", "")
         if aud not in keys:
             raise ApiError("Destinataires inconnus")
-        return Response({"count": _audience(aud, request.query_params.get("city", "")).count()})
+        return Response({"count": resolve(aud, request.query_params.get("city", "")).count()})
     if request.method == "POST":
         data = body(request)
         aud = get_choice(data, "audience", keys)
@@ -211,14 +174,16 @@ def announcements(request):
             raise ApiError("Pour un SMS, titre et message : 300 caractères au plus")
         if a.link and not a.link.startswith("/"):
             raise ApiError("Lien : une page de Fajma (/…)")
-        recipients = list(_audience(aud, city)[:20000])
-        if a.sms and len(recipients) > 5000:
-            raise ApiError("Plus de 5 000 destinataires par SMS : ciblez une ville ou envoyez sans SMS")
-        for u in recipients:
-            notify(u, kind="announcement", title=a.title, body=a.body, link=a.link, sms=a.sms, email=a.email)
-        a.recipients = len(recipients)
+        count = min(resolve(aud, city).count(), MAX_RECIPIENTS)
+        if not count:
+            raise ApiError("Aucun destinataire pour ce choix")
+        if a.sms and count > SMS_MAX_RECIPIENTS:
+            raise ApiError(f"Plus de {SMS_MAX_RECIPIENTS} destinataires par SMS : ciblez une ville ou envoyez sans SMS")
+        a.recipients = count
         a.save()
-        audit.log(request, "admin_announcement", audience=aud, city=city, recipients=a.recipients, sms=a.sms)
+        # Enregistrée d'abord : même si l'envoi s'interrompt, l'annonce existe et la tâche peut reprendre.
+        send_announcement_task.enqueue(str(a.id))
+        audit.log(request, "admin_announcement", audience=aud, city=city, recipients=count, sms=a.sms)
     return Response([
         {"id": str(x.id), "audience": x.audience, "audience_label": x.get_audience_display(), "city": x.city or None,
          "title": x.title, "body": x.body, "sms": x.sms, "email": x.email, "recipients": x.recipients,

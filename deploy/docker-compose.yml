@@ -96,6 +96,9 @@ services:
     command: sh /backup.sh
     environment:
       PGPASSWORD: ${POSTGRES_PASSWORD}
+      # Le test mensuel relit la sauvegarde avec le compte de l'application : c'est ce qui prouve
+      # qu'une restauration sera exploitable.
+      APP_DB_PASSWORD: ${APP_DB_PASSWORD:?APP_DB_PASSWORD manquant}
       # Obligatoire : une sauvegarde contient des données de santé, jamais en clair.
       BACKUP_PASSPHRASE: ${BACKUP_PASSPHRASE:?BACKUP_PASSPHRASE manquant (chiffrement des sauvegardes)}
       BACKUP_KEEP_DAYS: ${BACKUP_KEEP_DAYS:-30}
@@ -103,7 +106,9 @@ services:
     volumes:
       - ./backup.sh:/backup.sh:ro
       - ./restore-test.sh:/restore-test.sh:ro
-      - private_media:/data/private_media:ro
+      - ./restore.sh:/restore.sh:ro
+      # Écriture nécessaire : la restauration (restore.sh) réinstalle les fichiers privés.
+      - private_media:/data/private_media
       - ./backups:/backups
     depends_on:
       db:

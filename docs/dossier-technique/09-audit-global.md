@@ -186,7 +186,7 @@ et déménagement des fichiers. Détail des mesures et des procédures : [chapit
 
 | Constat | Gravité | Correctif |
 |---|---|---|
-| **Les tests PostgreSQL de l'intégration continue échouaient depuis la première mise en ligne du code** (les étapes suivantes, contrôles de sécurité Django et failles des bibliothèques Python, ne tournaient donc jamais). Les versions précédentes de ce dossier affirmaient à tort que les tests passaient aussi sous PostgreSQL | **Bloquant** | Corrigé : 332 tests au vert sur PostgreSQL ; contrôles de sécurité Django et `pip-audit` exécutés (aucune faille, un avertissement volontaire : HSTS preload) ; nouvelle étape « migration manquante » |
+| **Les tests PostgreSQL de l'intégration continue échouaient depuis la première mise en ligne du code** (les étapes suivantes, contrôles de sécurité Django et failles des bibliothèques Python, ne tournaient donc jamais). Les versions précédentes de ce dossier affirmaient à tort que les tests passaient aussi sous PostgreSQL | **Bloquant** | Corrigé : 333 tests au vert sur PostgreSQL ; contrôles de sécurité Django et `pip-audit` exécutés (aucune faille, un avertissement volontaire : HSTS preload) ; nouvelle étape « migration manquante » |
 | Erreur PostgreSQL « verrou impossible sur une jointure facultative » : accepter ou refuser un remplacement et décider d'un renouvellement d'ordonnance auraient planté en production (invisible sous SQLite) | **Bloquant** | Verrous limités à la ligne concernée |
 | Suppression d'un compte ou d'une fiche médecin depuis la console technique : comptes-rendus, ordonnances, paiements, messages effacés en cascade | **Important** | Liens protégés (refus de la suppression), testé ; l'effacement légal reste l'anonymisation |
 | Secret de double authentification stocké en clair dans la base | **Important** | Chiffré (clé des fichiers, hors base et hors sauvegardes), secrets existants chiffrés par migration, testé |
@@ -202,7 +202,7 @@ et déménagement des fichiers. Détail des mesures et des procédures : [chapit
 
 ## 9.19 Vérifications après correction
 
-- 332 tests automatisés de l'API, tous au vert sur SQLite **et sur PostgreSQL 17** (vérifié en local ; l'intégration
+- 333 tests automatisés de l'API, tous au vert sur SQLite **et sur PostgreSQL 17** (vérifié en local ; l'intégration
   continue exécute les deux).
 - Typage TypeScript et analyse ESLint sans erreur ; 0 violation d'accessibilité WCAG AA sur les 9 pages contrôlées ;
   recette de l'interface de production : 0 problème sur 78 affichages (§ 9.17).
@@ -239,6 +239,13 @@ Nouvel audit complet de la base sur PostgreSQL 17 réel, après les ajouts des v
 | Sauvegardes en clair si la phrase secrète était oubliée (données de santé) | **Important** | Phrase secrète obligatoire |
 | Connexion à une base hébergée ailleurs non chiffrée par défaut | Moyen | Chiffrement exigé par défaut hors machine locale |
 | Supprimer le compte du responsable d'une clinique (console technique) effaçait la clinique | Mineur | Suppression refusée par la base |
+| **Conséquence du compte limité : après restauration d'une sauvegarde, l'application n'avait plus accès à ses propres données** (objets rendus au compte d'administration). Reproduit : `permission denied for table accounts_user` | **Critique** | `deploy/restore.sh` (une commande : déchiffre, restaure, rend les objets à `fajma_app`, remet les fichiers) ; le test mensuel relit désormais la sauvegarde **avec le compte de l'application**, donc cette panne ne peut plus passer inaperçue |
+| Une annonce à des milliers de personnes partait dans une seule requête web : expiration, envoi à moitié fait, aucune trace enregistrée, et un nouvel essai prévenait deux fois les mêmes | **Important** | Annonce enregistrée d'abord, envoi en arrière-plan par paquets de 500, reprise possible sans doublon (test automatisé) |
+
+**Mesures sur base chargée** (20 508 comptes, 200 000 rendez-vous, 75 091 ordonnances) : recherche globale
+86–103 ms (12 requêtes), liste des médecins 28 ms, journal d'audit 37 ms, fiche 360° 62 ms, estimation des
+destinataires d'une annonce 14 ms. À dix fois ce volume, la recherche globale approcherait la seconde : il
+faudra alors un index de recherche textuelle (`pg_trgm`), prévu mais inutile aujourd'hui.
 
 Reste à la charge de l'hébergement : chiffrement du disque du serveur (les contenus des dossiers sont en clair
 dans la base, comme dans tout logiciel médical consultable ; les fichiers joints sont déjà chiffrés).
