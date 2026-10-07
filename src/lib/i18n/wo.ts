@@ -162,6 +162,7 @@ const wo: Dict = {
   "search.sortPrice": "Toftale : njëg ju yomb ba ju jafe",
   "search.specialties": "Xeeti doktoor",
   "search.all": "Yépp",
+  "search.pageTitle": "Gis doktoor ci Senegaal",
   "search.doctorsCount": "{n} doktoor",
   "search.more": "Wone yeneen doktoor ({n} des na)",
   "search.display": "Wone",

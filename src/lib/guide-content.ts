@@ -115,6 +115,14 @@ export const GUIDE: GuideRole[] = [
         ],
       },
       {
+        id: "dossier-rubriques",
+        title: "Se repérer dans son dossier",
+        points: [
+          "Quatre rubriques : « Mes soins » (comptes-rendus, ordonnances, analyses et imagerie, certificats), « Mon suivi » (rappels de médicaments, mesures à domicile, carnet de santé), « Mes informations » (profil de santé, fiche d'urgence, documents, assurances) et « Mon compte » (sécurité, qui a consulté mon dossier, mes données).",
+          "Un lien reçu par SMS ou par notification ouvre directement la bonne rubrique.",
+        ],
+      },
+      {
         id: "remboursement",
         title: "Se faire rembourser et emporter son dossier",
         points: [

@@ -74,7 +74,7 @@ def missing_required(owner_type: str, owner) -> list[str]:
     """Pièces obligatoires sans justificatif validé et en cours de validité (codes de pièce)."""
     today = timezone.localdate()
     valid = {c.kind for c in credentials_of(owner_type, owner) if is_valid(c, today)}
-    return [k for k in R.REQUIRED[owner_type] if k not in valid]
+    return [k for k in R.required_for(owner_type, owner) if k not in valid]
 
 
 def has_accepted_registration(doctor) -> bool:
@@ -114,7 +114,7 @@ def status_payload(owner_type: str, owner) -> dict:
         "owner_type": owner_type,
         "owner_name": owner_name(owner_type, owner),
         "is_verified": owner.is_verified,
-        "requirements": R.requirements(owner_type),
+        "requirements": R.requirements(owner_type, owner),
         "missing": [{"kind": k, "label": R.KIND_LABELS[k]} for k in missing],
         "credentials": [credential_dict(c) for c in credentials_of(owner_type, owner)],
     }
@@ -127,7 +127,7 @@ def _upload(request, owner_type: str, owner) -> None:
     if credentials_of(owner_type, owner).count() >= MAX_CREDENTIALS:
         raise ApiError("Nombre maximal de justificatifs atteint : supprimez d'abord une pièce refusée")
     data = body(request)
-    kind = get_choice(data, "kind", set(R.allowed_kinds(owner_type)))
+    kind = get_choice(data, "kind", set(R.allowed_kinds(owner_type, owner)))
     expires_at = None
     if data.get("expires_at"):
         try:

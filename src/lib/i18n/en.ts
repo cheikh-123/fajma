@@ -161,6 +161,7 @@ const en: Dict = {
   "search.sortPrice": "Sort: lowest price",
   "search.specialties": "Specialties",
   "search.all": "All",
+  "search.pageTitle": "Find a doctor in Senegal",
   "search.doctorsCount": "{n} doctor(s)",
   "search.more": "Show more doctors ({n} left)",
   "search.display": "Display",

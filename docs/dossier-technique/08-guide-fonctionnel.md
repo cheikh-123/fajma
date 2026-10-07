@@ -226,6 +226,16 @@ facturé garde son montant.
 son dossier complet en HL7 FHIR R4, avec les codes reconnus partout (CIM-10 pour les diagnostics, LOINC pour
 les mesures). Il peut le remettre à un hôpital ou à une autre application sans ressaisie.
 
+## 8.6 ter Dossier du patient : quatre rubriques
+
+Le dossier était une page unique de plus de 10 000 pixels : quatorze sections à la file, sans menu.
+Il est rangé en quatre rubriques — **Mes soins** (comptes-rendus, ordonnances, analyses et imagerie,
+certificats et courriers), **Mon suivi** (rappels de médicaments, mesures à domicile, carnet de santé),
+**Mes informations** (profil de santé, fiche d'urgence, documents, assurances) et **Mon compte**
+(sécurité, journal des accès, mes données). La page la plus longue fait désormais 2 600 pixels. Les liens
+déjà envoyés aux patients (`/dossier#analyses`, `#medicaments`, `#carnet`) ouvrent la bonne rubrique et
+font défiler jusqu'à la section.
+
 ## 8.7 Administration Fajma
 
 - **Menu par rubriques** (à gauche ; en haut sur téléphone), avec le nombre de choses en attente : tableau de

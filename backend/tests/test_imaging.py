@@ -132,3 +132,72 @@ class ImagingTests(ApiTestCase):
         res = self.client_for(member).post(
             "/api/labs/mine", {"laboratory_id": str(self.centre.id), "modalities": ["scanner_quantique"]}, format="json")
         self.assertEqual(res.status_code, 400)
+
+
+class ImagingCredentialsTests(ApiTestCase):
+    """Un centre d'imagerie ne doit pas se voir réclamer les papiers d'un laboratoire d'analyses."""
+
+    def setUp(self):
+        super().setUp()
+        self.member = self.make_user("centre@test.sn", "Manipulateur")
+
+    def centre(self, **kw):
+        lab = Laboratory.objects.create(name="Centre", city="Dakar", address="Rue 1", is_verified=True, **kw)
+        LaboratoryMember.objects.create(laboratory=lab, user=self.member)
+        return lab
+
+    def required(self, lab):
+        from directory.requirements import required_for
+
+        return required_for("laboratory", lab)
+
+    def test_analyses_inchange(self):
+        self.assertEqual(self.required(self.centre()), ["agrement_laboratoire", "ordre_biologiste"])
+
+    def test_imagerie_avec_rayons_x(self):
+        lab = self.centre(kind="imagerie", modalities=["radio", "echo"])
+        self.assertEqual(
+            self.required(lab),
+            ["autorisation_imagerie", "ordre_radiologue", "radioprotection"],
+        )
+        self.assertNotIn("agrement_laboratoire", self.required(lab))
+
+    def test_echographie_seule_sans_radioprotection(self):
+        """Une échographie ne produit aucun rayonnement ionisant."""
+        lab = self.centre(kind="imagerie", modalities=["echo", "doppler"])
+        self.assertEqual(self.required(lab), ["autorisation_imagerie", "ordre_radiologue"])
+
+    def test_les_deux_metiers_cumulent(self):
+        lab = self.centre(kind="both", modalities=["scanner"])
+        self.assertEqual(
+            self.required(lab),
+            ["agrement_laboratoire", "ordre_biologiste", "autorisation_imagerie",
+             "ordre_radiologue", "radioprotection"],
+        )
+
+    def test_l_ecran_affiche_les_bonnes_pieces(self):
+        lab = self.centre(kind="imagerie", modalities=["irm"])
+        res = self.client_for(self.member).get(f"/api/credentials/laboratory/{lab.id}")
+        self.assertEqual(res.status_code, 200, res.data)
+        obligatoires = [r["label"] for r in res.data["requirements"] if r["required"]]
+        self.assertIn("Autorisation d'exploitation du centre d'imagerie médicale (ministère de la Santé)", obligatoires)
+        self.assertNotIn("Agrément du laboratoire d'analyses médicales", obligatoires)
+        # L'IRM n'utilise pas de rayonnements ionisants
+        self.assertNotIn("radioprotection", [r["kind"] for r in res.data["requirements"] if r["required"]])
+
+    def test_depot_d_une_piece_propre_a_l_imagerie(self):
+        import base64
+
+        lab = self.centre(kind="imagerie", modalities=["radio"])
+        pdf = base64.b64encode(b"%PDF-1.4 test").decode()
+        res = self.client_for(self.member).post(
+            f"/api/credentials/laboratory/{lab.id}",
+            {"kind": "autorisation_imagerie", "file_name": "autorisation.pdf", "content_base64": pdf},
+            format="json")
+        self.assertEqual(res.status_code, 200, res.data)
+        # Une pièce qui ne concerne pas ce métier est refusée
+        res = self.client_for(self.member).post(
+            f"/api/credentials/laboratory/{lab.id}",
+            {"kind": "ordre_biologiste", "file_name": "x.pdf", "content_base64": pdf},
+            format="json")
+        self.assertEqual(res.status_code, 400)

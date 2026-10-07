@@ -160,6 +160,7 @@ const fr = {
   "search.sortPrice": "Trier : prix croissant",
   "search.specialties": "Spécialités",
   "search.all": "Toutes",
+  "search.pageTitle": "Trouver un médecin au Sénégal",
   "search.doctorsCount": "{n} médecin(s)",
   "search.more": "Voir plus de médecins ({n} restants)",
   "search.display": "Affichage",

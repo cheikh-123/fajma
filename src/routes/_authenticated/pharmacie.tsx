@@ -76,10 +76,12 @@ function PharmacyPage() {
               {data.pharmacies.map((p) => p.name).join(" · ")}
             </span>
           </Link>
-          <ThemeToggle className="ml-auto mr-3" />
-          <NotificationBell />
-          <HelpLink role="pharmacie" />
-          <LogoutButton />
+          <ThemeToggle className="ml-auto" />
+          <div className="flex items-center gap-3">
+            <NotificationBell />
+            <HelpLink role="pharmacie" />
+            <LogoutButton />
+          </div>
         </div>
       </header>
       <main className="mx-auto max-w-7xl px-6 py-8">

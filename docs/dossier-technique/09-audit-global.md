@@ -186,7 +186,7 @@ et déménagement des fichiers. Détail des mesures et des procédures : [chapit
 
 | Constat | Gravité | Correctif |
 |---|---|---|
-| **Les tests PostgreSQL de l'intégration continue échouaient depuis la première mise en ligne du code** (les étapes suivantes, contrôles de sécurité Django et failles des bibliothèques Python, ne tournaient donc jamais). Les versions précédentes de ce dossier affirmaient à tort que les tests passaient aussi sous PostgreSQL | **Bloquant** | Corrigé : 398 tests au vert sur PostgreSQL ; contrôles de sécurité Django et `pip-audit` exécutés (aucune faille, un avertissement volontaire : HSTS preload) ; nouvelle étape « migration manquante » |
+| **Les tests PostgreSQL de l'intégration continue échouaient depuis la première mise en ligne du code** (les étapes suivantes, contrôles de sécurité Django et failles des bibliothèques Python, ne tournaient donc jamais). Les versions précédentes de ce dossier affirmaient à tort que les tests passaient aussi sous PostgreSQL | **Bloquant** | Corrigé : 404 tests au vert sur PostgreSQL ; contrôles de sécurité Django et `pip-audit` exécutés (aucune faille, un avertissement volontaire : HSTS preload) ; nouvelle étape « migration manquante » |
 | Erreur PostgreSQL « verrou impossible sur une jointure facultative » : accepter ou refuser un remplacement et décider d'un renouvellement d'ordonnance auraient planté en production (invisible sous SQLite) | **Bloquant** | Verrous limités à la ligne concernée |
 | Suppression d'un compte ou d'une fiche médecin depuis la console technique : comptes-rendus, ordonnances, paiements, messages effacés en cascade | **Important** | Liens protégés (refus de la suppression), testé ; l'effacement légal reste l'anonymisation |
 | Secret de double authentification stocké en clair dans la base | **Important** | Chiffré (clé des fichiers, hors base et hors sauvegardes), secrets existants chiffrés par migration, testé |
@@ -202,7 +202,7 @@ et déménagement des fichiers. Détail des mesures et des procédures : [chapit
 
 ## 9.19 Vérifications après correction
 
-- 398 tests automatisés de l'API, tous au vert sur SQLite **et sur PostgreSQL 17** (vérifié en local ; l'intégration
+- 404 tests automatisés de l'API, tous au vert sur SQLite **et sur PostgreSQL 17** (vérifié en local ; l'intégration
   continue exécute les deux).
 - Typage TypeScript et analyse ESLint sans erreur ; 0 violation d'accessibilité WCAG AA sur les 9 pages contrôlées ;
   recette de l'interface de production : 0 problème sur 78 affichages (§ 9.17).
@@ -250,6 +250,19 @@ faudra alors un index de recherche textuelle (`pg_trgm`), prévu mais inutile au
 Reste à la charge de l'hébergement : chiffrement du disque du serveur (les contenus des dossiers sont en clair
 dans la base, comme dans tout logiciel médical consultable ; les fichiers joints sont déjà chiffrés).
 
+## 9.23 Revue des interfaces (version 6.7)
+
+Tour de toutes les interfaces, écran par écran.
+
+| Constat | Gravité | Correctif |
+|---|---|---|
+| **La page publique de recherche de médecins n'avait aucun titre principal** : rien annoncé au lecteur d'écran, et rien pour les moteurs de recherche sur la page la plus importante du site | Important | Titre `h1` ajouté (lu par les lecteurs d'écran, en français, wolof et anglais) |
+| **Un centre d'imagerie se voyait réclamer les justificatifs d'un laboratoire d'analyses** (agrément de laboratoire, inscription du biologiste) : sa validation aurait été bloquée | Important | Les pièces exigées suivent ce que l'établissement déclare faire : autorisation d'exploitation du centre d'imagerie et inscription du médecin radiologue ; **autorisation de radioprotection seulement s'il utilise des rayonnements ionisants** (une échographie n'en produit pas). Un établissement mixte cumule les deux séries |
+| « Aide » et « Déconnexion » collés dans l'en-tête des espaces pharmacie et laboratoire | Mineur | Espacement corrigé |
+| Dossier du patient : 10 685 pixels, quatorze sections sans menu | Moyen | Quatre rubriques (voir 8.6 ter) ; page la plus longue : 2 639 pixels |
+
+404 tests automatisés au vert ; aucune violation d'accessibilité ; aucun débordement horizontal sur téléphone.
+
 ## 9.22 Audit complet après les ajouts médicaux (version 6.4)
 
 Revue de l'application entière après l'ajout du contrôle de prescription, de l'imagerie, des actes et de
@@ -273,4 +286,4 @@ l'export FHIR.
 | Alerte d'imagerie affichant le code interne (« scanner ») au lieu du libellé | Mineur | Libellé complet |
 | Le filtre des centres par examen utilisait une recherche JSON au comportement différent sur SQLite et PostgreSQL | Moyen | Filtrage en Python : identique sur les deux bases (exigence de portabilité) |
 
-398 tests automatisés au vert sur SQLite et sur PostgreSQL.
+404 tests automatisés au vert sur SQLite et sur PostgreSQL.

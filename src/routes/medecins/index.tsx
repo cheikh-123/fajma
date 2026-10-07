@@ -320,6 +320,8 @@ function MedecinsPage() {
         </aside>
 
         <section className="min-w-0">
+          {/* Titre de la page : annoncé par les lecteurs d'écran et repris par les moteurs de recherche. */}
+          <h1 className="sr-only">{t("search.pageTitle")}</h1>
           <div className="mb-4 flex items-center justify-between">
             <p className="text-sm text-sunu-ink/60">{t("search.doctorsCount", { n: total })}</p>
             <div

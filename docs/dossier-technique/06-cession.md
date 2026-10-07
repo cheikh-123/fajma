@@ -63,7 +63,7 @@ en PDF, sans aucune donnée nominative : c'est la pièce à joindre au dossier d
 - **Compétences** : Python/Django et React/TypeScript, technologies très répandues ; aucun cadre propriétaire.
 - **Documentation** : `README.md` (installation), ce dossier (architecture, sécurité, exploitation), commentaires
   en français dans le code, décrivant les règles métier.
-- **Filets de sécurité** : 398 tests automatisés de l'API, typage TypeScript strict, analyse de code (ESLint,
+- **Filets de sécurité** : 404 tests automatisés de l'API, typage TypeScript strict, analyse de code (ESLint,
   Prettier), intégration continue sur chaque modification.
 - **Données de démonstration** : `python manage.py seed_demo --accounts --activity` crée des comptes de test pour
   chaque rôle et 12 semaines d'activité simulée.

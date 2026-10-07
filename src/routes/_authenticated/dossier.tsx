@@ -8,7 +8,7 @@ import {
   useQueryClient,
   useSuspenseQuery,
 } from "@tanstack/react-query";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Activity,
   ArrowLeft,
@@ -19,10 +19,12 @@ import {
   FileHeart,
   FileText,
   FolderOpen,
+  HeartPulse,
   MapPin,
   Pill,
   Printer,
   Save,
+  ShieldCheck,
   Trash2,
   Upload,
 } from "lucide-react";
@@ -97,9 +99,51 @@ export const Route = createFileRoute("/_authenticated/dossier")({
   component: DossierPage,
 });
 
+/**
+ * Rubriques du dossier : quatorze sections à la file faisaient une page de plus de 10 000 pixels, où
+ * trouver sa fiche d'urgence demandait de tout faire défiler. Les anciens liens (/dossier#analyses,
+ * #medicaments, #carnet) ouvrent directement la bonne rubrique.
+ */
+type Rubric = "soins" | "suivi" | "informations" | "compte";
+
+const RUBRICS: { id: Rubric; label: string; icon: typeof FileText }[] = [
+  { id: "soins", label: "Mes soins", icon: FileText },
+  { id: "suivi", label: "Mon suivi", icon: Activity },
+  { id: "informations", label: "Mes informations", icon: HeartPulse },
+  { id: "compte", label: "Mon compte", icon: ShieldCheck },
+];
+
+/** Ancre d'un lien reçu par SMS ou notification → rubrique à ouvrir. */
+const ANCHORS: Record<string, Rubric> = {
+  analyses: "soins",
+  ordonnances: "soins",
+  medicaments: "suivi",
+  suivi: "suivi",
+  carnet: "suivi",
+  urgence: "informations",
+  documents: "informations",
+  securite: "compte",
+};
+
 function DossierPage() {
   const qc = useQueryClient();
   const { data } = useSuspenseQuery(healthQO);
+  const [rubric, setRubric] = useState<Rubric>("soins");
+  // Un lien d'SMS ou de notification ouvre directement la bonne rubrique, puis fait défiler jusqu'à la section.
+  useEffect(() => {
+    const open = () => {
+      const anchor = window.location.hash.slice(1);
+      const target = ANCHORS[anchor];
+      if (!target) return;
+      setRubric(target);
+      requestAnimationFrame(() =>
+        document.getElementById(anchor)?.scrollIntoView({ block: "start", behavior: "smooth" }),
+      );
+    };
+    open();
+    window.addEventListener("hashchange", open);
+    return () => window.removeEventListener("hashchange", open);
+  }, []);
   const [form, setForm] = useState({
     full_name: data.profile?.full_name ?? "",
     phone: data.profile?.phone ?? "",
@@ -244,114 +288,145 @@ function DossierPage() {
               </button>
             </div>
           </aside>
-          <div className="min-w-0 space-y-8">
-            <section>
-              <h2 className="mb-3 flex items-center gap-2 text-lg font-bold text-sunu-dark">
-                <FileText className="size-5 text-sunu-green" /> Comptes-rendus (
-                {data.records.length})
-              </h2>
-              {data.records.length === 0 ? (
-                <Empty text="Aucun compte-rendu pour le moment." />
-              ) : (
-                <div className="grid gap-3">
-                  {data.records.map((r) => (
-                    <article
-                      key={r.id}
-                      className="rounded-xl border border-sunu-line bg-sunu-card p-5"
-                    >
-                      <div className="flex flex-wrap justify-between gap-2">
-                        <div>
-                          <h3 className="font-bold text-sunu-dark">{r.doctor?.full_name}</h3>
-                          <p className="text-xs text-sunu-green">{r.doctor?.specialty?.name}</p>
+          <div className="min-w-0">
+            <nav
+              aria-label="Rubriques du dossier"
+              className="-mx-6 mb-6 flex gap-1 overflow-x-auto border-b border-sunu-line px-6 pb-2"
+            >
+              {RUBRICS.map((r) => (
+                <button
+                  key={r.id}
+                  onClick={() => {
+                    setRubric(r.id);
+                    window.history.replaceState(null, "", "/dossier");
+                  }}
+                  aria-current={rubric === r.id ? "page" : undefined}
+                  className={`flex shrink-0 items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-semibold ${rubric === r.id ? "bg-sunu-green text-white" : "text-sunu-ink/65 hover:bg-sunu-card hover:text-sunu-green"}`}
+                >
+                  <r.icon className="size-4" /> {r.label}
+                </button>
+              ))}
+            </nav>
+            <div className={rubric === "soins" ? "space-y-8" : "hidden"}>
+              <section>
+                <h2 className="mb-3 flex items-center gap-2 text-lg font-bold text-sunu-dark">
+                  <FileText className="size-5 text-sunu-green" /> Comptes-rendus (
+                  {data.records.length})
+                </h2>
+                {data.records.length === 0 ? (
+                  <Empty text="Aucun compte-rendu pour le moment." />
+                ) : (
+                  <div className="grid gap-3">
+                    {data.records.map((r) => (
+                      <article
+                        key={r.id}
+                        className="rounded-xl border border-sunu-line bg-sunu-card p-5"
+                      >
+                        <div className="flex flex-wrap justify-between gap-2">
+                          <div>
+                            <h3 className="font-bold text-sunu-dark">{r.doctor?.full_name}</h3>
+                            <p className="text-xs text-sunu-green">{r.doctor?.specialty?.name}</p>
+                          </div>
+                          <time className="text-xs text-sunu-ink/50">
+                            {formatDate(r.created_at)}
+                          </time>
                         </div>
-                        <time className="text-xs text-sunu-ink/50">{formatDate(r.created_at)}</time>
-                      </div>
-                      <p className="mt-3 text-sm leading-relaxed text-sunu-ink/75">{r.summary}</p>
-                      {r.diagnosis && (
-                        <p className="mt-3 text-sm">
-                          <strong>Conclusion :</strong> {r.diagnosis}
-                        </p>
-                      )}
-                      {r.treatment && (
-                        <p className="mt-1 text-sm">
-                          <strong>Traitement :</strong> {r.treatment}
-                        </p>
-                      )}
-                      <CareSheetButton appointmentId={r.appointment_id} />
-                    </article>
-                  ))}
-                </div>
-              )}
-            </section>
-            <section>
-              <h2 className="mb-3 flex items-center gap-2 text-lg font-bold text-sunu-dark">
-                <Pill className="size-5 text-sunu-teal" /> Ordonnances ({data.prescriptions.length})
-              </h2>
-              {data.prescriptions.length === 0 ? (
-                <Empty text="Aucune ordonnance enregistrée." />
-              ) : (
-                <div className="grid gap-3 sm:grid-cols-2">
-                  {data.prescriptions.map((p) => (
-                    <article
-                      key={p.id}
-                      className="flex flex-col rounded-xl border border-sunu-line bg-sunu-card p-5"
-                    >
-                      <div className="flex items-start justify-between gap-2">
-                        <p className="text-xs font-semibold text-sunu-green">
-                          {p.doctor?.full_name}
-                        </p>
-                        <span className="text-[10px] font-semibold uppercase tracking-wide text-sunu-ink/45">
-                          {p.reference ?? ""}
-                        </span>
-                      </div>
-                      {p.for_relative && (
-                        <p className="mt-1 text-xs font-semibold text-sunu-ink/70">
-                          Pour {p.for_relative}
-                        </p>
-                      )}
-                      <p className="mt-2 whitespace-pre-wrap text-sm font-medium text-sunu-dark">
-                        {p.content}
-                      </p>
-                      {p.instructions && (
-                        <p className="mt-2 text-xs text-sunu-ink/60">{p.instructions}</p>
-                      )}
-                      <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-sunu-line pt-3">
-                        <time className="text-xs text-sunu-ink/50">{formatDate(p.created_at)}</time>
-                        <div className="flex gap-2">
-                          <PdfButton id={p.id} />
-                          <Link
-                            to="/ordonnance/$id"
-                            params={{ id: p.id }}
-                            className="flex items-center gap-1 rounded-lg border border-sunu-line px-3 py-1.5 text-xs font-semibold text-sunu-green"
-                          >
-                            <Printer className="size-3.5" /> Voir
-                          </Link>
+                        <p className="mt-3 text-sm leading-relaxed text-sunu-ink/75">{r.summary}</p>
+                        {r.diagnosis && (
+                          <p className="mt-3 text-sm">
+                            <strong>Conclusion :</strong> {r.diagnosis}
+                          </p>
+                        )}
+                        {r.treatment && (
+                          <p className="mt-1 text-sm">
+                            <strong>Traitement :</strong> {r.treatment}
+                          </p>
+                        )}
+                        <CareSheetButton appointmentId={r.appointment_id} />
+                      </article>
+                    ))}
+                  </div>
+                )}
+              </section>
+              <section>
+                <h2 className="mb-3 flex items-center gap-2 text-lg font-bold text-sunu-dark">
+                  <Pill className="size-5 text-sunu-teal" /> Ordonnances (
+                  {data.prescriptions.length})
+                </h2>
+                {data.prescriptions.length === 0 ? (
+                  <Empty text="Aucune ordonnance enregistrée." />
+                ) : (
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    {data.prescriptions.map((p) => (
+                      <article
+                        key={p.id}
+                        className="flex flex-col rounded-xl border border-sunu-line bg-sunu-card p-5"
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <p className="text-xs font-semibold text-sunu-green">
+                            {p.doctor?.full_name}
+                          </p>
+                          <span className="text-[10px] font-semibold uppercase tracking-wide text-sunu-ink/45">
+                            {p.reference ?? ""}
+                          </span>
                         </div>
-                      </div>
-                      <PharmacyOrderBox prescriptionId={p.id} />
-                      <RenewalBox
-                        prescriptionId={p.id}
-                        createdAt={p.created_at}
-                        doctorId={p.doctor?.id}
-                      />
-                    </article>
-                  ))}
-                </div>
-              )}
-            </section>
-            <MedicationRemindersSection prescriptions={data.prescriptions} />
-            <LabOrdersSection />
-            <MeasurementsSection />
-            <IssuedDocumentsSection />
-            <DocumentsSection />
-            <HealthProfileSection />
-            <EmergencyCardSection />
-            <CoverageSection />
-            <CarnetSection />
-            <PushToggle />
-            <SecuritySection showEmail={false} />
-            <AccessLogSection />
-            <MyDataSection />
+                        {p.for_relative && (
+                          <p className="mt-1 text-xs font-semibold text-sunu-ink/70">
+                            Pour {p.for_relative}
+                          </p>
+                        )}
+                        <p className="mt-2 whitespace-pre-wrap text-sm font-medium text-sunu-dark">
+                          {p.content}
+                        </p>
+                        {p.instructions && (
+                          <p className="mt-2 text-xs text-sunu-ink/60">{p.instructions}</p>
+                        )}
+                        <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-sunu-line pt-3">
+                          <time className="text-xs text-sunu-ink/50">
+                            {formatDate(p.created_at)}
+                          </time>
+                          <div className="flex gap-2">
+                            <PdfButton id={p.id} />
+                            <Link
+                              to="/ordonnance/$id"
+                              params={{ id: p.id }}
+                              className="flex items-center gap-1 rounded-lg border border-sunu-line px-3 py-1.5 text-xs font-semibold text-sunu-green"
+                            >
+                              <Printer className="size-3.5" /> Voir
+                            </Link>
+                          </div>
+                        </div>
+                        <PharmacyOrderBox prescriptionId={p.id} />
+                        <RenewalBox
+                          prescriptionId={p.id}
+                          createdAt={p.created_at}
+                          doctorId={p.doctor?.id}
+                        />
+                      </article>
+                    ))}
+                  </div>
+                )}
+              </section>
+              <LabOrdersSection />
+              <IssuedDocumentsSection />
+            </div>
+            <div className={rubric === "suivi" ? "space-y-8" : "hidden"}>
+              <MedicationRemindersSection prescriptions={data.prescriptions} />
+              <MeasurementsSection />
+              <CarnetSection />
+            </div>
+            <div className={rubric === "informations" ? "space-y-8" : "hidden"}>
+              <HealthProfileSection />
+              <EmergencyCardSection />
+              <DocumentsSection />
+              <CoverageSection />
+            </div>
+            <div className={rubric === "compte" ? "space-y-8" : "hidden"}>
+              <PushToggle />
+              <SecuritySection showEmail={false} />
+              <AccessLogSection />
+              <MyDataSection />
+            </div>
           </div>
         </div>
       </main>

@@ -1,6 +1,6 @@
 # Dossier technique et sécurité — Fajma
 
-**Version du dossier :** 6.6 — 7 octobre 2026
+**Version du dossier :** 6.7 — 7 octobre 2026
 **Périmètre :** code source du dépôt `sante-connect-main` (backend Django, frontend React, déploiement), services tiers.
 **Public visé :** acquéreurs, investisseurs, auditeurs techniques et juridiques, équipe technique reprenant le projet.
 
@@ -26,7 +26,7 @@ ni à Supabase.
 | Messages | Twilio : SMS et WhatsApp ; notifications push du navigateur (Web Push, gratuites) |
 | Téléconsultation | Jitsi Meet (serveur public au démarrage, auto-hébergeable) |
 | Assistant IA | Fournisseur configurable via une API compatible OpenAI (Google Gemini par défaut) |
-| Qualité | 398 tests automatisés de l'API ; parcours de bout en bout dans un navigateur réel pour chaque rôle ; intégration continue GitHub Actions |
+| Qualité | 404 tests automatisés de l'API ; parcours de bout en bout dans un navigateur réel pour chaque rôle ; intégration continue GitHub Actions |
 | Taille du code | ≈ 14 900 lignes Python (hors tests et migrations), ≈ 3 900 lignes de tests, ≈ 32 600 lignes TypeScript/React |
 
 ## 2. Contenu du dossier
@@ -86,7 +86,7 @@ ni à Supabase.
 
 ## 4. Méthode
 
-Dossier établi par lecture intégrale du code source, exécution de la suite de tests de l'API (398 tests) et
+Dossier établi par lecture intégrale du code source, exécution de la suite de tests de l'API (404 tests) et
 de parcours de bout en bout dans un navigateur réel (Chrome et Edge, ordinateur et mobile) : patient, médecin,
 médecin remplaçant, clinique, secrétariat, pharmacien, administrateur, activation obligatoire de la double
 authentification, mode hors ligne sur le build de production.
@@ -150,3 +150,4 @@ Ces points sont signalés **« À vérifier »**.
 | 6.4 | 06/10/2026 | **Sécurité de la prescription** : catalogue d'environ 100 médicaments, alertes allergies, interactions, contre-indications (grossesse, rein, asthme, G6PD…) et âge, alerte majeure à justifier par écrit ; **imagerie médicale** de bout en bout (prescription, centre qui réalise l'examen, résultats) avec alertes grossesse et rayons X, pacemaker et IRM, produit de contraste ; **nomenclature des actes** et **feuille de soins** pour les organismes ; **export du dossier au format international HL7 FHIR R4** ; audit complet de l'application (9.22) : balayage des droits sur les 190 adresses, débordement sur téléphone corrigé, accessibilité sans violation |
 | 6.5 | 07/10/2026 | Règles de réservation revues : **confirmation immédiate** d'un créneau libre (un médecin peut toujours exiger de valider lui-même) ; **annulation toujours possible par le patient**, marquée « tardive » hors délai, avec alerte SMS au cabinet et créneau aussitôt libéré — mieux vaut une annulation tardive qu'une absence découverte sur place |
 | 6.6 | 07/10/2026 | **Itinéraire vers le rendez-vous** : carte OpenStreetMap avec le cabinet, la position du patient et le trajet routier tracé (distance et temps de route, calcul OSRM auto-hébergeable), boutons Google Maps et Waze ; repli sur le trajet direct si le service est indisponible |
+| 6.7 | 07/10/2026 | Revue des interfaces (9.23) : titre principal ajouté à la recherche de médecins (lecteurs d'écran et référencement) ; **justificatifs adaptés au métier d'un centre d'imagerie** (autorisation d'imagerie, radiologue, radioprotection seulement si rayons X) ; en-tête des espaces pharmacie et laboratoire corrigé ; **dossier du patient rangé en quatre rubriques** (10 685 → 2 639 pixels), les liens déjà envoyés continuent de fonctionner |
