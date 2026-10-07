@@ -226,6 +226,18 @@ facturé garde son montant.
 son dossier complet en HL7 FHIR R4, avec les codes reconnus partout (CIM-10 pour les diagnostics, LOINC pour
 les mesures). Il peut le remettre à un hôpital ou à une autre application sans ressaisie.
 
+## 8.6 bis bis Haut de page du site public
+
+Deux lignes : le logo, un **champ de recherche permanent** (nom, spécialité, ville — il mène à l'annuaire)
+et, à droite, le thème, la langue, « Je suis pro » et « Connexion » ; en dessous, les rubriques (trouver un
+médecin, assistant, pharmacies, partenaires, téléconsultation). Chercher un médecin est le geste le plus
+fréquent : il est accessible sans redescendre dans la page. L'entrée « Professionnels », qui faisait doublon
+avec « Je suis pro », est supprimée.
+
+**Sur téléphone**, les rubriques n'apparaissaient pas du tout : elles étaient simplement masquées en dessous
+de 1024 px, sans menu de remplacement. Un bouton de menu les ouvre désormais, avec « Je suis pro » et le
+choix de la langue ; le champ de recherche laisse la place au bloc de recherche de la page d'accueil.
+
 ## 8.6 bis ter Retour en arrière
 
 Une **flèche de retour** figure dans l'en-tête de chaque page. Elle ramène à la page précédente ; quand il

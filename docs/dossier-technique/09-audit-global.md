@@ -250,6 +250,16 @@ faudra alors un index de recherche textuelle (`pg_trgm`), prévu mais inutile au
 Reste à la charge de l'hébergement : chiffrement du disque du serveur (les contenus des dossiers sont en clair
 dans la base, comme dans tout logiciel médical consultable ; les fichiers joints sont déjà chiffrés).
 
+## 9.24 Haut de page du site public (version 6.9)
+
+| Constat | Gravité | Correctif |
+|---|---|---|
+| **Aucun menu sur téléphone** : en dessous de 1024 px, toutes les rubriques disparaissaient de l'en-tête sans remplacement — un visiteur sur mobile ne pouvait atteindre ni les pharmacies, ni l'assistant, ni les partenaires | Important | Bouton de menu et panneau dépliant (rubriques, « Je suis pro », choix de la langue) |
+| « Professionnels » et « Je suis pro » menaient au même endroit | Mineur | Doublon supprimé |
+| La recherche de médecin, geste le plus fréquent, n'était accessible qu'en redescendant dans la page | Moyen | Champ de recherche permanent dans l'en-tête ; les rubriques passent sur une seconde ligne |
+
+Aucun débordement horizontal à 390 px, aucune violation d'accessibilité.
+
 ## 9.23 Revue des interfaces (version 6.7)
 
 Tour de toutes les interfaces, écran par écran.

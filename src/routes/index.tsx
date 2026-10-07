@@ -28,9 +28,11 @@ import {
   FileText,
   Heart,
   MapPin,
+  Menu,
   Pill,
   Search,
   ShieldCheck,
+  X,
   Star,
   Stethoscope,
   Video,
@@ -95,8 +97,17 @@ function Landing() {
   });
   const { t } = useI18n();
   const navigate = useNavigate();
+  const [headerQ, setHeaderQ] = useState("");
+  const [menuOpen, setMenuOpen] = useState(false);
   const [what, setWhat] = useState("");
   const [where, setWhere] = useState("");
+  // Liens du menu, définis une fois : la barre et le menu du téléphone s'en servent tous les deux.
+  const links: { to: string; label: string }[] = [
+    { to: "/medecins", label: t("nav.find") },
+    { to: "/assistant", label: t("nav.assistant") },
+    { to: "/pharmacies", label: t("nav.pharmacies") },
+    { to: "/partenaires", label: t("nav.partners") },
+  ];
   function search(e?: React.FormEvent) {
     e?.preventDefault();
     navigate({
@@ -107,38 +118,45 @@ function Landing() {
   return (
     <div className="min-h-screen bg-sunu-card text-sunu-ink">
       {/* NAV */}
-      <nav className="sticky top-0 z-40 border-b border-sunu-line bg-sunu-card/85 backdrop-blur-md">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
-          <Link to="/" className="flex items-center gap-2">
+      {/* HAUT DE PAGE : logo + recherche, puis les rubriques sur une seconde ligne. */}
+      <header className="sticky top-0 z-40 border-b border-sunu-line bg-sunu-card/90 backdrop-blur-md">
+        <div className="mx-auto flex h-16 max-w-7xl items-center gap-3 px-4 sm:gap-4 sm:px-6">
+          <Link to="/" className="flex shrink-0 items-center gap-2">
             <FajmaMark className="size-8" />
             <span className="text-xl font-bold tracking-tight text-sunu-green">Fajma</span>
           </Link>
-          <div className="hidden items-center gap-6 text-sm font-medium text-sunu-ink/70 lg:flex">
-            <Link to="/medecins" className="hover:text-sunu-green">
+          {/* Chercher un médecin depuis le haut de page, sans redescendre. */}
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              navigate({ to: "/medecins", search: { q: headerQ.trim() || undefined } });
+            }}
+            className="hidden min-w-0 flex-1 sm:block"
+          >
+            <label htmlFor="header-search" className="sr-only">
               {t("nav.find")}
-            </Link>
-            <a href="#teleconsult" className="hover:text-sunu-green">
-              {t("nav.teleconsult")}
-            </a>
-            <Link to="/pharmacies" className="hover:text-sunu-green">
-              {t("nav.pharmacies")}
-            </Link>
-            <Link to="/assistant" className="hover:text-sunu-green">
-              {t("nav.assistant")}
-            </Link>
-            <Link to="/partenaires" className="hover:text-sunu-green">
-              {t("nav.partners")}
-            </Link>
-            <Link to="/pro" className="hover:text-sunu-green">
-              {t("nav.pros")}
-            </Link>
-          </div>
-          <div className="flex items-center gap-2 sm:gap-3">
+            </label>
+            <div className="flex max-w-lg items-center gap-2 rounded-full border border-sunu-line bg-sunu-surface px-4">
+              <Search className="size-4 shrink-0 text-sunu-ink/40" />
+              <input
+                id="header-search"
+                type="search"
+                value={headerQ}
+                onChange={(e) => setHeaderQ(e.target.value)}
+                placeholder={t("nav.headerSearch")}
+                className="min-w-0 flex-1 bg-transparent py-2.5 text-sm outline-none"
+              />
+            </div>
+          </form>
+          <div className="ml-auto flex items-center gap-2 sm:gap-3">
             <ThemeToggle />
-            <LanguageSwitcher />
+            {/* Le choix de langue passe dans le menu sur téléphone : la barre déborderait. */}
+            <span className="hidden sm:block">
+              <LanguageSwitcher />
+            </span>
             <Link
               to="/pro"
-              className="hidden text-sm font-semibold text-sunu-ink/80 hover:text-sunu-green sm:block"
+              className="hidden whitespace-nowrap rounded-full border border-sunu-line px-4 py-2 text-sm font-semibold text-sunu-ink/80 hover:border-sunu-green hover:text-sunu-green lg:block"
             >
               {t("nav.imPro")}
             </Link>
@@ -148,9 +166,68 @@ function Landing() {
             >
               {t("nav.login")}
             </Link>
+            {/* Sans ce bouton, les rubriques étaient inaccessibles sur téléphone. */}
+            <button
+              type="button"
+              onClick={() => setMenuOpen((v) => !v)}
+              aria-expanded={menuOpen}
+              aria-controls="menu-mobile"
+              aria-label={t("nav.menu")}
+              className="grid size-9 shrink-0 place-items-center rounded-full border border-sunu-line text-sunu-ink/70 md:hidden"
+            >
+              {menuOpen ? <X className="size-4" /> : <Menu className="size-4" />}
+            </button>
           </div>
         </div>
-      </nav>
+        <nav
+          aria-label={t("nav.menu")}
+          className="mx-auto hidden max-w-7xl items-center gap-6 border-t border-sunu-line px-4 py-2.5 text-sm font-medium text-sunu-ink/70 sm:px-6 md:flex"
+        >
+          {links.map((l) => (
+            <Link key={l.to} to={l.to} className="hover:text-sunu-green">
+              {l.label}
+            </Link>
+          ))}
+          <a href="#teleconsult" className="hover:text-sunu-green">
+            {t("nav.teleconsult")}
+          </a>
+        </nav>
+        {menuOpen && (
+          <nav
+            id="menu-mobile"
+            aria-label={t("nav.menu")}
+            className="grid gap-1 border-t border-sunu-line px-4 py-3 text-sm font-medium md:hidden"
+          >
+            {links.map((l) => (
+              <Link
+                key={l.to}
+                to={l.to}
+                onClick={() => setMenuOpen(false)}
+                className="rounded-lg px-2 py-2.5 hover:bg-sunu-surface hover:text-sunu-green"
+              >
+                {l.label}
+              </Link>
+            ))}
+            <a
+              href="#teleconsult"
+              onClick={() => setMenuOpen(false)}
+              className="rounded-lg px-2 py-2.5 hover:bg-sunu-surface hover:text-sunu-green"
+            >
+              {t("nav.teleconsult")}
+            </a>
+            <Link
+              to="/pro"
+              onClick={() => setMenuOpen(false)}
+              className="rounded-lg px-2 py-2.5 font-semibold text-sunu-green hover:bg-sunu-surface"
+            >
+              {t("nav.imPro")}
+            </Link>
+            <span className="mt-1 block sm:hidden">
+              <LanguageSwitcher />
+            </span>
+          </nav>
+        )}
+      </header>
 
       {/* CAMPAGNE SPONSORISÉE (invisible sans campagne validée) */}
       <CampaignHero />

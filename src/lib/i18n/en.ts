@@ -9,6 +9,8 @@ const en: Dict = {
   "nav.assistant": "AI assistant",
   "nav.pros": "Health professionals",
   "nav.imPro": "I'm a professional",
+  "nav.menu": "Menu",
+  "nav.headerSearch": "Name, speciality, city…",
   "nav.login": "Log in",
   "theme.dark": "Switch to dark mode",
   "theme.light": "Switch to light mode",

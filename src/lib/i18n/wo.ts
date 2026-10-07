@@ -11,6 +11,8 @@ const wo: Dict = {
   "nav.assistant": "Ndimbal IA",
   "nav.pros": "Liggéeykati wér-gi-yaram",
   "nav.imPro": "Doktoor laa",
+  "nav.menu": "Menu",
+  "nav.headerSearch": "Tur, spesiyalite, dëkk…",
   "nav.login": "Dugg",
   "theme.dark": "Jël mode lëndëm",
   "theme.light": "Jël mode leer",

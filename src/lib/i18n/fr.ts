@@ -7,6 +7,8 @@ const fr = {
   "nav.assistant": "Assistant IA",
   "nav.pros": "Professionnels",
   "nav.imPro": "Je suis pro",
+  "nav.menu": "Menu",
+  "nav.headerSearch": "Nom, spécialité, ville…",
   "nav.login": "Connexion",
   "theme.dark": "Passer en mode sombre",
   "theme.light": "Passer en mode clair",
