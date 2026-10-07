@@ -1,4 +1,5 @@
 import { createFileRoute, useNavigate, useRouter, Link } from "@tanstack/react-router";
+import { BackButton } from "@/components/BackButton";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { z } from "zod";
@@ -178,6 +179,7 @@ function AuthPage() {
     <div className="min-h-screen bg-sunu-surface">
       <header className="border-b border-sunu-line bg-sunu-card">
         <div className="mx-auto flex h-16 max-w-7xl items-center px-6">
+          <BackButton to="/" />
           <Link to="/" className="flex items-center gap-2">
             <FajmaMark className="size-8" />
             <span className="text-xl font-bold text-sunu-green">Fajma</span>

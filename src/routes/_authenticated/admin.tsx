@@ -1,4 +1,5 @@
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { BackButton } from "@/components/BackButton";
 import { lazy, Suspense, useEffect, useState } from "react";
 import {
   keepPreviousData,
@@ -223,6 +224,7 @@ function AdminPage() {
     <div className="min-h-screen bg-sunu-surface">
       <header className="sticky top-0 z-40 border-b border-sunu-line bg-sunu-card">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-3 px-4 py-3 sm:px-6">
+          <BackButton to="/" />
           <Link to="/" className="flex items-center gap-2">
             <span className="grid size-8 place-items-center rounded-lg bg-sunu-green text-white">
               <ShieldCheck className="size-4" />

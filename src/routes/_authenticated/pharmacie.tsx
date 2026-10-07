@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { BackButton } from "@/components/BackButton";
 import { ThemeToggle } from "@/lib/theme";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
@@ -68,7 +69,8 @@ function PharmacyPage() {
     <div className="min-h-screen bg-sunu-surface">
       <header className="border-b border-sunu-line bg-sunu-card">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
-          <Link to="/" className="flex items-center gap-2">
+          <BackButton to="/" />
+          <Link to="/" className="mr-auto flex items-center gap-2">
             <span className="grid size-8 place-items-center rounded-lg bg-sunu-teal text-white">
               <Pill className="size-4" />
             </span>

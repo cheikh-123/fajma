@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { BackButton } from "@/components/BackButton";
 import { useQueryClient } from "@tanstack/react-query";
 import { LogOut, ShieldAlert } from "lucide-react";
 import { SecuritySection } from "@/components/SecuritySection";
@@ -43,7 +44,8 @@ function SecurityPage() {
     <div className="min-h-screen bg-sunu-surface">
       <header className="border-b border-sunu-line bg-sunu-card">
         <div className="mx-auto flex h-16 max-w-3xl items-center justify-between gap-3 px-4 sm:px-6">
-          <span className="flex items-center gap-2">
+          <BackButton to="/mon-espace" />
+          <span className="mr-auto flex items-center gap-2">
             <FajmaMark className="size-8" />
             <span className="text-xl font-bold text-sunu-green">Fajma</span>
           </span>

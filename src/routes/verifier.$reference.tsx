@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { BackButton } from "@/components/BackButton";
 import { ThemeToggle } from "@/lib/theme";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { BadgeCheck, ShieldAlert, ShieldX } from "lucide-react";
@@ -49,6 +50,7 @@ function VerifyPage() {
     <div className="min-h-screen bg-sunu-surface">
       <header className="border-b border-sunu-line bg-sunu-card">
         <div className="mx-auto flex h-16 max-w-3xl items-center px-6">
+          <BackButton to="/" />
           <Link to="/" className="flex items-center gap-2">
             <FajmaMark className="size-8" />
             <span className="text-xl font-bold text-sunu-green">Fajma</span>

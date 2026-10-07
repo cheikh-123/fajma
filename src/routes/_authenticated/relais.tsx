@@ -3,6 +3,7 @@
  * (tension, glycémie, vaccins en retard, rendez-vous proches), ajout avec accord, transfert du dossier.
  */
 import { HelpLink } from "@/components/HelpLink";
+import { BackButton } from "@/components/BackButton";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
@@ -65,6 +66,7 @@ function RelaisPage() {
     <div className="min-h-screen bg-sunu-surface">
       <header className="border-b border-sunu-line bg-sunu-card">
         <div className="mx-auto flex h-16 max-w-6xl items-center gap-3 px-4 sm:px-6">
+          <BackButton to="/" />
           <Link to="/" className="flex items-center gap-2">
             <FajmaMark className="size-8" />
             <span className="font-bold text-sunu-dark">Relais · {data.agent.organization}</span>

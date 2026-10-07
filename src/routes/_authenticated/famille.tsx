@@ -4,6 +4,7 @@
  * payer ses consultations, prendre ses rendez-vous et suivre ses comptes-rendus si le proche l'a accepté.
  */
 import { HelpLink } from "@/components/HelpLink";
+import { BackButton } from "@/components/BackButton";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
@@ -72,6 +73,7 @@ function FamilyPage() {
     <div className="min-h-screen bg-sunu-surface">
       <header className="border-b border-sunu-line bg-sunu-card">
         <div className="mx-auto flex h-16 max-w-5xl items-center gap-3 px-4 sm:px-6">
+          <BackButton to="/mon-espace" />
           <Link to="/mon-espace" className="flex items-center gap-2">
             <FajmaMark className="size-8" />
             <span className="font-bold text-sunu-dark">Famille</span>

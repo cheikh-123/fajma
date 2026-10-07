@@ -226,6 +226,12 @@ facturé garde son montant.
 son dossier complet en HL7 FHIR R4, avec les codes reconnus partout (CIM-10 pour les diagnostics, LOINC pour
 les mesures). Il peut le remettre à un hôpital ou à une autre application sans ressaisie.
 
+## 8.6 bis ter Retour en arrière
+
+Une **flèche de retour** figure dans l'en-tête de chaque page. Elle ramène à la page précédente ; quand il
+n'y en a pas — page ouverte depuis un SMS, une notification, un favori ou un nouvel onglet — elle mène à la
+page parente (espace du patient, accueil), pour ne jamais laisser l'utilisateur dans une impasse.
+
 ## 8.6 ter Dossier du patient : quatre rubriques
 
 Le dossier était une page unique de plus de 10 000 pixels : quatorze sections à la file, sans menu.

@@ -1,6 +1,6 @@
 # Dossier technique et sécurité — Fajma
 
-**Version du dossier :** 6.7 — 7 octobre 2026
+**Version du dossier :** 6.8 — 7 octobre 2026
 **Périmètre :** code source du dépôt `sante-connect-main` (backend Django, frontend React, déploiement), services tiers.
 **Public visé :** acquéreurs, investisseurs, auditeurs techniques et juridiques, équipe technique reprenant le projet.
 
@@ -151,3 +151,4 @@ Ces points sont signalés **« À vérifier »**.
 | 6.5 | 07/10/2026 | Règles de réservation revues : **confirmation immédiate** d'un créneau libre (un médecin peut toujours exiger de valider lui-même) ; **annulation toujours possible par le patient**, marquée « tardive » hors délai, avec alerte SMS au cabinet et créneau aussitôt libéré — mieux vaut une annulation tardive qu'une absence découverte sur place |
 | 6.6 | 07/10/2026 | **Itinéraire vers le rendez-vous** : carte OpenStreetMap avec le cabinet, la position du patient et le trajet routier tracé (distance et temps de route, calcul OSRM auto-hébergeable), boutons Google Maps et Waze ; repli sur le trajet direct si le service est indisponible |
 | 6.7 | 07/10/2026 | Revue des interfaces (9.23) : titre principal ajouté à la recherche de médecins (lecteurs d'écran et référencement) ; **justificatifs adaptés au métier d'un centre d'imagerie** (autorisation d'imagerie, radiologue, radioprotection seulement si rayons X) ; en-tête des espaces pharmacie et laboratoire corrigé ; **dossier du patient rangé en quatre rubriques** (10 685 → 2 639 pixels), les liens déjà envoyés continuent de fonctionner |
+| 6.8 | 07/10/2026 | **Flèche de retour dans l'en-tête de chaque page** : revient à la page précédente, ou à la page parente quand il n'y a pas d'historique (lien reçu par SMS, favori, nouvel onglet) |
