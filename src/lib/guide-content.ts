@@ -62,6 +62,7 @@ export const GUIDE: GuideRole[] = [
           "Cliquez sur un créneau, ajoutez un motif si vous le souhaitez, répondez aux questions du médecin (facultatif) puis « Confirmer ».",
           "Un créneau libre est confirmé immédiatement : pas d'attente. Quelques médecins préfèrent valider eux-mêmes chaque demande ; c'est indiqué sur leur fiche avant que vous ne réserviez.",
           "Vous pouvez annuler à tout moment depuis « Mon espace ». Si vous annulez moins de quelques heures avant (délai fixé par le médecin), c'est possible aussi : le cabinet est prévenu tout de suite pour redonner le créneau.",
+          "« Voir l'itinéraire » sur votre rendez-vous : une carte montre le cabinet, votre position et le trajet, avec la distance et le temps de route. Les boutons Google Maps et Waze lancent la navigation guidée sur votre téléphone.",
         ],
         points: [
           "Kinésithérapie, pansements… : réservez une série de séances en une seule fois.",

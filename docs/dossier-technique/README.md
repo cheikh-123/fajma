@@ -1,6 +1,6 @@
 # Dossier technique et sécurité — Fajma
 
-**Version du dossier :** 6.5 — 7 octobre 2026
+**Version du dossier :** 6.6 — 7 octobre 2026
 **Périmètre :** code source du dépôt `sante-connect-main` (backend Django, frontend React, déploiement), services tiers.
 **Public visé :** acquéreurs, investisseurs, auditeurs techniques et juridiques, équipe technique reprenant le projet.
 
@@ -149,3 +149,4 @@ Ces points sont signalés **« À vérifier »**.
 | 6.3 | 06/10/2026 | Suite de l'audit de la base : **restauration vérifiée de bout en bout** (`deploy/restore.sh`, une commande ; le test mensuel relit la sauvegarde avec le compte de l'application, ce qui aurait détecté la panne corrigée ici) ; **annonces groupées envoyées en arrière-plan** par paquets, reprise sans doublon ; mesures des écrans d'administration sur base chargée |
 | 6.4 | 06/10/2026 | **Sécurité de la prescription** : catalogue d'environ 100 médicaments, alertes allergies, interactions, contre-indications (grossesse, rein, asthme, G6PD…) et âge, alerte majeure à justifier par écrit ; **imagerie médicale** de bout en bout (prescription, centre qui réalise l'examen, résultats) avec alertes grossesse et rayons X, pacemaker et IRM, produit de contraste ; **nomenclature des actes** et **feuille de soins** pour les organismes ; **export du dossier au format international HL7 FHIR R4** ; audit complet de l'application (9.22) : balayage des droits sur les 190 adresses, débordement sur téléphone corrigé, accessibilité sans violation |
 | 6.5 | 07/10/2026 | Règles de réservation revues : **confirmation immédiate** d'un créneau libre (un médecin peut toujours exiger de valider lui-même) ; **annulation toujours possible par le patient**, marquée « tardive » hors délai, avec alerte SMS au cabinet et créneau aussitôt libéré — mieux vaut une annulation tardive qu'une absence découverte sur place |
+| 6.6 | 07/10/2026 | **Itinéraire vers le rendez-vous** : carte OpenStreetMap avec le cabinet, la position du patient et le trajet routier tracé (distance et temps de route, calcul OSRM auto-hébergeable), boutons Google Maps et Waze ; repli sur le trajet direct si le service est indisponible |

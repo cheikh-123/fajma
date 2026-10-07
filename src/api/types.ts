@@ -248,7 +248,15 @@ export type PatientAppointment = {
   cancelled_by: "patient" | "doctor" | "clinic" | null;
   cancel_reason: string | null;
   has_review: boolean;
-  location: { name: string; address: string; city: string } | null;
+  /** Où se rendre (consultation au cabinet) ; coordonnées pour la carte et l'itinéraire. */
+  location: {
+    name: string;
+    address: string;
+    city: string;
+    phone: string | null;
+    latitude: number | null;
+    longitude: number | null;
+  } | null;
   insurance: AppointmentInsurance | null;
   amount_due: number;
   questionnaire: Question[] | null;

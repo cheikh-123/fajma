@@ -92,6 +92,29 @@ def series_dict(a: Appointment) -> dict | None:
     return {"id": str(a.series_id), "index": a.series_index, "total": a.series.booked_count, "interval_days": a.series.interval_days}
 
 
+
+def place_dict(a: Appointment) -> dict | None:
+    """
+    Où le patient doit se rendre : le lieu de consultation choisi, sinon le cabinet du médecin.
+    Les coordonnées permettent d'afficher la carte et l'itinéraire (elles viennent du quartier ou de la
+    ville quand l'adresse exacte n'a pas été relevée).
+    """
+    if a.mode != "in_person":
+        return None
+    place = a.location or a.doctor
+    name = place.name if a.location else (a.doctor.practice_name or "Cabinet")
+    if not place.address and not a.location:
+        return None
+    return {
+        "name": name,
+        "address": place.address,
+        "city": place.city,
+        "phone": (place.phone or None) if a.location else (a.doctor.practice_phone or None),
+        "latitude": place.latitude,
+        "longitude": place.longitude,
+    }
+
+
 def visit_dict(a: Appointment) -> dict | None:
     if a.mode != "home_visit":
         return None
@@ -165,7 +188,7 @@ def patient_appointment_dict(a: Appointment) -> dict:
         "cancelled_by": a.cancelled_by or None,
         "cancel_reason": a.cancel_reason or None,
         "has_review": hasattr(a, "review"),
-        "location": {"name": a.location.name, "address": a.location.address, "city": a.location.city} if a.location else None,
+        "location": place_dict(a),
         "visit": visit_dict(a),
         "practitioner": practitioner_dict(a),
         "series": series_dict(a),

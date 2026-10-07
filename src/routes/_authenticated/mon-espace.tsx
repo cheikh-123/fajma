@@ -13,7 +13,9 @@ import {
   useMutation,
   useQueryClient,
 } from "@tanstack/react-query";
-import { useState } from "react";
+import { lazy, Suspense, useState } from "react";
+// Carte d'itinéraire : chargée seulement quand le patient l'ouvre (Leaflet est volumineux).
+const RouteMap = lazy(() => import("@/components/RouteMap").then((m) => ({ default: m.RouteMap })));
 import {
   BellRing,
   Building2,
@@ -27,6 +29,7 @@ import {
   House,
   Loader2,
   LogOut,
+  Map,
   MapPin,
   MessageSquare,
   Pill,
@@ -414,9 +417,15 @@ function ApptCard({
   const [openPay, setOpenPay] = useState(false);
   const [openReview, setOpenReview] = useState(false);
   const [openMove, setOpenMove] = useState(false);
+  const [openMap, setOpenMap] = useState(false);
   const [openCancel, setOpenCancel] = useState(false);
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState("");
+  // Lieu de la consultation, seulement s'il est localisé (carte et itinéraire).
+  const place =
+    appt.location && appt.location.latitude != null && appt.location.longitude != null
+      ? { ...appt.location, latitude: appt.location.latitude, longitude: appt.location.longitude }
+      : null;
   const payment = [...(appt.payments ?? [])].sort((a, b) =>
     b.created_at.localeCompare(a.created_at),
   )[0];
@@ -494,6 +503,16 @@ function ApptCard({
             <p className="mt-1 inline-flex items-center gap-1 rounded-full bg-sunu-surface px-2 py-0.5 text-xs font-semibold text-sunu-ink/70">
               <Users className="size-3" /> {t("space.for")} {appt.relative.full_name}
             </p>
+          )}
+          {active && place && (
+            <button
+              type="button"
+              onClick={() => setOpenMap((v) => !v)}
+              aria-expanded={openMap}
+              className="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-sunu-green hover:underline"
+            >
+              <Map className="size-3.5" /> {openMap ? "Masquer l'itinéraire" : "Voir l'itinéraire"}
+            </button>
           )}
           {appt.reason && <p className="mt-1 text-xs text-sunu-ink/50">Motif : {appt.reason}</p>}
           {appt.insurance && (
@@ -738,6 +757,16 @@ function ApptCard({
             onMoved();
           }}
         />
+      )}
+      {/* Pleine largeur de la carte : l'itinéraire a besoin de place. */}
+      {active && place && openMap && (
+        <Suspense fallback={<div className="mt-3 h-64 animate-pulse rounded-xl bg-sunu-surface" />}>
+          <RouteMap
+            destination={{ lat: place.latitude, lng: place.longitude }}
+            title={place.name}
+            address={`${place.address}, ${place.city}`}
+          />
+        </Suspense>
       )}
     </div>
   );
