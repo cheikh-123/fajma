@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { CampaignHero } from "@/components/CampaignHero";
+import { OpeningSplash, shouldPlayOpening } from "@/components/OpeningSplash";
 import { PartnersStrip } from "@/components/PartnersStrip";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -97,6 +98,8 @@ function Landing() {
   });
   const { t } = useI18n();
   const navigate = useNavigate();
+  // Générique d'ouverture : joué une seule fois par visite, puis bascule sur la page d'accueil.
+  const [opening, setOpening] = useState(() => shouldPlayOpening());
   const [headerQ, setHeaderQ] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
   const [what, setWhat] = useState("");
@@ -117,6 +120,7 @@ function Landing() {
   }
   return (
     <div className="min-h-screen bg-sunu-card text-sunu-ink">
+      {opening && <OpeningSplash onDone={() => setOpening(false)} />}
       {/* NAV */}
       {/* HAUT DE PAGE : logo + recherche, puis les rubriques sur une seconde ligne. */}
       <header className="sticky top-0 z-40 border-b border-sunu-line bg-sunu-card/90 backdrop-blur-md">

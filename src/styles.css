@@ -574,3 +574,16 @@ body::before {
     animation-play-state: paused;
   }
 }
+
+/* Générique d'ouverture : éclat du dernier battement (voir components/OpeningSplash). */
+@keyframes fajma-open-flash {
+  0% {
+    opacity: 0;
+  }
+  12% {
+    opacity: 0.85;
+  }
+  100% {
+    opacity: 0;
+  }
+}

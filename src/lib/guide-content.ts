@@ -43,6 +43,14 @@ export const GUIDE: GuideRole[] = [
         tip: "Si vous vous connectez depuis un nouveau téléphone ou ordinateur, vous recevez une alerte. Téléphone perdu ? Page « Sécurité » : « Déconnecter mes autres appareils ».",
       },
       {
+        id: "ouverture",
+        title: "À la première ouverture",
+        points: [
+          "Un court générique de sept secondes s'affiche : un tracé de battement de cœur, puis le logo, puis la page d'accueil. Il ne se joue qu'une fois par visite ; le bouton « Passer » l'arrête tout de suite.",
+          "Si votre téléphone est réglé pour réduire les animations, il ne s'affiche pas du tout.",
+        ],
+      },
+      {
         id: "trouver",
         title: "Trouver un médecin",
         steps: [

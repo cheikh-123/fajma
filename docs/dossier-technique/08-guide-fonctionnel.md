@@ -226,6 +226,15 @@ facturé garde son montant.
 son dossier complet en HL7 FHIR R4, avec les codes reconnus partout (CIM-10 pour les diagnostics, LOINC pour
 les mesures). Il peut le remettre à un hôpital ou à une autre application sans ressaisie.
 
+## 8.6 Générique d'ouverture
+
+À la première ouverture de l'application dans une visite, un générique de **sept secondes** précède la page
+d'accueil : un tracé d'électrocardiogramme traverse l'écran dans un halo vert, les battements s'accélèrent,
+un éclat révèle le logo, puis l'écran s'efface sur l'accueil. Il ne se joue **qu'une fois par visite**, jamais
+entre les pages ; un bouton « Passer » (ou la touche Échap) l'interrompt immédiatement ; et il est entièrement
+ignoré pour qui a demandé à son appareil de réduire les animations — la page d'accueil s'affiche alors tout
+de suite. Code : `src/components/OpeningSplash.tsx`.
+
 ## 8.6 bis bis Haut de page du site public
 
 Deux lignes : le logo, un **champ de recherche permanent** (nom, spécialité, ville — il mène à l'annuaire)
