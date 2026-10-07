@@ -236,7 +236,13 @@ export type PatientAppointment = {
   payments: PaymentSummary[];
   relative: { id: string; full_name: string } | null;
   consultation_type: { id: string; name: string } | null;
+  /** Annuler reste possible tant que le rendez-vous est actif. */
   can_cancel: boolean;
+  /** Déplacer en ligne : seulement avant le délai fixé par le médecin. */
+  can_move: boolean;
+  /** Passé ce délai, l'annulation reste possible mais le cabinet est prévenu aussitôt. */
+  late_cancellation_warning: boolean;
+  late_cancellation: boolean;
   cancellation_deadline_hours: number;
   booking_instructions: string | null;
   cancelled_by: "patient" | "doctor" | "clinic" | null;
@@ -292,6 +298,8 @@ export type DoctorAppointment = {
   arrived_at: string | null;
   cancelled_by: "patient" | "doctor" | "clinic" | null;
   cancel_reason: string | null;
+  /** Annulation faite après le délai : le créneau s'est libéré tard. */
+  late_cancellation: boolean;
   paid: boolean;
   location_id: string | null;
   insurance: AppointmentInsurance | null;

@@ -69,11 +69,12 @@ class ApiTestCase(TestCase):
 
 
 class BookingTests(ApiTestCase):
-    def test_booking_is_pending_with_server_price(self):
-        res = self.book(self.p1, price=100, status="confirmed", duration_minutes=480)
+    def test_booking_uses_server_price_and_duration(self):
+        """Prix, durée et statut viennent du serveur : un créneau libre est confirmé aussitôt."""
+        res = self.book(self.p1, price=100, status="cancelled", duration_minutes=480)
         self.assertEqual(res.status_code, 200, res.data)
         appt = Appointment.objects.get(id=res.data["id"])
-        self.assertEqual(appt.status, "pending")
+        self.assertEqual(appt.status, "confirmed")
         self.assertEqual(appt.price, 15000)
         self.assertEqual(appt.duration_minutes, 30)
         self.assertEqual(appt.ends_at, self.slot + timedelta(minutes=30))

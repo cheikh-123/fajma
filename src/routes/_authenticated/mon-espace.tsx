@@ -517,10 +517,10 @@ function ApptCard({
               <b>Avant votre rendez-vous :</b> {appt.booking_instructions}
             </p>
           )}
-          {active && !appt.can_cancel && (
-            <p className="mt-1 text-xs text-sunu-ink/50">
-              Annulation en ligne fermée ({appt.cancellation_deadline_hours} h avant) : contactez le
-              cabinet.
+          {active && appt.late_cancellation_warning && (
+            <p className="mt-1 text-xs text-amber-700 dark:text-amber-300">
+              Moins de {appt.cancellation_deadline_hours} h avant : vous pouvez encore annuler, le
+              cabinet sera prévenu tout de suite. Prévenez-le aussi par téléphone si vous le pouvez.
             </p>
           )}
         </div>
@@ -638,7 +638,7 @@ function ApptCard({
                 <CalendarPlus className="size-3.5" /> Agenda
               </a>
             )}
-            {onMoved && active && appt.can_cancel && (
+            {onMoved && active && appt.can_move && (
               <button
                 onClick={() => setOpenMove((v) => !v)}
                 className="flex items-center justify-center gap-1 rounded-lg border border-sunu-line px-3 py-1.5 text-xs font-semibold text-sunu-ink/70 hover:border-sunu-green hover:text-sunu-green"
@@ -648,7 +648,19 @@ function ApptCard({
             )}
             {onCancel && active && appt.can_cancel && (
               <button
-                onClick={() => (appt.series ? setOpenCancel((v) => !v) : onCancel("one"))}
+                onClick={() => {
+                  if (
+                    appt.late_cancellation_warning &&
+                    !window.confirm(
+                      "Il reste moins de " +
+                        appt.cancellation_deadline_hours +
+                        " h avant ce rendez-vous. L'annulation sera signalée au cabinet, qui pourra redonner le créneau. Confirmer ?",
+                    )
+                  )
+                    return;
+                  if (appt.series) setOpenCancel((v) => !v);
+                  else onCancel("one");
+                }}
                 className="flex items-center justify-center gap-1 rounded-lg border border-sunu-line px-3 py-1.5 text-xs font-semibold text-sunu-ink/70 hover:border-red-300 hover:text-red-600"
               >
                 <X className="size-3.5" /> {t("appt.cancel")}

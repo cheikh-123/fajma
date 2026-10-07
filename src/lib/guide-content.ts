@@ -60,7 +60,8 @@ export const GUIDE: GuideRole[] = [
           "Choisissez le motif, puis « Pour qui » : vous-même ou un proche (enfant, parent).",
           "Sélectionnez votre assurance si vous en avez une : vous ne payez alors que votre part.",
           "Cliquez sur un créneau, ajoutez un motif si vous le souhaitez, répondez aux questions du médecin (facultatif) puis « Confirmer ».",
-          "Le rendez-vous est confirmé tout de suite ou après validation du médecin : vous êtes prévenu par SMS.",
+          "Un créneau libre est confirmé immédiatement : pas d'attente. Quelques médecins préfèrent valider eux-mêmes chaque demande ; c'est indiqué sur leur fiche avant que vous ne réserviez.",
+          "Vous pouvez annuler à tout moment depuis « Mon espace ». Si vous annulez moins de quelques heures avant (délai fixé par le médecin), c'est possible aussi : le cabinet est prévenu tout de suite pour redonner le créneau.",
         ],
         points: [
           "Kinésithérapie, pansements… : réservez une série de séances en une seule fois.",

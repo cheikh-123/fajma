@@ -39,11 +39,14 @@ def cancellation_open(appt: Appointment) -> bool:
 
 def cancel(appt: Appointment, by: str, reason: str = "", *, quiet: bool = False) -> None:
     """quiet : pas de notification individuelle (annulation groupée d'une série, résumée en un seul message)."""
+    # Hors délai : l'annulation passe quand même (le créneau se libère et la liste d'attente est
+    # prévenue), mais elle est marquée « tardive » et le cabinet est alerté par SMS.
+    appt.late_cancellation = by == "patient" and not cancellation_open(appt)
     appt.status = "cancelled"
     appt.cancelled_at = timezone.now()
     appt.cancelled_by = by
     appt.cancel_reason = reason
-    appt.save(update_fields=["status", "cancelled_at", "cancelled_by", "cancel_reason"])
+    appt.save(update_fields=["status", "cancelled_at", "cancelled_by", "cancel_reason", "late_cancellation"])
     # Payé en ligne : remboursement intégral du patient, quel que soit l'auteur de l'annulation.
     from payments.ledger import open_refund
 
@@ -146,7 +149,11 @@ def patient_appointment_dict(a: Appointment) -> dict:
         ],
         "relative": {"id": str(a.relative.id), "full_name": a.relative.full_name} if a.relative else None,
         "consultation_type": {"id": str(a.consultation_type.id), "name": a.consultation_type.name} if a.consultation_type else None,
-        "can_cancel": cancellation_open(a),
+        # Annuler reste toujours possible tant que le rendez-vous est actif ; déplacer en ligne, non.
+        "can_cancel": a.is_active,
+        "can_move": cancellation_open(a),
+        "late_cancellation_warning": a.is_active and not cancellation_open(a),
+        "late_cancellation": a.late_cancellation,
         "insurance": insurance_dict(a),
         "amount_due": a.amount_due,
         "questionnaire": a.questionnaire or None,
@@ -508,14 +515,11 @@ def cancel_appointment(request, appointment_id):
     )
     if not appt:
         raise not_found("Rendez-vous introuvable ou déjà annulé")
-    if not cancellation_open(appt):
-        raise ApiError(
-            f"Ce rendez-vous ne peut plus être annulé en ligne (moins de {appt.doctor.cancellation_deadline_hours} h avant). "
-            "Contactez directement le cabinet."
-        )
+    # Plus de blocage hors délai : un patient empêché d'annuler ne vient simplement pas, et le médecin
+    # perd le créneau sans le savoir. L'annulation tardive est acceptée, marquée et signalée au cabinet.
     reason = get_str(data, "reason", max_len=300) or ""
     if get_choice(data, "scope", {"one", "series"}, default="one") == "series" and appt.series_id:
-        cancelled, kept = cancel_rest_of_series(appt, "patient", reason, only_open=True)
+        cancelled, kept = cancel_rest_of_series(appt, "patient", reason)
         return Response({"ok": True, "cancelled": len(cancelled), "kept": kept})
     cancel(appt, "patient", reason)
     return Response({"ok": True, "cancelled": 1, "kept": 0})
@@ -727,6 +731,7 @@ def doctor_appointment_dict(a: Appointment) -> dict:
         "arrived_at": iso(a.arrived_at),
         "cancelled_by": a.cancelled_by or None,
         "cancel_reason": a.cancel_reason or None,
+        "late_cancellation": a.late_cancellation,
         "paid": any(p.status == "paid" for p in a.payments.all()),
         "location_id": str(a.location_id) if a.location_id else None,
         "insurance": insurance_dict(a),

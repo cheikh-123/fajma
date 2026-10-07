@@ -89,7 +89,7 @@ class CrossAccessSweep(ApiTestCase):
         ]:
             self.assert_refused(self.p2c, method, url, data, "patient B")
         # Rien n'a bougé.
-        self.assertEqual(Appointment.objects.get(id=self.future.id).status, "pending")
+        self.assertEqual(Appointment.objects.get(id=self.future.id).status, "confirmed")
         self.assertTrue(MedicalDocument.objects.filter(id=d).exists())
         self.assertTrue(Relative.objects.filter(id=self.relative.id).exists())
         self.assertEqual(PrescriptionRenewal.objects.get(id=self.renewal.id).status, "pending")

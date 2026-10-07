@@ -12,6 +12,9 @@ from .test_security import ApiTestCase
 
 class AppointmentHistoryTests(ApiTestCase):
     def test_full_lifecycle_is_traced_with_author(self):
+        # Ce médecin valide lui-même ses demandes : le rendez-vous part « en attente ».
+        self.doctor.auto_confirm = False
+        self.doctor.save(update_fields=["auto_confirm"])
         appt_id = self.book(self.p1).data["id"]
         doc = self.client_for(self.doc_user)
         self.assertEqual(doc.post(f"/api/pro/appointments/{appt_id}/status", {"status": "confirmed"}, format="json").status_code, 200)

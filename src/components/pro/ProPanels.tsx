@@ -99,7 +99,13 @@ export function SettingsPanel() {
       </h2>
       <div className="mt-4 grid gap-3 text-sm text-sunu-ink/80">
         <label className="flex items-center justify-between gap-3">
-          Confirmer automatiquement
+          <span>
+            Confirmer automatiquement
+            <span className="block text-xs font-normal text-sunu-ink/50">
+              Un créneau libre réservé en ligne est confirmé tout de suite. Décochez pour valider
+              vous-même chaque demande.
+            </span>
+          </span>
           <input
             type="checkbox"
             checked={values.auto_confirm}

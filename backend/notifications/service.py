@@ -176,9 +176,17 @@ def appointment_cancelled(appt) -> None:
     when = format_when(appt.scheduled_at)
     _family(appt, "Rendez-vous de {label} annulé", f"{appt.doctor.full_name}, {when}.")
     if appt.cancelled_by == "patient":
+        late = getattr(appt, "late_cancellation", False)
         for user in _doctors(appt):
-            notify(user, kind="appointment_cancelled", title="Rendez-vous annulé par le patient",
-                   body=f"{_who(appt)} — {when}.", link="/pro")
+            notify(
+                user,
+                kind="appointment_cancelled",
+                title="Annulation tardive" if late else "Rendez-vous annulé par le patient",
+                body=f"{_who(appt)} — {when}." + (" Le créneau est de nouveau libre." if late else ""),
+                link="/pro",
+                # Hors délai : le cabinet doit l'apprendre tout de suite pour redonner le créneau.
+                sms=late,
+            )
     else:
         reason = f" Motif : {appt.cancel_reason}." if appt.cancel_reason else ""
         notify(appt.patient, kind="appointment_cancelled", title="Rendez-vous annulé",

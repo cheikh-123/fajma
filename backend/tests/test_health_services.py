@@ -42,6 +42,9 @@ class MeasurementTests(ApiTestCase):
         self.assertEqual(len(client.get(url).data), 2)
         self.assertEqual(len(client.get(url, {"relative_id": str(child.id)}).data), 1)
         # Médecin qui suit le patient : voit les mesures ; sans RDV confirmé : pas d'accès.
+        # Ce médecin valide lui-même ses demandes : le rendez-vous part « en attente ».
+        self.doctor.auto_confirm = False
+        self.doctor.save(update_fields=["auto_confirm"])
         appt_id = self.book(self.p1).data["id"]
         self.assertEqual(self.client_for(self.doc_user).get(f"/api/pro/patients/{self.p1.id}").status_code, 404)
         Appointment.objects.filter(id=appt_id).update(status="confirmed")

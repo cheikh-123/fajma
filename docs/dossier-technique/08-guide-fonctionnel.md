@@ -129,7 +129,7 @@ internet).
   créneaux, le lieu, ou en faire une plage de visites à domicile. Un clic sur une plage la modifie ou la
   supprime ; deux plages qui se chevauchent sont refusées.
 - Aperçu de ce que voient les patients sur les 7 prochains jours.
-- Absences (congés, formation), règles de réservation (confirmation automatique, nouveaux patients, délai
+- Absences (congés, formation), règles de réservation (confirmation automatique — **activée par défaut** —, nouveaux patients, délai
   minimal, horizon, délai d'annulation, consignes, visites à domicile), motifs et tarifs (dont séries),
   lieux de consultation, synchronisation avec Google Agenda / Outlook / iPhone.
 
@@ -301,7 +301,8 @@ les mesures). Il peut le remettre à un hôpital ou à une autre application san
 | Créneaux | Calculés par le serveur : plages − absences − RDV existants − délai minimal ; jamais deux RDV sur le même horaire (contrainte en base) |
 | Rendez-vous à venir | 4 au plus par patient et par médecin (hors séances d'une série) |
 | Nouveaux patients | Un médecin peut les refuser ; ses patients connus restent acceptés |
-| Annulation | En ligne jusqu'au délai fixé par le médecin (passé ce délai, le patient doit appeler le cabinet) ; remboursement intégral d'un RDV payé en ligne ; le créneau libéré est aussitôt réservable et les inscrits de la liste d'attente sont prévenus |
+| Confirmation | **Un créneau libre réservé en ligne est confirmé immédiatement** : le serveur a déjà vérifié qu'il est libre, faire attendre le patient n'apporte rien. Un médecin qui préfère examiner chaque demande décoche « Confirmer automatiquement » dans ses règles de réservation ; le patient le voit sur sa fiche avant de réserver |
+| Annulation | **Toujours possible par le patient** tant que le rendez-vous n'a pas eu lieu. Passé le délai fixé par le médecin, elle est acceptée mais marquée **« annulation tardive »** : le cabinet est prévenu aussitôt par SMS et le créneau redevient réservable. Empêcher une annulation tardive ne fait pas venir le patient, elle produit une absence que le médecin découvre sur place. Déplacer en ligne, en revanche, reste fermé hors délai. Remboursement intégral d'un RDV payé en ligne ; les inscrits de la liste d'attente sont prévenus |
 | Historique d'un RDV | Chaque prise, confirmation, déplacement (ancien → nouvel horaire), annulation (avec motif), arrivée et fin de consultation est enregistrée avec son auteur ; bouton « Historique » sur chaque RDV pour le patient, le médecin et le secrétariat (le patient voit le rôle des membres du cabinet, pas leur nom) |
 | Absences du médecin | Congés et absences bloquent les créneaux en ligne ; les agendas personnels importés aussi |
 | RDV pour un proche | Le patient réserve pour un enfant ou un parent enregistré dans « Mes proches » |

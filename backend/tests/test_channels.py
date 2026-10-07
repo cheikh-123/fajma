@@ -55,7 +55,7 @@ class WhatsAppBotTests(ApiTestCase):
         confirm = self.say("Fatou Sarr")
         self.assertIn("Confirmer le RDV avec Dr Test", confirm)
         done = self.say("1")
-        self.assertIn("RDV en attente de confirmation", done)
+        self.assertIn("RDV confirmé", done)
         user = User.objects.get(phone=PHONE)
         self.assertTrue(user.phone_verified)
         self.assertEqual(user.full_name, "Fatou Sarr")

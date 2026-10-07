@@ -62,10 +62,11 @@ class TimeOffAndRulesTests(ApiTestCase):
         self.doctor.save()
         appt_id = self.book(self.p1).data["id"]
         mine = self.client_for(self.p1).get("/api/appointments/mine").data[0]
-        self.assertFalse(mine["can_cancel"])
-        res = self.client_for(self.p1).post(f"/api/appointments/{appt_id}/cancel")
-        self.assertEqual(res.status_code, 400)
-        self.assertIn("ne peut plus être annulé", res.data["error"])
+        # Hors délai : annuler reste possible (sinon le patient ne vient pas sans prévenir),
+        # mais c'est signalé au cabinet ; déplacer en ligne, non.
+        self.assertTrue(mine["can_cancel"])
+        self.assertFalse(mine["can_move"])
+        self.assertTrue(mine["late_cancellation_warning"])
         new_slot = self.slot + timedelta(minutes=30)
         res = self.client_for(self.p1).post(f"/api/appointments/{appt_id}/reschedule", {"scheduled_at": iso(new_slot)}, format="json")
         self.assertEqual(res.status_code, 400)
@@ -94,6 +95,9 @@ class DoctorWorkflowTests(ApiTestCase):
 
     def test_patient_file_requires_confirmed_appointment_and_notes_stay_private(self):
         HealthProfile.objects.create(user=self.p1, blood_group="O+", allergies="Pénicilline")
+        # Ce médecin valide lui-même ses demandes : le rendez-vous part « en attente ».
+        self.doctor.auto_confirm = False
+        self.doctor.save(update_fields=["auto_confirm"])
         appt_id = self.book(self.p1).data["id"]
         doc = self.client_for(self.doc_user)
         url = f"/api/pro/patients/{self.p1.id}"

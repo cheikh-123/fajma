@@ -47,7 +47,9 @@ class Doctor(BaseModel):
     longitude = models.FloatField(null=True, blank=True)
 
     # ── Règles de réservation (réglées par le médecin) ──
-    auto_confirm = models.BooleanField(default=False, help_text="Confirme automatiquement les RDV pris en ligne")
+    # Par défaut : un créneau libre réservé en ligne est confirmé tout de suite. Le médecin peut exiger
+    # de valider lui-même chaque demande (certaines spécialités le souhaitent).
+    auto_confirm = models.BooleanField(default=True, help_text="Confirme automatiquement les RDV pris sur un créneau libre")
     min_notice_hours = models.PositiveSmallIntegerField(default=1, validators=[MaxValueValidator(168)])
     booking_horizon_days = models.PositiveSmallIntegerField(default=60, validators=[MinValueValidator(1), MaxValueValidator(180)])
     accepts_new_patients = models.BooleanField(default=True)

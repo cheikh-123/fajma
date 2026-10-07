@@ -108,7 +108,7 @@ class SeriesTests(ApiTestCase):
         res = self.client_for(self.p1).post(f"/api/appointments/{appts[1].id}/cancel", {"scope": "series"}, format="json")
         self.assertEqual(res.data["cancelled"], 3)
         statuses = list(Appointment.objects.filter(patient=self.p1).order_by("scheduled_at").values_list("status", flat=True))
-        self.assertEqual(statuses, ["pending", "cancelled", "cancelled", "cancelled"])
+        self.assertEqual(statuses, ["confirmed", "cancelled", "cancelled", "cancelled"])
 
     def test_doctor_repeats_an_appointment(self):
         appt_id = self.book(self.p1).data["id"]

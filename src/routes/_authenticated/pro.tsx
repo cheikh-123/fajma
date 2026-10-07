@@ -884,6 +884,7 @@ function DoctorApptCard({
           <p className="mt-1 text-xs text-red-700">
             Annulé par{" "}
             {{ patient: "le patient", doctor: "vous", clinic: "le secrétariat" }[appt.cancelled_by]}
+            {appt.late_cancellation ? " (annulation tardive)" : ""}
             {appt.cancel_reason ? ` : ${appt.cancel_reason}` : ""}
           </p>
         )}

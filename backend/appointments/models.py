@@ -53,6 +53,9 @@ class Appointment(BaseModel):
     cancelled_at = models.DateTimeField(null=True, blank=True)
     cancelled_by = models.CharField(max_length=10, choices=CANCELLED_BY, blank=True)
     cancel_reason = models.CharField(max_length=300, blank=True)
+    # Annulation faite après le délai fixé par le médecin : le créneau se libère quand même, mais le
+    # cabinet est prévenu tout de suite (mieux vaut une annulation tardive qu'un patient absent).
+    late_cancellation = models.BooleanField(default=False)
     # Assurance choisie à la réservation (valeurs figées : un changement de taux ne modifie pas un RDV déjà pris).
     insurer = models.ForeignKey("insurance.Insurer", null=True, blank=True, on_delete=models.SET_NULL, related_name="appointments")
     insurance_member_number = models.CharField(max_length=40, blank=True)
