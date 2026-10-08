@@ -13,7 +13,8 @@ juriste ; les montants sont des ordres de grandeur à confirmer par devis.
 | Comptes prestataires | Hébergeur, PayDunya, Twilio, agrégateur USSD, fournisseur IA, SMTP, Google Play | Transfert des comptes ou re-création au nom de l'acquéreur ; les clés sont hors du code (§ 2.7) |
 | Application Android | Configuration Trusted Web Activity (`twa-manifest.json`) | Clé de signature Play Store : à conserver et transférer (sa perte empêche toute mise à jour) |
 
-Le code ne contient **aucun secret** et **aucune dépendance** à Lovable ou Supabase (plateformes du prototype).
+Le code ne contient **aucun secret** et **aucune dépendance** à une plateforme propriétaire : il s'installe sur
+n'importe quel serveur Linux avec PostgreSQL, et rien n'attache l'acquéreur à un fournisseur donné.
 
 ## 6.2 Licences des composants libres
 
@@ -63,7 +64,7 @@ en PDF, sans aucune donnée nominative : c'est la pièce à joindre au dossier d
 - **Compétences** : Python/Django et React/TypeScript, technologies très répandues ; aucun cadre propriétaire.
 - **Documentation** : `README.md` (installation), ce dossier (architecture, sécurité, exploitation), commentaires
   en français dans le code, décrivant les règles métier.
-- **Filets de sécurité** : 404 tests automatisés de l'API, typage TypeScript strict, analyse de code (ESLint,
+- **Filets de sécurité** : 429 tests automatisés de l'API, typage TypeScript strict, analyse de code (ESLint,
   Prettier), intégration continue sur chaque modification.
 - **Données de démonstration** : `python manage.py seed_demo --accounts --activity` crée des comptes de test pour
   chaque rôle et 12 semaines d'activité simulée.

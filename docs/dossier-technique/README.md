@@ -1,12 +1,13 @@
 # Dossier technique et sécurité — Fajma
 
-**Version du dossier :** 7.5 — 8 octobre 2026
+**Version du dossier :** 7.6 — 9 octobre 2026
 **Périmètre :** code source du dépôt `sante-connect-main` (backend Django, frontend React, déploiement), services tiers.
 **Public visé :** acquéreurs, investisseurs, auditeurs techniques et juridiques, équipe technique reprenant le projet.
 
-Cette version remplace entièrement la version 1.x, qui décrivait le prototype initial (Supabase, Lovable Cloud).
-Le produit a depuis été reconstruit : backend Django, base PostgreSQL maîtrisée, aucune dépendance à Lovable
-ni à Supabase.
+Cette version remplace entièrement la version 1.x, qui décrivait un prototype bâti sur une plateforme
+propriétaire. Le produit a depuis été entièrement reconstruit : backend Django, base PostgreSQL maîtrisée,
+**aucune dépendance à une plateforme ou à un hébergeur particulier**. Le code et les données se déplacent
+d'un serveur à l'autre sans réécriture (§ [4.5](04-exploitation.md)).
 
 ---
 
@@ -26,7 +27,7 @@ ni à Supabase.
 | Messages | Twilio : SMS et WhatsApp ; notifications push du navigateur (Web Push, gratuites) |
 | Téléconsultation | Jitsi Meet (serveur public au démarrage, auto-hébergeable) |
 | Assistant IA | Fournisseur configurable via une API compatible OpenAI (Google Gemini par défaut) |
-| Qualité | 404 tests automatisés de l'API ; parcours de bout en bout dans un navigateur réel pour chaque rôle ; intégration continue GitHub Actions |
+| Qualité | 429 tests automatisés de l'API ; parcours de bout en bout dans un navigateur réel pour chaque rôle ; intégration continue GitHub Actions |
 | Taille du code | ≈ 14 900 lignes Python (hors tests et migrations), ≈ 3 900 lignes de tests, ≈ 32 600 lignes TypeScript/React |
 
 ## 2. Contenu du dossier
@@ -87,7 +88,7 @@ ni à Supabase.
 
 ## 4. Méthode
 
-Dossier établi par lecture intégrale du code source, exécution de la suite de tests de l'API (404 tests) et
+Dossier établi par lecture intégrale du code source, exécution de la suite de tests de l'API (429 tests) et
 de parcours de bout en bout dans un navigateur réel (Chrome et Edge, ordinateur et mobile) : patient, médecin,
 médecin remplaçant, clinique, secrétariat, pharmacien, administrateur, activation obligatoire de la double
 authentification, mode hors ligne sur le build de production.
@@ -103,7 +104,7 @@ Ces points sont signalés **« À vérifier »**.
 
 | Version | Date | Changements |
 |---|---|---|
-| 1.x | 2026 | Prototype initial (Supabase, Lovable Cloud) |
+| 1.x | 2026 | Prototype initial, sur une plateforme propriétaire |
 | 2.0 | 29/09/2026 | Reconstruction complète (Django, PostgreSQL), dossier réécrit |
 | 2.1 | 30/09/2026 | Visites à domicile, séries de séances, remplacements ; double authentification obligatoire pour les professionnels ; outils d'administration ; fiches modifiables par chaque acteur ; supervision, test de restauration, purge des données ; chapitre 6 (cession) |
 | 2.2 | 30/09/2026 | Agenda tenu par le cabinet (saisie et déplacement de RDV), pièces jointes dans la messagerie, exports tableur (dont bordereau de tiers payant) ; suivi à domicile (tension, glycémie, poids), rappels de médicaments, laboratoires d'analyses, disponibilité des médicaments en pharmacie, pages publiques des cliniques, « Mes médecins », messagerie avec le remplaçant |
@@ -160,3 +161,4 @@ Ces points sont signalés **« À vérifier »**.
 | 7.3 | 08/10/2026 | **Revue de cybersécurité** (§ 2.5, § 2.9) : analyse statique du code (`bandit`) ajoutée à l'intégration continue, zéro alerte de gravité moyenne ou haute ; les adresses des services externes (IA, SMS, paiement) doivent être en `https://`, sinon l'application refuse de démarrer — un `http://` oublié aurait envoyé notes médicales et clés d'API en clair ; préchargement HSTS désormais activable ; `check --deploy` sans aucun avertissement. Quatre tests dépendaient du jour de la semaine et devenaient rouges les mercredis et jeudis : corrigés. Nouvelle section **« Ce qui n'est pas couvert, et pourquoi »** (test d'intrusion, pare-feu applicatif, détection d'intrusion, déclaration CDP…) |
 | 7.4 | 08/10/2026 | **Clés d'accès (passkeys)** (§ 2.2) : connexion par empreinte, visage, code de l'appareil ou clé USB, à la place du code à six chiffres — seule méthode qui ferme l'hameçonnage, le vol de compte le plus courant. La clé privée ne quitte jamais l'appareil ; une base volée n'ouvre aucune session. Éprouvée par 13 tests qui rejouent une vraie attaque de relais. **Alertes de sécurité** : la supervision détecte désormais une vague de mots de passe essayés, des comptes verrouillés en série, des fiches d'urgence consultées en masse et une rafale d'actions sensibles de l'administration ; les alertes graves partent aussi par SMS (`ALERT_PHONES`) |
 | 7.5 | 08/10/2026 | **Mises à jour des bibliothèques proposées automatiquement** (Dependabot : serveur, application, actions d'intégration continue ; corrections de sécurité sans attendre). Nouveau chapitre 10 **« Que faire en cas d'incident »**, écrit pour être lu le jour même par quelqu'un qui n'est pas ingénieur : compte de médecin compromis, attaque de mots de passe, site à terre, restauration, fuite d'une clé, et le rythme à tenir. Correction au passage : la réinitialisation par l'administration retire désormais **aussi** les clés d'accès — ne retirer que le code à six chiffres laissait la personne bloquée par une clé restée sur l'appareil perdu |
+| 7.6 | 09/10/2026 | **Dossier remanié pour la lecture** : couverture refaite (titre, repères chiffrés vérifiables, destinataires, mention de confidentialité) et **sommaire avec les numéros de page**, calculés en mesurant réellement chaque chapitre plutôt qu'en les estimant ; chaque ligne renvoie au chapitre. Toute référence aux plateformes du prototype initial a été retirée du dossier : le texte dit désormais ce qui compte pour un acquéreur — aucune dépendance à une plateforme propriétaire, installation sur n'importe quel serveur Linux |

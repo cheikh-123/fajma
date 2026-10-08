@@ -23,7 +23,7 @@ Gravité : 🔴 bloquant pour la commercialisation · 🟠 à traiter avant la m
 | R-15 | 🟡 | Temps réel par interrogation de la base toutes les 2 s (suffisant jusqu'à quelques milliers de connectés) | Passer à PostgreSQL LISTEN/NOTIFY ou Redis au-delà |
 | R-16 | 🟡 | Calcul des prochains créneaux à chaque recherche | Mise en cache au-delà de quelques centaines de médecins |
 | R-17 | 🟡 | Autres langues nationales (pulaar, sérère, diola…) | Ajouter un fichier de traduction par langue, avec des traducteurs natifs |
-| R-18 | 🟡 | Données de l'ancien prototype (Supabase / Lovable Cloud) | Décider de leur reprise (script d'import) ou de leur suppression, puis fermer les anciens comptes |
+| R-18 | 🟡 | Données restées sur l'ancienne plateforme du prototype | Décider de leur reprise (script d'import) ou de leur suppression, puis fermer les anciens comptes |
 | R-19 | 🟠 ⚖️ | Assistant IA de prise de notes : texte de consultation envoyé à un fournisseur d'IA hors Sénégal | Autorisation CDP et contrat avec le fournisseur (ou IA hébergée au Sénégal) avant d'activer en production ; sinon `AI_NOTES_ENABLED=false` (mise en forme locale sans IA) |
 
 ## 5.2 Plan d'action proposé
@@ -42,7 +42,7 @@ aux documents limité au partage explicite ; double authentification ; connexion
 en-têtes de sécurité et CSP stricte ; cookies HttpOnly ; mots de passe de 10 caractères ; export et suppression
 du compte ; reversement aux médecins, commission et remboursements ; tests automatisés et intégration continue ;
 déploiement reproductible ; contrôle du type réel des fichiers déposés ; chiffres de la page d'accueil issus de
-la base (plus d'allégations écrites en dur) ; code et données indépendants de Lovable et de Supabase.
+la base (plus d'allégations écrites en dur) ; code et données indépendants de toute plateforme propriétaire.
 
 Depuis la version 2.0 : double authentification obligatoire pour tous les professionnels et administrateurs
 (R-13) ; suppression de la connexion par mot de passe seul de la console technique ; suspension de comptes ;
