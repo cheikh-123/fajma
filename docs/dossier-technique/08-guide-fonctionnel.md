@@ -538,7 +538,7 @@ Pour aider l'État (Direction de la Prévention, districts sanitaires) à repér
 
 ## 8.20 Partenaires et campagnes sponsorisées
 
-**Pour les visiteurs** : en haut de l'accueil, un grand bandeau animé aux couleurs de la campagne, avec son visuel ; s'il y a plusieurs campagnes « Accueil » actives (5 au plus, ordre tiré au hasard), elles défilent toutes les 7 secondes (points, flèches, pause au survol ; animations coupées si l'appareil le demande). Bande « Nos partenaires » sur l'accueil (logos qui défilent) et lien « Partenaires » dans le menu ; page « Nos partenaires » (`/partenaires`) — assurances, opérateurs, pharmacies et
+**Pour les visiteurs** : en haut de l'accueil, un bandeau où le visuel de la campagne occupe tout le cadre ; un voile sombre passe sous le texte, de sorte que le titre et le bouton restent lisibles quelle que soit l'image fournie par l'annonceur. Le titre de la campagne n'est volontairement pas un titre de page : le premier titre de l'accueil reste celui de Fajma. S'il y a plusieurs campagnes « Accueil » actives (5 au plus, ordre tiré au hasard), elles défilent toutes les 7 secondes (pagination discrète en bas à droite, barre de progression, pause au survol ; animations coupées si l'appareil le demande). Bande « Nos partenaires » sur l'accueil (logos qui défilent) et lien « Partenaires » dans le menu ; page « Nos partenaires » (`/partenaires`) — assurances, opérateurs, pharmacies et
 laboratoires, institutions, ONG ; encarts marqués « Sponsorisé » sur l'accueil, la recherche de médecins
 (encart séparé, au-dessus des résultats, qui ne change jamais leur ordre) et l'espace patient.
 

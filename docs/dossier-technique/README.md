@@ -1,6 +1,6 @@
 # Dossier technique et sécurité — Fajma
 
-**Version du dossier :** 7.0 — 7 octobre 2026
+**Version du dossier :** 7.1 — 8 octobre 2026
 **Périmètre :** code source du dépôt `sante-connect-main` (backend Django, frontend React, déploiement), services tiers.
 **Public visé :** acquéreurs, investisseurs, auditeurs techniques et juridiques, équipe technique reprenant le projet.
 
@@ -154,3 +154,4 @@ Ces points sont signalés **« À vérifier »**.
 | 6.8 | 07/10/2026 | **Flèche de retour dans l'en-tête de chaque page** : revient à la page précédente, ou à la page parente quand il n'y a pas d'historique (lien reçu par SMS, favori, nouvel onglet) |
 | 6.9 | 07/10/2026 | **Haut de page du site public** : champ de recherche permanent dans l'en-tête, rubriques sur une seconde ligne, doublon « Professionnels » / « Je suis pro » supprimé, et **menu sur téléphone** là où les rubriques disparaissaient purement et simplement en dessous de 1024 px |
 | 7.0 | 07/10/2026 | **Générique d'ouverture** de sept secondes à la première ouverture d'une visite : tracé d'électrocardiogramme, battements qui s'accélèrent, éclat, logo, puis bascule sur la page d'accueil. Une seule fois par visite, bouton « Passer », et désactivé pour qui réduit les animations |
+| 7.1 | 08/10/2026 | **Bandeau sponsorisé de l'accueil retravaillé** (choisi parmi 5 propositions) : le visuel de la campagne occupe tout le cadre, un voile sombre passe sous le texte pour que le titre et le bouton restent lisibles quelle que soit l'image fournie par l'annonceur ; hauteur ramenée de 288 à 228 pixels, flèches remplacées par une pagination discrète ; le titre de la campagne n'est plus un titre de page, pour que le premier titre de l'accueil reste celui de Fajma. Accessibilité de l'accueil public corrigée au passage (zone principale `main`, niveaux de titres) : plus aucune violation |
