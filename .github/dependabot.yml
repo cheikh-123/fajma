@@ -1,0 +1,58 @@
+# Mises à jour des bibliothèques, proposées automatiquement par GitHub.
+#
+# Pourquoi : un serveur qui tourne six mois sans mise à jour est l'une des trois façons les plus courantes de
+# se faire attaquer. Dependabot ouvre une proposition de modification (« pull request ») dès qu'une version
+# corrige une faille ; l'intégration continue la teste toute seule (427 tests, bandit, pip-audit, npm audit).
+# Il n'y a plus qu'à valider quand tout est au vert.
+#
+# Les mises à jour de sécurité, elles, sont proposées immédiatement par GitHub, sans attendre le lundi.
+version: 2
+updates:
+  # ── Serveur (Python) ──────────────────────────────────────────────
+  - package-ecosystem: pip
+    directory: /backend
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: Africa/Dakar
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "deps(serveur)"
+    groups:
+      # Un seul lot pour les corrections mineures : cinq propositions séparées par semaine finissent ignorées.
+      mineures:
+        update-types: [minor, patch]
+    ignore:
+      # Django : les changements de version majeure se préparent (migrations, dépréciations), jamais au fil de l'eau.
+      - dependency-name: Django
+        update-types: [version-update:semver-major]
+
+  # ── Application web (npm) ─────────────────────────────────────────
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: Africa/Dakar
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "deps(appli)"
+    groups:
+      mineures:
+        update-types: [minor, patch]
+    ignore:
+      - dependency-name: react
+        update-types: [version-update:semver-major]
+      - dependency-name: react-dom
+        update-types: [version-update:semver-major]
+
+  # ── Actions de l'intégration continue ─────────────────────────────
+  # Une action compromise s'exécute avec les droits du dépôt : elles se tiennent à jour comme le reste.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    commit-message:
+      prefix: "deps(ci)"

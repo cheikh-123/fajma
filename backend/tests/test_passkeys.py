@@ -276,3 +276,37 @@ class PasskeyLoginTests(ApiTestCase):
         # Avec le code à six chiffres activé, le retrait redevient possible.
         TwoFactor.objects.create(user=self.doc_user, secret="x", enabled=True)
         self.assertEqual(self.remove(client, key_id).status_code, 200)
+
+
+@override_settings(**PASSKEY_SETTINGS)
+class PasskeyRecoveryTests(ApiTestCase):
+    """Téléphone perdu : l'administration doit pouvoir rendre le compte à son titulaire. Si la
+    réinitialisation ne retirait que le code à six chiffres, une clé restée sur l'appareil perdu laisserait
+    la personne définitivement bloquée."""
+
+    def test_la_reinitialisation_retire_aussi_les_cles_d_acces(self):
+        client = self.client_for(self.doc_user)
+        challenge = client.post("/api/auth/passkeys", {"action": "start"}, format="json").data["challenge"]
+        client.post(
+            "/api/auth/passkeys",
+            {"action": "confirm", "credential": SoftAuthenticator().register(challenge)},
+            format="json",
+        )
+        TwoFactor.objects.create(user=self.doc_user, secret="x", enabled=True)
+
+        admin = self.make_user("admin-cles@test.sn", "Admin", is_staff=True, is_superuser=True)
+        res = self.client_for(admin).post(
+            f"/api/admin/users/{self.doc_user.id}",
+            {"action": "reset_mfa", "reason": "Téléphone perdu, identité vérifiée au cabinet"},
+            format="json",
+        )
+        self.assertEqual(res.status_code, 200, res.data)
+        self.assertFalse(Passkey.objects.filter(user=self.doc_user).exists())
+        self.assertFalse(TwoFactor.objects.filter(user=self.doc_user).exists())
+
+    def test_un_motif_est_obligatoire(self):
+        admin = self.make_user("admin-motif@test.sn", "Admin", is_staff=True, is_superuser=True)
+        res = self.client_for(admin).post(
+            f"/api/admin/users/{self.doc_user.id}", {"action": "reset_mfa", "reason": "x"}, format="json"
+        )
+        self.assertEqual(res.status_code, 400, res.data)

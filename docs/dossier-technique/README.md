@@ -1,6 +1,6 @@
 # Dossier technique et sécurité — Fajma
 
-**Version du dossier :** 7.4 — 8 octobre 2026
+**Version du dossier :** 7.5 — 8 octobre 2026
 **Périmètre :** code source du dépôt `sante-connect-main` (backend Django, frontend React, déploiement), services tiers.
 **Public visé :** acquéreurs, investisseurs, auditeurs techniques et juridiques, équipe technique reprenant le projet.
 
@@ -42,6 +42,7 @@ ni à Supabase.
 | 7 | [Inventaire des licences](07-licences.md) | Licence de chaque composant libre (serveur, application, outils), analyse et obligations ; annexe CSV |
 | 8 | [Guide fonctionnel de A à Z](08-guide-fonctionnel.md) | Ce que fait chaque utilisateur, étape par étape (patient, médecin, secrétariat, pharmacie, laboratoire, administration, secours), automatismes, règles de fonctionnement, glossaire |
 | 9 | [Audit global du code](09-audit-global.md) | Réponses point par point aux quinze volets de l'audit (sécurité, créneaux, portabilité, performance, robustesse, métier, sessions, identité des médecins, paiement, SMS, confidentialité, fichiers, accessibilité, supervision, architecture), problèmes classés par gravité et correctifs |
+| 10 | [Que faire en cas d'incident](10-incidents.md) | Gestes à faire, dans l'ordre, le jour de l'incident : compte compromis, attaque de mots de passe, site à terre, restauration, fuite d'une clé ; ce qui n'est pas un incident ; rythme hebdomadaire, mensuel et annuel à tenir |
 
 ## 3. Synthèse pour la direction
 
@@ -158,3 +159,4 @@ Ces points sont signalés **« À vérifier »**.
 | 7.2 | 08/10/2026 | **La publicité passe sous la promesse de Fajma** : l'accueil s'ouvre sur « Votre santé, simplifiée » et la recherche ; la campagne sponsorisée suit, en bande compacte (vignette, titre, phrase, bouton aux couleurs de la campagne) de 96 pixels au lieu de 288, toujours dans le premier écran sur ordinateur. Le titre de la campagne n'est plus un titre de page, pour que le premier titre de l'accueil reste celui de Fajma |
 | 7.3 | 08/10/2026 | **Revue de cybersécurité** (§ 2.5, § 2.9) : analyse statique du code (`bandit`) ajoutée à l'intégration continue, zéro alerte de gravité moyenne ou haute ; les adresses des services externes (IA, SMS, paiement) doivent être en `https://`, sinon l'application refuse de démarrer — un `http://` oublié aurait envoyé notes médicales et clés d'API en clair ; préchargement HSTS désormais activable ; `check --deploy` sans aucun avertissement. Quatre tests dépendaient du jour de la semaine et devenaient rouges les mercredis et jeudis : corrigés. Nouvelle section **« Ce qui n'est pas couvert, et pourquoi »** (test d'intrusion, pare-feu applicatif, détection d'intrusion, déclaration CDP…) |
 | 7.4 | 08/10/2026 | **Clés d'accès (passkeys)** (§ 2.2) : connexion par empreinte, visage, code de l'appareil ou clé USB, à la place du code à six chiffres — seule méthode qui ferme l'hameçonnage, le vol de compte le plus courant. La clé privée ne quitte jamais l'appareil ; une base volée n'ouvre aucune session. Éprouvée par 13 tests qui rejouent une vraie attaque de relais. **Alertes de sécurité** : la supervision détecte désormais une vague de mots de passe essayés, des comptes verrouillés en série, des fiches d'urgence consultées en masse et une rafale d'actions sensibles de l'administration ; les alertes graves partent aussi par SMS (`ALERT_PHONES`) |
+| 7.5 | 08/10/2026 | **Mises à jour des bibliothèques proposées automatiquement** (Dependabot : serveur, application, actions d'intégration continue ; corrections de sécurité sans attendre). Nouveau chapitre 10 **« Que faire en cas d'incident »**, écrit pour être lu le jour même par quelqu'un qui n'est pas ingénieur : compte de médecin compromis, attaque de mots de passe, site à terre, restauration, fuite d'une clé, et le rythme à tenir. Correction au passage : la réinitialisation par l'administration retire désormais **aussi** les clés d'accès — ne retirer que le code à six chiffres laissait la personne bloquée par une clé restée sur l'appareil perdu |

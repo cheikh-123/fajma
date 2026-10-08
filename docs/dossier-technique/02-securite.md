@@ -101,7 +101,7 @@ Chaque règle ci-dessus est couverte par au moins un test automatisé qui tente 
 | Renouvellement d'ordonnance abusif | Uniquement par le médecin prescripteur, ordonnance de moins d'un an, une demande en cours à la fois ; refus motivé obligatoire ; nouvelle ordonnance avec en-tête et signature à jour (mentions obligatoires vérifiées), journalisée |
 | **Hameçonnage du mot de passe d'un professionnel** (faux email « votre compte expire »), risque le plus probable en pratique | **Clés d'accès** (§ 2.2) : une clé créée pour `fajma.sn` ne produit aucune signature utilisable sur un autre domaine. Le serveur refuse toute signature dont l'origine n'est pas la nôtre — vérifié par des tests qui rejouent une attaque de relais |
 | **Attaque de mots de passe en cours, répartie sur de nombreuses adresses** | Détectée par la supervision (`manage.py monitor`) : vague d'échecs de connexion, comptes verrouillés en série, fiches d'urgence consultées en masse, rafale d'actions sensibles de l'administration. Email aux responsables, **et SMS pour les alertes graves** (`ALERT_PHONES`), parce qu'un email n'est pas lu la nuit |
-| Faille connue dans une bibliothèque | Contrôle automatique à chaque modification : `npm audit` (interface) et `pip-audit` (serveur) dans l'intégration continue |
+| Faille connue dans une bibliothèque | Contrôle automatique à chaque modification : `npm audit` (interface) et `pip-audit` (serveur) dans l'intégration continue. **Mises à jour proposées automatiquement** (`.github/dependabot.yml`, serveur + application + actions) : les corrections de sécurité arrivent sans attendre, déjà testées par l'intégration continue — il n'y a qu'à valider. Un serveur laissé sans mise à jour est l'une des trois causes les plus fréquentes d'intrusion |
 | Motif dangereux introduit dans le code (commande système, secret en dur, aléatoire non sûr, XML non protégé) | **Analyse statique `bandit`** à chaque modification : toute alerte de gravité moyenne ou haute fait échouer l'intégration continue |
 | Service externe appelé en clair par erreur de configuration | Les adresses des services externes (IA, SMS, paiement) doivent être en `https://` : sinon l'application **refuse de démarrer** (`require_https`, `sunusante/settings.py`). Sans ce contrôle, un `http://` oublié aurait envoyé des notes médicales et des clés d'API en clair |
 | Script injecté (XSS) | React échappe les contenus ; CSP stricte sans `unsafe-inline` pour les scripts (empreintes calculées au build) ; cookie de session inaccessible au JavaScript |
@@ -145,7 +145,7 @@ exécuté par l'intégration continue.
 
 ## 2.8 Tests de sécurité réalisés
 
-- **427 tests automatisés de l'API**, dont les tentatives d'accès interdites de la matrice § 2.4 (y compris
+- **429 tests automatisés de l'API**, dont les tentatives d'accès interdites de la matrice § 2.4 (y compris
   pour un remplaçant, une secrétaire, un médecin sans lien avec le patient), les manipulations de prix et de
   parts, les fichiers piégés, les doubles réservations, les webhooks non signés, les secrets USSD invalides, la
   réutilisation de session USSD par un autre numéro, les doubles notifications de paiement, le blocage des
@@ -153,7 +153,7 @@ exécuté par l'intégration continue.
   fichier altéré), le refus d'un fichier infecté ou non analysable, la déconnexion après inactivité (sans
   prolongation par les rafraîchissements automatiques) et l'alerte de connexion depuis un nouvel appareil, et le refus d'une adresse de service externe qui ne
   serait pas en `https://`.
-- **Clés d'accès éprouvées contre une vraie attaque** (`tests/test_passkeys.py`, 13 tests) : les tests fabriquent un
+- **Clés d'accès éprouvées contre une vraie attaque** (`tests/test_passkeys.py`, 15 tests) : les tests fabriquent un
   authentificateur logiciel (paire de clés ES256, signature réelle) plutôt que de bouchonner la bibliothèque. Sont refusés :
   une clé créée pour un faux domaine, une signature relayée depuis un site d'hameçonnage, une signature falsifiée, la clé
   d'un autre compte, un défi rejoué, et toute tentative sans mot de passe valide au préalable.

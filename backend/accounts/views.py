@@ -846,7 +846,8 @@ def admin_user_action(request, user_id):
     """
     {action: suspend|reactivate|reset_mfa, reason}. Suspendre : plus de connexion (sessions en cours
     comprises) et, pour un médecin, retrait de l'annuaire. Réactiver ne republie pas la fiche médecin :
-    elle doit être revalidée. reset_mfa : téléphone perdu sans codes de secours (identité vérifiée hors ligne).
+    elle doit être revalidée. reset_mfa : téléphone perdu sans codes de secours (identité vérifiée hors ligne) ;
+    retire le code à six chiffres ET les clés d'accès, sans quoi la personne resterait bloquée.
     """
     admin = require_admin(request)
     data = body(request)
@@ -876,9 +877,12 @@ def admin_user_action(request, user_id):
         target.is_active = True
         target.save(update_fields=["is_active"])
     else:
-        deleted, _ = TwoFactor.objects.filter(user=target).delete()
-        if not deleted:
-            raise ApiError("La double authentification n'est pas activée sur ce compte")
+        # Téléphone perdu : on retire TOUTES les secondes étapes, code à six chiffres et clés d'accès.
+        # Ne retirer que le code laisserait la personne bloquée par une clé restée sur l'appareil perdu.
+        removed_totp, _ = TwoFactor.objects.filter(user=target).delete()
+        removed_keys, _ = Passkey.objects.filter(user=target).delete()
+        if not removed_totp and not removed_keys:
+            raise ApiError("Ce compte n'a ni code à six chiffres ni clé d'accès")
     audit.log(request, f"admin_user_{action}", target_user=str(target.pk), reason=reason)
     return Response(admin_user_dict(target))
 
