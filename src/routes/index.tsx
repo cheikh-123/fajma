@@ -233,9 +233,6 @@ function Landing() {
         )}
       </header>
 
-      {/* CAMPAGNE SPONSORISÉE (invisible sans campagne validée) */}
-      <CampaignHero />
-
       <main>
         {/* HERO */}
         <section id="recherche" className="relative overflow-hidden bg-sunu-surface">
@@ -247,7 +244,8 @@ function Landing() {
                 "radial-gradient(600px 300px at 20% 0%, color-mix(in oklab, var(--sunu-green) 10%, transparent), transparent), radial-gradient(500px 300px at 100% 20%, color-mix(in oklab, var(--sunu-gold) 18%, transparent), transparent)",
             }}
           />
-          <div className="relative mx-auto max-w-7xl px-6 py-20 md:py-28">
+          {/* Bas de bloc resserré : la bande sponsorisée qui suit doit rester dans le premier écran. */}
+          <div className="relative mx-auto max-w-7xl px-6 pb-12 pt-20 md:pb-16 md:pt-28">
             <div className="mx-auto max-w-3xl text-center">
               <span className="inline-flex items-center gap-2 rounded-full border border-sunu-line bg-sunu-card px-3 py-1 text-xs font-semibold text-sunu-green">
                 {/* Étoile du drapeau */}
@@ -341,6 +339,9 @@ function Landing() {
             </div>
           </div>
         </section>
+
+        {/* CAMPAGNE SPONSORISÉE, sous la promesse (invisible sans campagne validée) */}
+        <CampaignHero />
 
         {/* PARTENAIRES (invisible tant qu'aucun partenaire n'est public) */}
         <PartnersStrip />

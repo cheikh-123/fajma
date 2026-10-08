@@ -468,23 +468,6 @@ body::before {
     transform: none;
   }
 }
-@keyframes fajma-kenburns-move {
-  from {
-    transform: scale(1);
-  }
-  to {
-    transform: scale(1.12) translate(-2%, -1%);
-  }
-}
-@keyframes fajma-float-move {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-14px);
-  }
-}
 @keyframes fajma-cta-pulse {
   0% {
     box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.55);
@@ -519,12 +502,6 @@ body::before {
   }
   .fajma-campaign-text > *:nth-child(4) {
     animation-delay: 0.24s;
-  }
-  .fajma-kenburns {
-    animation: fajma-kenburns-move 14s ease-in-out infinite alternate;
-  }
-  .fajma-float {
-    animation: fajma-float-move 6s ease-in-out infinite;
   }
   .fajma-cta {
     animation: fajma-cta-pulse 2.4s ease-out infinite;
