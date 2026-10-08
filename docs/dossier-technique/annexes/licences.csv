@@ -4,6 +4,7 @@ Serveur (Python);aiohttp;3.14.3;Apache-2.0 AND MIT;permissive;https://github.com
 Serveur (Python);aiosignal;1.4.0;Apache-2.0;permissive;https://github.com/aio-libs/aiosignal
 Serveur (Python);asgiref;3.12.1;BSD;permissive;https://github.com/django/asgiref/
 Serveur (Python);attrs;26.1.0;MIT;permissive;https://www.attrs.org/
+Serveur (Python);cbor2;6.1.5;MIT;permissive;https://cbor2.readthedocs.io/en/latest/versionhistory.html
 Serveur (Python);certifi;2026.7.22;MPL-2.0;faible;https://github.com/certifi/python-certifi
 Serveur (Python);cffi;2.1.1;MIT-0;permissive;https://cffi.readthedocs.io/
 Serveur (Python);charset-normalizer;3.5.1;MIT;permissive;https://github.com/jawah/charset_normalizer/blob/master/CHANGELOG.md
@@ -24,7 +25,10 @@ Serveur (Python);propcache;0.5.4;Apache-2.0;permissive;https://github.com/aio-li
 Serveur (Python);psycopg;3.3.6;LGPL-3.0-only;faible;https://psycopg.org/
 Serveur (Python);psycopg-binary;3.3.6;LGPL-3.0-only;faible;https://psycopg.org/
 Serveur (Python);py-vapid;1.9.4;MPL-2.0;faible;https://github.com/mozilla-services/vapid
+Serveur (Python);pyasn1;0.6.4;BSD-2-Clause;permissive;https://github.com/pyasn1/pyasn1
+Serveur (Python);pyasn1_modules;0.4.2;BSD;permissive;https://github.com/pyasn1/pyasn1-modules
 Serveur (Python);pycparser;3.0;BSD-3-Clause;permissive;https://github.com/eliben/pycparser
+Serveur (Python);pyOpenSSL;26.4.0;Apache-2.0;permissive;https://pyopenssl.org/
 Serveur (Python);python-dateutil;2.9.0.post0;BSD OR Apache-2.0;permissive;https://github.com/dateutil/dateutil
 Serveur (Python);python-dotenv;1.2.3;BSD-3-Clause;permissive;https://github.com/theskumar/python-dotenv
 Serveur (Python);pywebpush;2.5.0;MPL-2.0;faible;https://github.com/web-push-libs/pywebpush
@@ -38,6 +42,7 @@ Serveur (Python);tzdata;2026.4;Apache-2.0;permissive;https://github.com/python/t
 Serveur (Python);urllib3;2.8.0;MIT;permissive;https://github.com/urllib3/urllib3/blob/main/CHANGES.rst
 Serveur (Python);uvicorn;0.54.0;BSD-3-Clause;permissive;https://uvicorn.dev/release-notes
 Serveur (Python);uvicorn-worker;0.4.0;BSD-3-Clause;permissive;https://github.com/Kludex/uvicorn-worker/releases
+Serveur (Python);webauthn;3.0.1;BSD-3-Clause;permissive;https://github.com/duo-labs/py_webauthn
 Serveur (Python);whitenoise;6.12.0;MIT;permissive;https://whitenoise.readthedocs.io/en/stable/changelog.html
 Serveur (Python);x-wr-timezone;2.0.1;GNU Lesser General Public License v3 or later (LGPLv3+);faible;https://github.com/niccokunzmann/x-wr-timezone
 Serveur (Python);yarl;1.25.1;Apache-2.0;permissive;https://github.com/aio-libs/yarl
@@ -82,7 +87,7 @@ Application web (livrée);react-smooth;4.0.4;MIT;permissive;https://www.npmjs.co
 Application web (livrée);recharts;2.15.4;MIT;permissive;https://www.npmjs.com/package/recharts
 Application web (livrée);recharts-scale;0.4.5;MIT;permissive;https://www.npmjs.com/package/recharts-scale
 Application web (livrée);scheduler;0.27.0;MIT;permissive;https://www.npmjs.com/package/scheduler
-Application web (livrée);seroval;1.5.6;MIT;permissive;https://www.npmjs.com/package/seroval
+Application web (livrée);seroval;1.6.8;MIT;permissive;https://www.npmjs.com/package/seroval
 Application web (livrée);seroval-plugins;1.5.6;MIT;permissive;https://www.npmjs.com/package/seroval-plugins
 Application web (livrée);sonner;2.0.7;MIT;permissive;https://www.npmjs.com/package/sonner
 Application web (livrée);tiny-invariant;1.3.3;MIT;permissive;https://www.npmjs.com/package/tiny-invariant
@@ -487,7 +492,7 @@ Outil de construction;set-blocking;2.0.0;ISC;permissive;https://www.npmjs.com/pa
 Outil de construction;shebang-command;2.0.0;MIT;permissive;https://www.npmjs.com/package/shebang-command
 Outil de construction;shebang-regex;3.0.0;MIT;permissive;https://www.npmjs.com/package/shebang-regex
 Outil de construction;source-map;0.7.6;BSD-3-Clause;permissive;https://www.npmjs.com/package/source-map
-Outil de construction;source-map-js;1.2.1;BSD-3-Clause;permissive;https://www.npmjs.com/package/source-map-js
+Outil de construction;source-map-js;1.2.2;BSD-3-Clause;permissive;https://www.npmjs.com/package/source-map-js
 Outil de construction;srvx;0.11.22;MIT;permissive;https://www.npmjs.com/package/srvx
 Outil de construction;string-width;4.2.3;MIT;permissive;https://www.npmjs.com/package/string-width
 Outil de construction;strip-ansi;6.0.1;MIT;permissive;https://www.npmjs.com/package/strip-ansi

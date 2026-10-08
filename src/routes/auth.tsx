@@ -6,6 +6,7 @@ import { z } from "zod";
 import {
   Building2,
   ClipboardList,
+  Fingerprint,
   FlaskConical,
   Lock,
   Loader2,
@@ -33,6 +34,7 @@ import {
 } from "@/api/auth";
 import { LanguageSwitcher, useI18n, type TKey } from "@/lib/i18n";
 import { ThemeToggle } from "@/lib/theme";
+import { loginWithPasskey, passkeysSupported } from "@/lib/passkeys";
 import { FajmaMark } from "@/components/FajmaMark";
 
 export const Route = createFileRoute("/auth")({
@@ -99,6 +101,8 @@ function AuthPage() {
   const [fullName, setFullName] = useState("");
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
+  // Clé d'accès proposée à la seconde étape : seulement si le compte en a une et si l'appareil sait la lire.
+  const [passkeyAvailable, setPasskeyAvailable] = useState(false);
   // Au Sénégal, le téléphone est le moyen de connexion le plus courant : c'est le choix par défaut.
   const [method, setMethod] = useState<"phone" | "email">(uid && token ? "email" : "phone");
 
@@ -156,12 +160,14 @@ function AuthPage() {
       } else if (mode === "signup") {
         user = await register({ email, password, full_name: fullName });
       } else {
-        user = await login({ email, password });
-        if (!user) {
-          // Compte protégé par la double authentification : on demande le code.
+        const res = await login({ email, password });
+        if (!res.user) {
+          // Compte protégé par une seconde étape : clé d'accès si le compte en a une, sinon le code.
+          setPasskeyAvailable(res.passkeyAvailable && passkeysSupported());
           setMode("mfa");
           return;
         }
+        user = res.user;
       }
       await onLoggedIn(user, mode === "signup");
     } catch (err) {
@@ -242,6 +248,31 @@ function AuthPage() {
                       className="flex-1 bg-transparent text-sm outline-none"
                     />
                   </label>
+                )}
+                {mode === "mfa" && passkeyAvailable && (
+                  <>
+                    <button
+                      type="button"
+                      disabled={loading}
+                      onClick={async () => {
+                        setLoading(true);
+                        try {
+                          const { user } = await loginWithPasskey();
+                          await onLoggedIn(user as import("@/api/types").User);
+                        } catch (err) {
+                          // Annulation par la personne : pas un échec, on la laisse sur le code.
+                          if ((err as Error).name !== "NotAllowedError")
+                            toast.error(err instanceof Error ? err.message : "Erreur");
+                        } finally {
+                          setLoading(false);
+                        }
+                      }}
+                      className="flex w-full items-center justify-center gap-2 rounded-xl border border-sunu-green bg-sunu-green/5 px-4 py-3 text-sm font-semibold text-sunu-green disabled:opacity-50"
+                    >
+                      <Fingerprint className="size-4" /> Utiliser ma clé d'accès
+                    </button>
+                    <p className="text-center text-xs text-sunu-ink/50">ou saisissez votre code</p>
+                  </>
                 )}
                 {mode === "mfa" && (
                   <input

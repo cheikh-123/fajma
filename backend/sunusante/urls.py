@@ -66,7 +66,9 @@ auth_urls = [
     path("export", accounts.export_my_data),
     path("delete-account", accounts.delete_my_account),
     path("login/mfa", accounts.login_mfa),
+    path("login/passkey", accounts.login_passkey),
     path("mfa", accounts.mfa_setup),
+    path("passkeys", accounts.passkey_list),
     path("otp/request", accounts.otp_request),
     path("otp/verify", accounts.otp_verify),
 ]

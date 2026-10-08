@@ -113,6 +113,26 @@ class TwoFactor(BaseModel):
         return unseal_text(self.secret)
 
 
+class Passkey(BaseModel):
+    """Clé d'accès (passkey, WebAuthn) : empreinte, visage, code de l'appareil ou clé USB.
+
+    Seule la clé publique est conservée : la clé privée ne quitte jamais l'appareil, et le navigateur ne la
+    présente qu'au domaine qui l'a créée. Une base volée ne permet donc de se connecter nulle part, et un faux
+    site ne peut rien en faire — c'est ce qui distingue une clé d'accès d'un code à six chiffres.
+    """
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="passkeys")
+    credential_id = models.BinaryField(max_length=1024, unique=True)
+    public_key = models.BinaryField(max_length=1024)
+    # Compteur d'utilisations renvoyé par l'appareil : s'il recule, la clé a été copiée.
+    sign_count = models.BigIntegerField(default=0)
+    label = models.CharField(max_length=60, blank=True, help_text="Nom donné par la personne (« iPhone », « clé USB »)")
+    last_used_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+
 class OtpCode(BaseModel):
     """Code à usage unique envoyé par SMS (connexion, inscription, vérification du numéro)."""
 

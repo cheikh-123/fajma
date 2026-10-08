@@ -23,7 +23,7 @@ class FhirExportTests(ApiTestCase):
         HealthProfile.objects.create(user=self.p1, allergies="Pénicilline (œdème)", blood_group="O+")
         res = self.book(self.p1)
         self.appt_id = res.data["id"]
-        self.set_appointment(self.appt_id, status="completed", scheduled_at=self.slot - timedelta(days=5))
+        self.set_appointment(self.appt_id, status="completed", scheduled_at=self.past_visit(hours=120))
         from appointments.models import Appointment
 
         self.appt = Appointment.objects.get(id=self.appt_id)

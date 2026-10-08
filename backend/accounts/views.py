@@ -1,5 +1,7 @@
 """Comptes : authentification par session (cookie HttpOnly), profil, dossier, proches, back-office."""
 
+import logging
+
 from django.conf import settings
 
 from django.contrib.auth import authenticate, login, logout, password_validation
@@ -34,8 +36,11 @@ def _admin_role(user):
 
     return role_of(user)
 
-from . import totp
-from .models import Relative, TwoFactor, User
+from . import passkeys, totp
+from .models import Passkey, Relative, TwoFactor, User
+
+
+logger = logging.getLogger(__name__)
 
 
 class AuthThrottle(ScopedThrottle):
@@ -153,7 +158,7 @@ def login_view(request):
         # Mot de passe correct : on attend le code de l'application avant d'ouvrir la session.
         request.session["mfa_user_id"] = str(user.pk)
         request.session["mfa_started_at"] = int(timezone.now().timestamp())
-        return Response({"mfa_required": True})
+        return Response({"mfa_required": True, "passkey_available": Passkey.objects.filter(user=user).exists()})
     login(request, user)
     audit.log(request, "login", actor=user, method="password")
     return Response({"user": user_dict(user, request.session)})
@@ -1160,3 +1165,143 @@ def logout_other_devices(request):
     closed = end_sessions(user, keep=request.session.session_key)
     audit.log(request, "sessions_revoked", closed=closed)
     return Response({"ok": True, "closed": closed})
+
+
+# ── Clés d'accès (passkeys) ──────────────────────────────────────────
+# Une clé d'accès remplace le code à six chiffres au moment de la connexion. Le code se recopie sur un faux
+# site ; la clé, non — le navigateur ne la présente qu'au domaine qui l'a créée. C'est la seule méthode qui
+# ferme l'hameçonnage. Le code à six chiffres reste disponible en secours.
+
+PASSKEY_CHALLENGE_SECONDS = 300
+
+
+def _passkey_dict(k) -> dict:
+    return {
+        "id": str(k.id),
+        "label": k.label or "Clé d'accès",
+        "created_at": iso(k.created_at),
+        "last_used_at": iso(k.last_used_at) if k.last_used_at else None,
+    }
+
+
+def _take_challenge(request, key: str) -> bytes:
+    """Récupère le défi posé à l'étape précédente et le retire : un défi ne sert qu'une fois."""
+    stored = request.session.pop(key, None)
+    started = request.session.pop(f"{key}_at", 0)
+    if not stored or timezone.now().timestamp() - started > PASSKEY_CHALLENGE_SECONDS:
+        raise ApiError("Demande expirée, recommencez", 400)
+    return passkeys.unb64(stored)
+
+
+def _put_challenge(request, key: str, challenge: bytes) -> None:
+    request.session[key] = passkeys.b64(challenge)
+    request.session[f"{key}_at"] = int(timezone.now().timestamp())
+
+
+@api_view(["GET", "POST"])
+def passkey_list(request):
+    """GET : les clés enregistrées. POST {action: start} → options pour le navigateur ;
+    {action: confirm, credential, label} → enregistrement."""
+    user = require_user(request)
+    keys = list(Passkey.objects.filter(user=user))
+    if request.method == "GET":
+        return Response({"passkeys": [_passkey_dict(k) for k in keys]})
+    data = body(request)
+    action = get_choice(data, "action", {"start", "confirm", "remove"})
+    if action == "start":
+        options, challenge = passkeys.registration_options(user, [bytes(k.credential_id) for k in keys])
+        _put_challenge(request, "passkey_register", challenge)
+        return Response(options)
+
+    if action == "remove":
+        return _remove_passkey(request, user, keys, get_uuid(data, "id"))
+
+    credential = data.get("credential")
+    if not isinstance(credential, dict):
+        raise ApiError("Réponse du navigateur illisible")
+    challenge = _take_challenge(request, "passkey_register")
+    try:
+        verified = passkeys.verify_registration(credential, challenge)
+    except ValueError as err:
+        logger.warning("[passkey] enregistrement refusé : %s", err)
+        raise ApiError("Cette clé d'accès n'a pas pu être vérifiée") from err
+    key = Passkey.objects.create(
+        user=user,
+        credential_id=verified.credential_id,
+        public_key=verified.credential_public_key,
+        sign_count=verified.sign_count,
+        label=get_str(data, "label", max_len=60) or "Clé d'accès",
+    )
+    audit.log(request, "passkey_added", target=key)
+    return Response({"passkey": _passkey_dict(key)})
+
+
+def _remove_passkey(request, user, keys, passkey_id):
+    """Retire une clé. Le code à six chiffres reste le filet de sécurité : on ne laisse jamais un
+    professionnel sans aucune seconde étape de connexion."""
+    key = next((k for k in keys if str(k.id) == str(passkey_id)), None)
+    if not key:
+        raise not_found("Clé d'accès introuvable")
+    others = [k for k in keys if k.id != key.id]
+    has_totp = TwoFactor.objects.filter(user=user, enabled=True).exists()
+    from .security import is_professional
+
+    if is_professional(user) and not others and not has_totp:
+        raise ApiError(
+            "C'est votre seule seconde étape de connexion. Activez d'abord le code à six chiffres "
+            "ou ajoutez une autre clé.",
+            400,
+        )
+    audit.log(request, "passkey_removed", target=key)
+    key.delete()
+    return Response({"ok": True})
+
+
+@api_view(["POST"])
+@throttle_classes([AuthThrottle])
+def login_passkey(request):
+    """Deuxième étape de connexion par clé d'accès, à la place du code à six chiffres.
+    {action: start} → options ; {action: verify, credential} → session ouverte."""
+    enforce_csrf(request)
+    user_id = request.session.get("mfa_user_id")
+    started = request.session.get("mfa_started_at", 0)
+    if not user_id or timezone.now().timestamp() - started > MFA_LOGIN_WINDOW_SECONDS:
+        raise ApiError("Session expirée, reconnectez-vous", 401)
+    keys = list(Passkey.objects.filter(user_id=user_id).select_related("user"))
+    if not keys:
+        raise ApiError("Aucune clé d'accès enregistrée sur ce compte", 400)
+
+    data = body(request)
+    if get_choice(data, "action", {"start", "verify"}) == "start":
+        options, challenge = passkeys.authentication_options([bytes(k.credential_id) for k in keys])
+        _put_challenge(request, "passkey_login", challenge)
+        return Response(options)
+
+    credential = data.get("credential")
+    if not isinstance(credential, dict):
+        raise ApiError("Réponse du navigateur illisible")
+    challenge = _take_challenge(request, "passkey_login")
+    raw_id = credential.get("rawId") or credential.get("id") or ""
+    try:
+        wanted = passkeys.unb64(raw_id)
+    except Exception as err:  # noqa: BLE001
+        raise ApiError("Réponse du navigateur illisible") from err
+    key = next((k for k in keys if bytes(k.credential_id) == wanted), None)
+    if not key:
+        raise ApiError("Cette clé d'accès n'est pas enregistrée sur ce compte", 401)
+    try:
+        verified = passkeys.verify_authentication(
+            credential, challenge, bytes(key.public_key), key.sign_count
+        )
+    except ValueError as err:
+        logger.warning("[passkey] connexion refusée : %s", err)
+        audit.log(request, "login_failed", email=key.user.email, method="passkey")
+        raise ApiError("Clé d'accès refusée", 401) from err
+
+    key.sign_count = verified.new_sign_count
+    key.last_used_at = timezone.now()
+    key.save(update_fields=["sign_count", "last_used_at"])
+    request.session.pop("mfa_user_id", None)
+    login(request, key.user, backend="django.contrib.auth.backends.ModelBackend")
+    audit.log(request, "login", actor=key.user, method="passkey")
+    return Response({"user": user_dict(key.user, request.session)})

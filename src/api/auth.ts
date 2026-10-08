@@ -8,11 +8,16 @@ export const getMe = () => api.get<{ user: User | null }>("/auth/me").then((r) =
 export const register = (data: { email: string; password: string; full_name: string }) =>
   api.post<{ user: User }>("/auth/register", data).then((r) => r.user);
 
-/** Renvoie l'utilisateur, ou null si un code de double authentification est demandé. */
-export const login = (data: { email: string; password: string }) =>
+/** Utilisateur connecté, ou la seconde étape demandée (code à six chiffres, et clé d'accès si le compte en a une). */
+export type LoginResult = { user: User | null; passkeyAvailable: boolean };
+
+export const login = (data: { email: string; password: string }): Promise<LoginResult> =>
   api
-    .post<{ user?: User; mfa_required?: boolean }>("/auth/login", data)
-    .then((r) => (r.mfa_required ? null : (r.user ?? null)));
+    .post<{ user?: User; mfa_required?: boolean; passkey_available?: boolean }>("/auth/login", data)
+    .then((r) => ({
+      user: r.mfa_required ? null : (r.user ?? null),
+      passkeyAvailable: Boolean(r.passkey_available),
+    }));
 
 export const loginMfa = (code: string) =>
   api.post<{ user: User }>("/auth/login/mfa", { code }).then((r) => r.user);

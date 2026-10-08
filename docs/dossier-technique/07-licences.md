@@ -1,6 +1,6 @@
 # 7. Inventaire des licences
 
-Inventaire généré le 01/10/2026 par `tools/inventaire_licences.py` à partir des fichiers de
+Inventaire généré le 08/10/2026 par `tools/inventaire_licences.py` à partir des fichiers de
 dépendances du dépôt (`backend/requirements.txt` et environnement installé, `package-lock.json`). Il couvre
 les dépendances directes **et indirectes**. Liste complète, avec la source de chaque composant :
 `annexes/licences.csv` (ouvrable dans un tableur). À régénérer avant toute cession pour refléter la version
@@ -10,7 +10,7 @@ livrée.
 
 | Origine | Composants | Permissive | Copyleft faible | Copyleft fort | À vérifier |
 |---|---|---|---|---|---|
-| Serveur (Python) | 42 | 35 | 7 | 0 | 0 |
+| Serveur (Python) | 47 | 40 | 7 | 0 | 0 |
 | Application web — envoyée aux navigateurs | 49 | 49 | 0 | 0 | 0 |
 | Outils de construction et de développement — non livrés | 439 | 415 | 24 | 0 | 0 |
 
@@ -57,14 +57,6 @@ livrée.
 2. Ne pas modifier les composants sous MPL / LGPL sans publier ces modifications, ou les remplacer.
 3. Régénérer cet inventaire à chaque ajout de bibliothèque (commande en tête du fichier de l'outil).
 
-**Données géographiques intégrées** (hors bibliothèques) :
-
-| Donnée | Source | Licence | Obligation |
-|---|---|---|---|
-| Contours du Sénégal et de la Gambie (carte de l'accueil, `src/lib/senegal-map.ts`) | Natural Earth, 1:50 000 000 | Domaine public | Aucune |
-| Localités du Sénégal (recherche « Où ? », `backend/directory/data/localites_senegal.tsv`) | GeoNames | CC BY 4.0 | Citer GeoNames (mentions légales) |
-| Fond de carte de la recherche (vue « carte ») | OpenStreetMap | ODbL | Mention « © OpenStreetMap » affichée sur la carte |
-
 ## 7.4 Serveur (Python) — liste complète
 
 | Composant | Version | Licence | Catégorie |
@@ -74,6 +66,7 @@ livrée.
 | aiosignal | 1.4.0 | Apache-2.0 | permissive |
 | asgiref | 3.12.1 | BSD | permissive |
 | attrs | 26.1.0 | MIT | permissive |
+| cbor2 | 6.1.5 | MIT | permissive |
 | certifi | 2026.7.22 | MPL-2.0 | faible |
 | cffi | 2.1.1 | MIT-0 | permissive |
 | charset-normalizer | 3.5.1 | MIT | permissive |
@@ -94,7 +87,10 @@ livrée.
 | psycopg | 3.3.6 | LGPL-3.0-only | faible |
 | psycopg-binary | 3.3.6 | LGPL-3.0-only | faible |
 | py-vapid | 1.9.4 | MPL-2.0 | faible |
+| pyasn1 | 0.6.4 | BSD-2-Clause | permissive |
+| pyasn1_modules | 0.4.2 | BSD | permissive |
 | pycparser | 3.0 | BSD-3-Clause | permissive |
+| pyOpenSSL | 26.4.0 | Apache-2.0 | permissive |
 | python-dateutil | 2.9.0.post0 | BSD OR Apache-2.0 | permissive |
 | python-dotenv | 1.2.3 | BSD-3-Clause | permissive |
 | pywebpush | 2.5.0 | MPL-2.0 | faible |
@@ -108,6 +104,7 @@ livrée.
 | urllib3 | 2.8.0 | MIT | permissive |
 | uvicorn | 0.54.0 | BSD-3-Clause | permissive |
 | uvicorn-worker | 0.4.0 | BSD-3-Clause | permissive |
+| webauthn | 3.0.1 | BSD-3-Clause | permissive |
 | whitenoise | 6.12.0 | MIT | permissive |
 | x-wr-timezone | 2.0.1 | GNU Lesser General Public License v3 or later (LGPLv3+) | faible |
 | yarl | 1.25.1 | Apache-2.0 | permissive |
@@ -157,7 +154,7 @@ livrée.
 | recharts | 2.15.4 | MIT | permissive |
 | recharts-scale | 0.4.5 | MIT | permissive |
 | scheduler | 0.27.0 | MIT | permissive |
-| seroval | 1.5.6 | MIT | permissive |
+| seroval | 1.6.8 | MIT | permissive |
 | seroval-plugins | 1.5.6 | MIT | permissive |
 | sonner | 2.0.7 | MIT | permissive |
 | tiny-invariant | 1.3.3 | MIT | permissive |

@@ -45,6 +45,10 @@ jobs:
           FILE_ENCRYPTION_KEYS: Y2ktb25seS1ub3QtYS1yZWFsLWtleS0wMTIzNDU2Nzg=
       - name: Failles connues dans les bibliothèques Python
         run: pip install pip-audit && pip-audit -r requirements.txt --strict
+      - name: Analyse statique de sécurité du code (bandit)
+        # B310 (urlopen) écarté : toutes les adresses appelées viennent de la configuration, jamais d'un
+        # utilisateur, et « require_https » dans settings.py refuse désormais autre chose que https.
+        run: pip install bandit && bandit -q -r . -x ./tests,./staticfiles --severity-level medium --skip B310
 
   frontend:
     runs-on: ubuntu-latest

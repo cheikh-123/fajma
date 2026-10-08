@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { EmailSetting } from "@/components/EmailSetting";
+import { PasskeysSection } from "@/components/PasskeysSection";
 import { useState } from "react";
 import QRCode from "qrcode";
 import { KeyRound, Lock, MonitorSmartphone, ShieldCheck } from "lucide-react";
@@ -62,142 +63,150 @@ export function SecuritySection({ showEmail = true }: { showEmail?: boolean } = 
   });
 
   return (
-    <section>
-      <h2 className="mb-3 flex items-center gap-2 text-lg font-bold text-sunu-dark">
-        <ShieldCheck className="size-5 text-sunu-green" /> Sécurité du compte
-      </h2>
-      <div className="grid gap-4 rounded-xl border border-sunu-line bg-sunu-card p-5 text-sm">
-        {showEmail && (
-          <div className="grid gap-1.5">
-            <p className="text-xs font-semibold text-sunu-ink/60">Adresse email du compte</p>
-            <EmailSetting />
-          </div>
-        )}
-        {recovery && (
-          <div className="rounded-lg border border-amber-300 bg-amber-50 p-4">
-            <p className="font-semibold text-amber-900">
-              Codes de secours : notez-les maintenant, ils ne seront plus affichés.
-            </p>
-            <p className="mt-1 text-xs text-amber-900/80">
-              Chaque code permet une connexion si vous perdez votre téléphone.
-            </p>
-            <div className="mt-3 grid grid-cols-2 gap-2 font-mono text-sm sm:grid-cols-4">
-              {recovery.map((c) => (
-                <span key={c} className="rounded bg-sunu-card px-2 py-1 text-center">
-                  {c}
-                </span>
-              ))}
-            </div>
-            <button
-              onClick={() => setRecovery(null)}
-              className="mt-3 text-xs font-semibold text-amber-900 underline"
-            >
-              J'ai noté mes codes
-            </button>
-          </div>
-        )}
+    <div className="grid gap-6">
+      {/* Les clés d'accès d'abord : c'est la protection la plus efficace, le code à six chiffres reste
+          en dessous comme solution de secours. */}
+      <PasskeysSection />
 
-        {status?.enabled ? (
-          <>
-            <p className="flex items-center gap-2 font-semibold text-sunu-teal">
-              <ShieldCheck className="size-4" /> Double authentification activée
-            </p>
-            <p className="text-xs text-sunu-ink/60">
-              Codes de secours restants : {status.recovery_codes_left}
-            </p>
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                disable.mutate();
-              }}
-              className="flex flex-wrap gap-2"
-            >
-              <input
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Mot de passe"
-                autoComplete="current-password"
-                className="min-w-0 flex-1 rounded-lg border border-sunu-line px-3 py-2"
-              />
+      <section>
+        <h2 className="mb-3 flex items-center gap-2 text-lg font-bold text-sunu-dark">
+          <ShieldCheck className="size-5 text-sunu-green" /> Sécurité du compte
+        </h2>
+        <div className="grid gap-4 rounded-xl border border-sunu-line bg-sunu-card p-5 text-sm">
+          {showEmail && (
+            <div className="grid gap-1.5">
+              <p className="text-xs font-semibold text-sunu-ink/60">Adresse email du compte</p>
+              <EmailSetting />
+            </div>
+          )}
+          {recovery && (
+            <div className="rounded-lg border border-amber-300 bg-amber-50 p-4">
+              <p className="font-semibold text-amber-900">
+                Codes de secours : notez-les maintenant, ils ne seront plus affichés.
+              </p>
+              <p className="mt-1 text-xs text-amber-900/80">
+                Chaque code permet une connexion si vous perdez votre téléphone.
+              </p>
+              <div className="mt-3 grid grid-cols-2 gap-2 font-mono text-sm sm:grid-cols-4">
+                {recovery.map((c) => (
+                  <span key={c} className="rounded bg-sunu-card px-2 py-1 text-center">
+                    {c}
+                  </span>
+                ))}
+              </div>
               <button
-                disabled={disable.isPending}
-                className="rounded-lg border border-red-200 px-3 py-2 text-xs font-semibold text-red-600"
+                onClick={() => setRecovery(null)}
+                className="mt-3 text-xs font-semibold text-amber-900 underline"
               >
-                {pro ? "Changer de téléphone" : "Désactiver"}
+                J'ai noté mes codes
               </button>
-            </form>
-            {pro && (
-              <p className="text-[11px] text-sunu-ink/50">
-                Nouveau téléphone : désactivez avec votre mot de passe, puis scannez le nouveau code
-                QR (la double authentification reste obligatoire pour votre compte).
+            </div>
+          )}
+
+          {status?.enabled ? (
+            <>
+              <p className="flex items-center gap-2 font-semibold text-sunu-teal">
+                <ShieldCheck className="size-4" /> Double authentification activée
               </p>
-            )}
-          </>
-        ) : setup ? (
-          <div className="grid gap-3 sm:grid-cols-[200px_1fr]">
-            <img
-              src={setup.qr}
-              alt="QR code à scanner avec votre application d'authentification"
-              className="rounded-lg border border-sunu-line"
-            />
-            <div className="grid content-start gap-2">
-              <p>1. Scannez ce code avec Google Authenticator, Microsoft Authenticator ou Authy.</p>
               <p className="text-xs text-sunu-ink/60">
-                Ou saisissez la clé :{" "}
-                <code className="break-all rounded bg-sunu-surface px-1">{setup.secret}</code>
+                Codes de secours restants : {status.recovery_codes_left}
               </p>
-              <p>2. Entrez le code à 6 chiffres affiché :</p>
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
-                  confirm.mutate();
+                  disable.mutate();
                 }}
-                className="flex gap-2"
+                className="flex flex-wrap gap-2"
               >
                 <input
+                  type="password"
                   required
-                  inputMode="numeric"
-                  autoComplete="one-time-code"
-                  value={code}
-                  onChange={(e) => setCode(e.target.value)}
-                  placeholder="123456"
-                  aria-label="Code à 6 chiffres"
-                  className="w-32 rounded-lg border border-sunu-line px-3 py-2 text-center tracking-widest"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Mot de passe"
+                  autoComplete="current-password"
+                  className="min-w-0 flex-1 rounded-lg border border-sunu-line px-3 py-2"
                 />
                 <button
-                  disabled={confirm.isPending}
-                  className="rounded-lg bg-sunu-green px-4 py-2 text-xs font-semibold text-white"
+                  disabled={disable.isPending}
+                  className="rounded-lg border border-red-200 px-3 py-2 text-xs font-semibold text-red-600"
                 >
-                  Activer
+                  {pro ? "Changer de téléphone" : "Désactiver"}
                 </button>
               </form>
+              {pro && (
+                <p className="text-[11px] text-sunu-ink/50">
+                  Nouveau téléphone : désactivez avec votre mot de passe, puis scannez le nouveau
+                  code QR (la double authentification reste obligatoire pour votre compte).
+                </p>
+              )}
+            </>
+          ) : setup ? (
+            <div className="grid gap-3 sm:grid-cols-[200px_1fr]">
+              <img
+                src={setup.qr}
+                alt="QR code à scanner avec votre application d'authentification"
+                className="rounded-lg border border-sunu-line"
+              />
+              <div className="grid content-start gap-2">
+                <p>
+                  1. Scannez ce code avec Google Authenticator, Microsoft Authenticator ou Authy.
+                </p>
+                <p className="text-xs text-sunu-ink/60">
+                  Ou saisissez la clé :{" "}
+                  <code className="break-all rounded bg-sunu-surface px-1">{setup.secret}</code>
+                </p>
+                <p>2. Entrez le code à 6 chiffres affiché :</p>
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    confirm.mutate();
+                  }}
+                  className="flex gap-2"
+                >
+                  <input
+                    required
+                    inputMode="numeric"
+                    autoComplete="one-time-code"
+                    value={code}
+                    onChange={(e) => setCode(e.target.value)}
+                    placeholder="123456"
+                    aria-label="Code à 6 chiffres"
+                    className="w-32 rounded-lg border border-sunu-line px-3 py-2 text-center tracking-widest"
+                  />
+                  <button
+                    disabled={confirm.isPending}
+                    className="rounded-lg bg-sunu-green px-4 py-2 text-xs font-semibold text-white"
+                  >
+                    Activer
+                  </button>
+                </form>
+              </div>
             </div>
-          </div>
-        ) : (
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <p className="text-sunu-ink/70">
-              Protégez votre compte avec un code demandé à chaque connexion.{" "}
-              <b>
-                {pro
-                  ? "Obligatoire pour les comptes professionnels, qui accèdent à des données de santé."
-                  : "Recommandé si vous partagez votre téléphone."}
-              </b>
-            </p>
-            <button
-              onClick={() => start.mutate()}
-              disabled={start.isPending}
-              className="flex items-center gap-2 rounded-lg bg-sunu-green px-4 py-2 text-xs font-semibold text-white"
-            >
-              <KeyRound className="size-4" /> Activer la double authentification
-            </button>
-          </div>
-        )}
-        <PasswordForm hasPassword={me?.has_password ?? true} />
-        <OtherDevices />
-      </div>
-    </section>
+          ) : (
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <p className="text-sunu-ink/70">
+                Protégez votre compte avec un code demandé à chaque connexion.{" "}
+                <b>
+                  {pro
+                    ? "Obligatoire pour les comptes professionnels, qui accèdent à des données de santé."
+                    : "Recommandé si vous partagez votre téléphone."}
+                </b>
+              </p>
+              <button
+                onClick={() => start.mutate()}
+                disabled={start.isPending}
+                className="flex items-center gap-2 rounded-lg bg-sunu-green px-4 py-2 text-xs font-semibold text-white"
+              >
+                <KeyRound className="size-4" /> Activer la double authentification
+              </button>
+            </div>
+          )}
+          <PasswordForm hasPassword={me?.has_password ?? true} />
+          <OtherDevices />
+        </div>
+      </section>
+    </div>
   );
 }
 

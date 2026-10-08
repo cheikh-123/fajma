@@ -19,6 +19,7 @@
 | Méthodes | Téléphone + code SMS à 6 chiffres (méthode par défaut) ; email + mot de passe |
 | Mots de passe | 10 caractères minimum, validateurs Django (mots courants, similarité), hachage PBKDF2-SHA256 |
 | Codes SMS | Stockés sous forme d'empreinte, 10 minutes de validité, 5 essais, 3 envois par 10 minutes et par numéro |
+| **Clés d'accès (passkeys, WebAuthn/FIDO2)** | Empreinte, visage, code de l'appareil ou clé USB, à la place du code à six chiffres. **Seule méthode qui ferme l'hameçonnage** : le navigateur ne présente la clé qu'au domaine qui l'a créée et signe ce domaine, donc un faux site ne peut rien en faire, même si la personne clique sur son lien. La clé privée ne quitte jamais l'appareil : seule la clé publique est en base, une base volée n'ouvre aucune session. Plusieurs appareils par compte ; le compteur d'utilisations est vérifié (une clé copiée se trahit). Le code à six chiffres reste disponible en secours, et un professionnel ne peut pas retirer sa dernière seconde étape. Réglages `PASSKEY_RP_ID` / `PASSKEY_ORIGINS` |
 | Double authentification | TOTP (applications d'authentification), codes de secours à usage unique (empreintes), anti-rejeu du même code. **Obligatoire** pour tout compte professionnel (médecin, pharmacien, clinique, secrétariat, administrateur) : tant qu'elle n'est pas activée, l'API refuse tout sauf les routes de compte (`accounts/security.py`). La connexion par mot de passe seul de `/django-admin/` est supprimée. L'administration peut la réinitialiser (téléphone perdu), action journalisée |
 | Comptes | Changement de mot de passe (déconnexion des autres appareils, email d'alerte) ; suspension d'un compte par l'administration (sessions coupées, fiche médecin retirée de l'annuaire), journalisée avec son motif |
 | Session | Cookie HttpOnly, `Secure` en production, `SameSite=Lax`, 14 jours ; protection CSRF (jeton en en-tête). **Comptes professionnels : fermée après 30 minutes sans activité de l'utilisateur** (`PRO_IDLE_MINUTES`, `IdleTimeoutMiddleware`) ; les rafraîchissements automatiques de l'écran ne comptent pas (l'application transmet le temps écoulé depuis le dernier clic ou la dernière frappe) ; retour à la connexion puis à la page en cours |
@@ -98,7 +99,11 @@ Chaque règle ci-dessus est couverte par au moins un test automatisé qui tente 
 | Déplacement de RDV par glisser-déposer | Même contrôle serveur qu'un déplacement classique (créneau libre, pas dans le passé), confirmation avant envoi, patient prévenu |
 | Fiche d'urgence consultée par un tiers | Désactivée par défaut ; lien à jeton aléatoire de 256 bits, révocable (« nouveau lien ») ; informations choisies par le patient ; page non indexée, sans référent ; limite de débit ; chaque consultation journalisée et signalée au patient (une fois par jour) |
 | Renouvellement d'ordonnance abusif | Uniquement par le médecin prescripteur, ordonnance de moins d'un an, une demande en cours à la fois ; refus motivé obligatoire ; nouvelle ordonnance avec en-tête et signature à jour (mentions obligatoires vérifiées), journalisée |
+| **Hameçonnage du mot de passe d'un professionnel** (faux email « votre compte expire »), risque le plus probable en pratique | **Clés d'accès** (§ 2.2) : une clé créée pour `fajma.sn` ne produit aucune signature utilisable sur un autre domaine. Le serveur refuse toute signature dont l'origine n'est pas la nôtre — vérifié par des tests qui rejouent une attaque de relais |
+| **Attaque de mots de passe en cours, répartie sur de nombreuses adresses** | Détectée par la supervision (`manage.py monitor`) : vague d'échecs de connexion, comptes verrouillés en série, fiches d'urgence consultées en masse, rafale d'actions sensibles de l'administration. Email aux responsables, **et SMS pour les alertes graves** (`ALERT_PHONES`), parce qu'un email n'est pas lu la nuit |
 | Faille connue dans une bibliothèque | Contrôle automatique à chaque modification : `npm audit` (interface) et `pip-audit` (serveur) dans l'intégration continue |
+| Motif dangereux introduit dans le code (commande système, secret en dur, aléatoire non sûr, XML non protégé) | **Analyse statique `bandit`** à chaque modification : toute alerte de gravité moyenne ou haute fait échouer l'intégration continue |
+| Service externe appelé en clair par erreur de configuration | Les adresses des services externes (IA, SMS, paiement) doivent être en `https://` : sinon l'application **refuse de démarrer** (`require_https`, `sunusante/settings.py`). Sans ce contrôle, un `http://` oublié aurait envoyé des notes médicales et des clés d'API en clair |
 | Script injecté (XSS) | React échappe les contenus ; CSP stricte sans `unsafe-inline` pour les scripts (empreintes calculées au build) ; cookie de session inaccessible au JavaScript |
 | Clic détourné (clickjacking) | `frame-ancestors 'none'` et `X-Frame-Options: DENY`, sauf le module de réservation intégrable, qui ne contient ni connexion ni paiement |
 | Abus et force brute | Limites de débit : connexion 10/min, codes SMS 10/h, réservations 20/h, assistant IA 15/min, recherches publiques 30/min ; **verrou par compte** : après 10 mots de passe faux en 15 minutes sur un même email (même depuis des adresses différentes), connexion refusée pendant 15 minutes ; codes SMS limités à 3 par numéro et par 10 minutes |
@@ -140,13 +145,20 @@ exécuté par l'intégration continue.
 
 ## 2.8 Tests de sécurité réalisés
 
-- **404 tests automatisés de l'API**, dont les tentatives d'accès interdites de la matrice § 2.4 (y compris
+- **427 tests automatisés de l'API**, dont les tentatives d'accès interdites de la matrice § 2.4 (y compris
   pour un remplaçant, une secrétaire, un médecin sans lien avec le patient), les manipulations de prix et de
   parts, les fichiers piégés, les doubles réservations, les webhooks non signés, les secrets USSD invalides, la
   réutilisation de session USSD par un autre numéro, les doubles notifications de paiement, le blocage des
   professionnels sans double authentification, la suspension de compte (sessions coupées), le chiffrement des fichiers sur le disque (et le refus d'un
   fichier altéré), le refus d'un fichier infecté ou non analysable, la déconnexion après inactivité (sans
-  prolongation par les rafraîchissements automatiques) et l'alerte de connexion depuis un nouvel appareil.
+  prolongation par les rafraîchissements automatiques) et l'alerte de connexion depuis un nouvel appareil, et le refus d'une adresse de service externe qui ne
+  serait pas en `https://`.
+- **Clés d'accès éprouvées contre une vraie attaque** (`tests/test_passkeys.py`, 13 tests) : les tests fabriquent un
+  authentificateur logiciel (paire de clés ES256, signature réelle) plutôt que de bouchonner la bibliothèque. Sont refusés :
+  une clé créée pour un faux domaine, une signature relayée depuis un site d'hameçonnage, une signature falsifiée, la clé
+  d'un autre compte, un défi rejoué, et toute tentative sans mot de passe valide au préalable.
+- **Alertes de sécurité** (`tests/test_operations.py`) : les seuils sonnent quand il faut et se taisent en dessous ; seules les
+  alertes graves partent par SMS.
 - **Balayage des accès croisés** (`tests/test_idor_sweep.py`) : un autre patient, un autre médecin et un visiteur
   tentent une quarantaine de routes sur les données d'autrui (RDV, documents, ordonnances, paiements, proches,
   mesures, analyses, renouvellements, assurances) : toutes refusées, rien n'est modifié.
@@ -162,4 +174,21 @@ exécuté par l'intégration continue.
     authentification : elle passe désormais par la connexion Fajma ;
   - l'ajout en double d'un membre de secrétariat provoquait une erreur serveur : contrôle préalable.
 
-**À faire** : test d'intrusion externe, revue de la configuration de l'hébergement réel.
+## 2.9 Ce qui n'est pas couvert, et pourquoi
+
+Cette section existe pour qu'aucun acquéreur ne découvre ces limites après coup. Aucune d'elles ne relève
+du code : toutes dépendent de l'hébergement, du budget ou d'une démarche administrative.
+
+| Point | État | Qui doit s'en charger |
+|---|---|---|
+| **Test d'intrusion externe** par un tiers indépendant | Jamais réalisé | Prestataire spécialisé, avant l'ouverture au public. C'est le seul point qui peut révéler ce que ni les tests ni l'analyse statique ne voient. |
+| **Pare-feu applicatif (WAF) et protection anti-déni de service** | Absent | Fourni par l'hébergeur ou un service en frontal. L'application limite déjà le débit par compte et par adresse, mais ne peut rien contre une saturation du réseau. |
+| **Détection d'intrusion et alerte en temps réel** (SIEM) | Absent | Le journal d'audit enregistre tout, mais personne n'est prévenu automatiquement d'un comportement anormal. |
+| **Chiffrement de la base entière au repos** | Absent | Dépend du disque et de l'hébergeur. Les documents et les secrets de double authentification sont déjà chiffrés indépendamment : la base volée seule ne les livre pas. |
+| **Rotation automatique des secrets** | Manuelle | La rotation de la clé de chiffrement des fichiers est outillée (`encrypt_files --rotate`), les autres clés se changent à la main. |
+| **Déclaration à la Commission de Protection des Données Personnelles** (CDP, Sénégal) | À faire ⚖️ | Obligation légale pour un traitement de données de santé. |
+| **Politique de divulgation responsable** (`security.txt`, adresse de contact) | Absente | Demande une boîte aux lettres réellement relevée ; à créer en même temps que le domaine. |
+| **Certification HDS / ISO 27001** | Aucune | Pertinent seulement si un partenaire institutionnel l'exige ; coûteux et long. |
+
+**À faire en priorité** : test d'intrusion externe, revue de la configuration de l'hébergement réel,
+déclaration CDP.

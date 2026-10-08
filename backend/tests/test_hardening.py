@@ -7,7 +7,7 @@ import time
 from unittest import mock
 
 from django.core.management import call_command
-from django.test import override_settings
+from django.test import SimpleTestCase, override_settings
 from rest_framework.test import APIClient
 
 from accounts.devices import COOKIE
@@ -15,6 +15,7 @@ from accounts.models import KnownDevice
 from medical.models import MedicalDocument
 from notifications.models import Notification
 from sunusante import uploads
+from sunusante.settings import require_https
 
 from .test_security import ApiTestCase
 
@@ -140,3 +141,19 @@ class NewDeviceAlertTests(ApiTestCase):
         self.assertEqual(KnownDevice.objects.filter(user=self.p2).count(), 2)
         # Le jeton n'est stocké que haché.
         self.assertFalse(KnownDevice.objects.filter(token_hash=home.cookies[COOKIE].value).exists())
+
+
+class OutboundUrlTests(SimpleTestCase):
+    """Les adresses des services externes (IA, SMS, paiement) transportent des notes médicales et des clés
+    d'API : une adresse en http les enverrait en clair. La configuration doit alors refuser de démarrer."""
+
+    def test_https_accepte(self):
+        self.assertEqual(require_https("X", "https://api.exemple.sn/v1"), "https://api.exemple.sn/v1")
+
+    def test_http_refuse(self):
+        with self.assertRaises(RuntimeError):
+            require_https("AI_API_URL", "http://api.exemple.sn/v1")
+
+    def test_schema_exotique_refuse(self):
+        with self.assertRaises(RuntimeError):
+            require_https("AI_API_URL", "file:///etc/passwd")

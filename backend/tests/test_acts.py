@@ -43,7 +43,7 @@ class CareSheetTests(ApiTestCase):
         PatientCoverage.objects.create(user=self.p1, insurer=self.insurer, member_number="A-123", coverage_percent=80)
         res = self.book(self.p1)
         self.appt_id = res.data["id"]
-        self.set_appointment(self.appt_id, status="confirmed", scheduled_at=self.slot - timedelta(days=1),
+        self.set_appointment(self.appt_id, status="confirmed", scheduled_at=self.past_visit(),
                              price=15000, insurer=self.insurer, coverage_percent=80, insurance_member_number="A-123")
 
     def record(self, acts):

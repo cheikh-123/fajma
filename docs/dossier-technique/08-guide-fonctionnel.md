@@ -158,7 +158,9 @@ internet).
   qui reçoit les patients et signe à son nom pendant la période.
 - **Finances** : solde, demande de virement dès 5 000 F, historique, formule (Essentiel gratuite, Pro, Clinique),
   exports tableur (rendez-vous, bordereau de tiers payant, revenus).
-- **Sécurité** : notifications sur le téléphone, double authentification, mot de passe.
+- **Sécurité** : notifications sur le téléphone, **clés d'accès** (se connecter avec son empreinte, son visage ou le code de
+  son téléphone — un faux site ne peut pas s'en servir, contrairement au code à six chiffres), double authentification par
+  code, mot de passe. Un professionnel ne peut pas retirer sa dernière seconde étape de connexion.
 - **Télé-expertise** et **messagerie** avec les confrères et les patients.
 
 ## 8.4 Secrétariat et clinique

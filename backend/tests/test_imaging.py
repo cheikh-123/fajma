@@ -17,7 +17,7 @@ class ImagingTests(ApiTestCase):
         super().setUp()
         res = self.book(self.p1)
         self.appt_id = res.data["id"]
-        self.set_appointment(self.appt_id, status="confirmed", scheduled_at=self.slot - timedelta(days=1))
+        self.set_appointment(self.appt_id, status="confirmed", scheduled_at=self.past_visit())
         self.centre = Laboratory.objects.create(
             name="Centre d'imagerie Plateau", city="Dakar", address="Avenue Pasteur",
             is_verified=True, kind="imagerie", modalities=["radio", "echo", "scanner"],

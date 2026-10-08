@@ -56,6 +56,13 @@ class ApiTestCase(TestCase):
             fields["ends_at"] = fields["scheduled_at"] + timedelta(minutes=fields.get("duration_minutes", appt.duration_minutes))
         Appointment.objects.filter(id=appt_id).update(**fields)
 
+    def past_visit(self, hours: int = 2) -> datetime:
+        """Un horaire déjà passé : comptes-rendus, ordonnances et actes ne s'écrivent qu'après la
+        consultation. À exprimer par rapport à maintenant, jamais par rapport à `self.slot` : celui-ci
+        saute le week-end et peut tomber à plus de trois jours, ce qui rendait ces tests rouges les
+        mercredis et jeudis."""
+        return datetime.now(UTC) - timedelta(hours=hours)
+
     def client_for(self, user=None) -> APIClient:
         client = APIClient()
         if user:

@@ -57,6 +57,9 @@ RETENTION_DAYS = {
 
 # Supervision (commande « monitor », toutes les 10 minutes) : alertes par email.
 ALERT_EMAILS = [e.strip() for e in os.environ.get("ALERT_EMAILS", "").split(",") if e.strip()]
+# Numéros prévenus par SMS pour les seules alertes graves (attaque de mots de passe, antivirus injoignable,
+# base injoignable, sauvegarde en échec) : un email n'est pas lu la nuit.
+ALERT_PHONES = [p.strip() for p in os.environ.get("ALERT_PHONES", "").split(",") if p.strip()]
 BACKUP_DIR = os.environ.get("BACKUP_DIR", "/backups")  # vide = pas de contrôle des sauvegardes
 BACKUP_MAX_AGE_HOURS = env_int("BACKUP_MAX_AGE_HOURS", 26)
 # Jeton de la supervision externe pour obtenir le détail de /api/health (vide = équipe Fajma connectée seulement).
@@ -258,6 +261,20 @@ if not DEBUG:
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
     SECURE_HSTS_SECONDS = 60 * 60 * 24 * 365
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    # Inscription au préchargement HSTS des navigateurs : à n'activer qu'une fois le domaine et TOUS ses
+    # sous-domaines servis en HTTPS. L'inscription se retire très lentement côté navigateurs, d'où le
+    # choix explicite plutôt qu'une valeur par défaut.
+    SECURE_HSTS_PRELOAD = env_bool("DJANGO_HSTS_PRELOAD", False)
+
+# ── Clés d'accès (passkeys, WebAuthn) ────────────────────────────────
+# Le domaine du site : une clé créée ici ne fonctionnera nulle part ailleurs, c'est ce qui rend l'hameçonnage
+# inopérant. PASSKEY_RP_ID est le domaine nu (sans https:// ni port) ; PASSKEY_ORIGINS, les adresses complètes.
+PASSKEY_RP_ID = os.environ.get("PASSKEY_RP_ID") or (ALLOWED_HOSTS[0] if ALLOWED_HOSTS else "localhost")
+PASSKEY_ORIGINS = [o.strip() for o in os.environ.get("PASSKEY_ORIGINS", "").split(",") if o.strip()] or (
+    [f"http://{PASSKEY_RP_ID}:8088", f"http://{PASSKEY_RP_ID}:5173", f"http://{PASSKEY_RP_ID}:8000"]
+    if DEBUG
+    else [f"https://{PASSKEY_RP_ID}"]
+)
 
 # ── API ──────────────────────────────────────────────────────────────
 REST_FRAMEWORK = {
@@ -321,11 +338,24 @@ EVENTS_POLL_SECONDS = float(os.environ.get("EVENTS_POLL_SECONDS", "2"))
 
 # Menu USSD : secret partagé avec l'agrégateur (en-tête X-Ussd-Secret ou ?secret=). Vide = désactivé.
 USSD_SECRET = os.environ.get("USSD_SECRET", "")
+def require_https(name: str, url: str) -> str:
+    """Refuse une adresse de service externe qui n'est pas en HTTPS : une erreur de configuration enverrait
+    sinon des notes médicales et des clés d'API en clair sur le réseau. En développement, « localhost » et
+    « 127.0.0.1 » restent autorisés en http (serveur d'IA local, bouchon de test)."""
+    host = urlparse(url).hostname or ""
+    if url.startswith("https://") or (DEBUG and host in {"localhost", "127.0.0.1"}):
+        return url
+    raise RuntimeError(f"{name} doit être une adresse https:// (reçu : {url!r})")
+
+
 AI = {
     "API_KEY": os.environ.get("AI_API_KEY", ""),
     "MODEL": os.environ.get("AI_MODEL", ""),
-    "API_URL": os.environ.get(
-        "AI_API_URL", "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions"
+    "API_URL": require_https(
+        "AI_API_URL",
+        os.environ.get(
+            "AI_API_URL", "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions"
+        ),
     ),
 }
 

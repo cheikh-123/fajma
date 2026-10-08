@@ -15,6 +15,8 @@ class AuditEvent(BaseModel):
         ("login_failed", "Échec de connexion"),
         ("mfa_enabled", "Double authentification activée"),
         ("mfa_disabled", "Double authentification désactivée"),
+        ("passkey_added", "Clé d'accès ajoutée"),
+        ("passkey_removed", "Clé d'accès retirée"),
         ("patient_file_viewed", "Fiche patient consultée"),
         ("document_viewed", "Document consulté"),
         ("prescription_viewed", "Ordonnance consultée"),

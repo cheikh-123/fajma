@@ -8,9 +8,9 @@ cffi==2.1.1
 charset-normalizer==3.5.1
 click==8.5.0
 cryptography==50.0.1
-Django==6.1.1
 django-stubs-ext==6.1.1
 django-tasks-db==0.13.0
+Django==6.1.1
 djangorestframework==3.18.1
 frozenlist==1.8.0
 gunicorn==26.2.0
@@ -20,8 +20,8 @@ icalendar==7.3.0
 idna==3.20
 multidict==6.9.1
 propcache==0.5.4
-psycopg==3.3.6
 psycopg-binary==3.3.6
+psycopg==3.3.6
 py-vapid==1.9.4
 pycparser==3.0
 python-dateutil==2.9.0.post0
@@ -35,8 +35,9 @@ sqlparse==0.6.0
 typing_extensions==4.16.0
 tzdata==2026.4
 urllib3==2.8.0
-uvicorn==0.54.0
 uvicorn-worker==0.4.0
+uvicorn==0.54.0
+webauthn==3.0.1
 whitenoise==6.12.0
 x-wr-timezone==2.0.1
 yarl==1.25.1

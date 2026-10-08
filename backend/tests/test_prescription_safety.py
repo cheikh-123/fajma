@@ -196,7 +196,7 @@ class PrescriptionBlockingTests(ApiTestCase):
         self.appt_id = res.data["id"]
         from appointments.models import Appointment
 
-        self.set_appointment(self.appt_id, status="confirmed", scheduled_at=self.slot - timedelta(days=3))
+        self.set_appointment(self.appt_id, status="confirmed", scheduled_at=self.past_visit())
         self.appt = Appointment.objects.get(id=self.appt_id)
 
     def record(self, items, **extra):
