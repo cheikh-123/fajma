@@ -108,7 +108,7 @@ def list_doctors(request):
         # Personne dans le rayon (ex. Touba) : on propose les 10 médecins les plus proches plutôt qu'une liste vide.
         doctors = nearby or sorted((d for d in doctors if d.id in distances), key=lambda d: distances[d.id])[:10]
 
-    # Prochaine disponibilité de chaque médecin (comme sur Doctolib), filtres et tri associés.
+    # Prochaine disponibilité de chaque médecin, filtres et tri associés.
     results = []
     next_slots = next_available_many(doctors)
     for d in doctors:

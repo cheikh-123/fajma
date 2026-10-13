@@ -1,5 +1,5 @@
 """
-Tests des fonctionnalités « type Doctolib » : absences, règles de réservation, statuts arrivé/absent,
+Tests du socle de la prise de rendez-vous : absences, règles de réservation, statuts arrivé/absent,
 notifications, .ics, profil de santé, fiche patient, statistiques, recherche, données personnelles.
 """
 

@@ -1,6 +1,6 @@
 # Dossier technique et sécurité — Fajma
 
-**Version du dossier :** 7.6 — 9 octobre 2026
+**Version du dossier :** 7.7 — 14 octobre 2026
 **Périmètre :** code source du dépôt `sante-connect-main` (backend Django, frontend React, déploiement), services tiers.
 **Public visé :** acquéreurs, investisseurs, auditeurs techniques et juridiques, équipe technique reprenant le projet.
 
@@ -49,10 +49,15 @@ d'un serveur à l'autre sans réécriture (§ [4.5](04-exploitation.md)).
 
 **Ce qui est en place**
 
-- **Couverture fonctionnelle de niveau Doctolib, adaptée au Sénégal** : réservation (site, WhatsApp, USSD),
+- **Conçu pour le Sénégal, pas adapté depuis ailleurs.** Ce qui le distingue : prise de
+  rendez-vous **par USSD, depuis n'importe quel téléphone, sans internet** ; téléconsultation et SMS **en wolof
+  comme en français** ; paiement par **Wave et Orange Money** ; prise en charge **IPM, mutuelles CMU et
+  assureurs** avec tiers payant ; **entraide familiale depuis la diaspora** (un proche à l'étranger paie et suit
+  les soins d'un parent au pays) ; **ticket virtuel d'hôpital** qui évite la file d'attente ; catalogue de
+  médicaments fondé sur la **liste nationale des médicaments essentiels**.
+- **Et tout le socle attendu d'une plateforme de santé** : réservation (site, WhatsApp, USSD),
   téléconsultation, dossier médical, ordonnances et certificats vérifiables par QR code, paiement mobile avec
-  commission et reversement aux médecins, abonnements des médecins, assurances (IPM, mutuelles CMU, assureurs)
-  avec tiers payant, carnet de vaccination et suivi de grossesse, ordonnances transmises aux pharmacies,
+  commission et reversement aux médecins, abonnements des médecins, carnet de vaccination et suivi de grossesse, ordonnances transmises aux pharmacies,
   secrétariat de clinique ou de cabinet, télé-expertise entre médecins, visites à domicile, séries de
   séances (kinésithérapie, soins), remplacements entre médecins, tableau de pilotage.
 - **Chaque acteur gère lui-même ses informations** : fiche et photo du médecin, horaires et garde de la
@@ -162,3 +167,4 @@ Ces points sont signalés **« À vérifier »**.
 | 7.4 | 08/10/2026 | **Clés d'accès (passkeys)** (§ 2.2) : connexion par empreinte, visage, code de l'appareil ou clé USB, à la place du code à six chiffres — seule méthode qui ferme l'hameçonnage, le vol de compte le plus courant. La clé privée ne quitte jamais l'appareil ; une base volée n'ouvre aucune session. Éprouvée par 13 tests qui rejouent une vraie attaque de relais. **Alertes de sécurité** : la supervision détecte désormais une vague de mots de passe essayés, des comptes verrouillés en série, des fiches d'urgence consultées en masse et une rafale d'actions sensibles de l'administration ; les alertes graves partent aussi par SMS (`ALERT_PHONES`) |
 | 7.5 | 08/10/2026 | **Mises à jour des bibliothèques proposées automatiquement** (Dependabot : serveur, application, actions d'intégration continue ; corrections de sécurité sans attendre). Nouveau chapitre 10 **« Que faire en cas d'incident »**, écrit pour être lu le jour même par quelqu'un qui n'est pas ingénieur : compte de médecin compromis, attaque de mots de passe, site à terre, restauration, fuite d'une clé, et le rythme à tenir. Correction au passage : la réinitialisation par l'administration retire désormais **aussi** les clés d'accès — ne retirer que le code à six chiffres laissait la personne bloquée par une clé restée sur l'appareil perdu |
 | 7.6 | 09/10/2026 | **Dossier remanié pour la lecture** : couverture refaite (titre, repères chiffrés vérifiables, destinataires, mention de confidentialité) et **sommaire avec les numéros de page**, calculés en mesurant réellement chaque chapitre plutôt qu'en les estimant ; chaque ligne renvoie au chapitre. Toute référence aux plateformes du prototype initial a été retirée du dossier : le texte dit désormais ce qui compte pour un acquéreur — aucune dépendance à une plateforme propriétaire, installation sur n'importe quel serveur Linux |
+| 7.7 | 14/10/2026 | **Aucun nom de concurrent dans le dossier ni dans le code** : la synthèse ne se compare plus à une plateforme étrangère, elle dit ce que Fajma est — rendez-vous par USSD sans internet, wolof et français, Wave et Orange Money, IPM et mutuelles CMU, entraide familiale depuis la diaspora, ticket virtuel d'hôpital, liste nationale des médicaments essentiels. Commentaire et fichier de tests renommés en conséquence |
