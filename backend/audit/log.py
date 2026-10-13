@@ -2,6 +2,7 @@
 
 import logging
 
+from . import seal
 from .models import AuditEvent
 
 logger = logging.getLogger(__name__)
@@ -16,7 +17,8 @@ def client_ip(request) -> str | None:
 def log(request, action: str, *, actor=None, patient=None, target=None, **metadata) -> None:
     try:
         user = actor if actor is not None else (request.user if getattr(request, "user", None) and request.user.is_authenticated else None)
-        AuditEvent.objects.create(
+        seal.seal_and_create(
+            AuditEvent,
             actor=user,
             patient=patient,
             action=action,

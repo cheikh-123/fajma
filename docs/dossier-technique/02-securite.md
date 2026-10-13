@@ -108,6 +108,8 @@ Chaque règle ci-dessus est couverte par au moins un test automatisé qui tente 
 | Clic détourné (clickjacking) | `frame-ancestors 'none'` et `X-Frame-Options: DENY`, sauf le module de réservation intégrable, qui ne contient ni connexion ni paiement |
 | Abus et force brute | Limites de débit : connexion 10/min, codes SMS 10/h, réservations 20/h, assistant IA 15/min, recherches publiques 30/min ; **verrou par compte** : après 10 mots de passe faux en 15 minutes sur un même email (même depuis des adresses différentes), connexion refusée pendant 15 minutes ; codes SMS limités à 3 par numéro et par 10 minutes |
 | Serveur de production lancé en mode développement | Sans réglage, le mode développement (pages de débogage, accès démo) n'est actif que pour les commandes `manage.py` sur un poste ; le serveur de production (gunicorn) démarre toujours en mode sécurisé et docker-compose impose `DJANGO_DEBUG=false` |
+| **Retouche du journal d'audit par quelqu'un ayant accès à la base** (console technique, sauvegarde volée, prestataire d'hébergement) | **Journal scellé en chaîne** : chaque évènement est signé avec le sceau du précédent et porte un rang sans trou. Modifier une ligne, en insérer une ou en supprimer une casse la chaîne, et `manage.py verifier_journal` dit précisément laquelle. Réserve honnête : quelqu'un qui contrôle le serveur applicatif possède la clé et peut recalculer la chaîne — d'où l'**ancre** (`--ancre`), le dernier sceau à noter hors du système, qu'une chaîne refaite ne retrouverait pas |
+| Champ de consentement perdu en silence (faute de frappe dans une version de l'application, intégration tierce) | Sur les écrans de consentement — droits accordés à un proche aidant, informations publiées par la fiche d'urgence — un champ non reconnu est **refusé**, jamais ignoré : personne ne peut croire avoir retiré un droit sans que rien ne change |
 | Copie de la base ou d'une sauvegarde volée | Fichiers chiffrés, **secrets de double authentification chiffrés** (même clé `FILE_ENCRYPTION_KEYS`, conservée hors de la base et des sauvegardes) : la base seule ne permet ni de lire les documents ni de générer les codes des professionnels ; mots de passe et codes de secours hachés |
 | Suppression accidentelle (console technique, intervention manuelle) | Rendez-vous, comptes-rendus, ordonnances, certificats, analyses, messages, notes et paiements **protégés** : la suppression d'un compte ou d'une fiche médecin qui en possède est refusée par l'application (les comptes sont anonymisés, jamais effacés) |
 | Contestation d'un rendez-vous (« je n'ai jamais annulé ») | Historique inaltérable de chaque rendez-vous : auteur, date, ancien et nouvel horaire, motif d'annulation |
@@ -135,6 +137,13 @@ modération, consultation des justificatifs, recherches de comptes, suspensions,
 leur motif). Le patient voit dans son dossier qui a consulté ses données ; l'administration voit l'ensemble.
 Conservation du journal : 5 ans par défaut (réglable, à valider ⚖️).
 
+**Scellement.** Chaque évènement est signé (HMAC-SHA256) avec le sceau du précédent : le journal forme une
+chaîne. Toute retouche faite directement en base — la seule que le code Python ne peut pas empêcher — casse les
+sceaux suivants. `python manage.py verifier_journal` reparcourt la chaîne et nomme l'évènement en cause ;
+`--depuis 30` limite au dernier mois pour le contrôle mensuel ; `--ancre` affiche le dernier sceau, à conserver
+hors du système (carnet, email à un tiers). La purge légale des évènements les plus anciens ne casse pas la
+vérification : elle repart du plus ancien évènement restant.
+
 ## 2.7 Secrets et configuration
 
 Aucun secret dans le code source. Les clés (Django, base, PayDunya, Twilio, USSD, VAPID, IA, SMTP, Sentry) sont
@@ -145,7 +154,7 @@ exécuté par l'intégration continue.
 
 ## 2.8 Tests de sécurité réalisés
 
-- **429 tests automatisés de l'API**, dont les tentatives d'accès interdites de la matrice § 2.4 (y compris
+- **443 tests automatisés de l'API**, dont les tentatives d'accès interdites de la matrice § 2.4 (y compris
   pour un remplaçant, une secrétaire, un médecin sans lien avec le patient), les manipulations de prix et de
   parts, les fichiers piégés, les doubles réservations, les webhooks non signés, les secrets USSD invalides, la
   réutilisation de session USSD par un autre numéro, les doubles notifications de paiement, le blocage des

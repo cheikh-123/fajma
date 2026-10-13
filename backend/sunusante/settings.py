@@ -56,6 +56,9 @@ RETENTION_DAYS = {
 }
 
 # Supervision (commande « monitor », toutes les 10 minutes) : alertes par email.
+# Clé de scellement du journal d'audit (audit/seal.py). Sans valeur, elle est dérivée de la clé secrète.
+# Elle ne doit jamais changer : les évènements antérieurs deviendraient invérifiables.
+AUDIT_SEAL_KEY = os.environ.get("AUDIT_SEAL_KEY", "")
 ALERT_EMAILS = [e.strip() for e in os.environ.get("ALERT_EMAILS", "").split(",") if e.strip()]
 # Numéros prévenus par SMS pour les seules alertes graves (attaque de mots de passe, antivirus injoignable,
 # base injoignable, sauvegarde en échec) : un email n'est pas lu la nuit.

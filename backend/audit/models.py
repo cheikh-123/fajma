@@ -79,6 +79,10 @@ class AuditEvent(BaseModel):
     ip = models.GenericIPAddressField(null=True, blank=True)
     user_agent = models.CharField(max_length=300, blank=True)
     metadata = models.JSONField(default=dict, blank=True)
+    # Scellement en chaîne (audit/seal.py) : rang sans trou et signature liée à l'évènement précédent.
+    # Nuls pour les évènements enregistrés avant la mise en place du scellement.
+    chain_index = models.BigIntegerField(null=True, blank=True, unique=True)
+    seal = models.CharField(max_length=64, blank=True, default="")
 
     class Meta:
         ordering = ["-created_at"]
@@ -89,6 +93,7 @@ class AuditEvent(BaseModel):
             # (dont le verrou anti-force brute : échecs de connexion des 15 dernières minutes).
             models.Index(fields=["-created_at"], name="audit_recent_idx"),
             models.Index(fields=["action", "-created_at"], name="audit_action_recent_idx"),
+            models.Index(fields=["chain_index"], name="audit_chain_idx"),
         ]
 
     def save(self, *args, **kwargs):

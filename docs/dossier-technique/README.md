@@ -1,6 +1,6 @@
 # Dossier technique et sécurité — Fajma
 
-**Version du dossier :** 7.7 — 14 octobre 2026
+**Version du dossier :** 7.8 — 14 octobre 2026
 **Périmètre :** code source du dépôt `sante-connect-main` (backend Django, frontend React, déploiement), services tiers.
 **Public visé :** acquéreurs, investisseurs, auditeurs techniques et juridiques, équipe technique reprenant le projet.
 
@@ -27,7 +27,7 @@ d'un serveur à l'autre sans réécriture (§ [4.5](04-exploitation.md)).
 | Messages | Twilio : SMS et WhatsApp ; notifications push du navigateur (Web Push, gratuites) |
 | Téléconsultation | Jitsi Meet (serveur public au démarrage, auto-hébergeable) |
 | Assistant IA | Fournisseur configurable via une API compatible OpenAI (Google Gemini par défaut) |
-| Qualité | 429 tests automatisés de l'API ; parcours de bout en bout dans un navigateur réel pour chaque rôle ; intégration continue GitHub Actions |
+| Qualité | 443 tests automatisés de l'API ; parcours de bout en bout dans un navigateur réel pour chaque rôle ; intégration continue GitHub Actions |
 | Taille du code | ≈ 14 900 lignes Python (hors tests et migrations), ≈ 3 900 lignes de tests, ≈ 32 600 lignes TypeScript/React |
 
 ## 2. Contenu du dossier
@@ -93,7 +93,7 @@ d'un serveur à l'autre sans réécriture (§ [4.5](04-exploitation.md)).
 
 ## 4. Méthode
 
-Dossier établi par lecture intégrale du code source, exécution de la suite de tests de l'API (429 tests) et
+Dossier établi par lecture intégrale du code source, exécution de la suite de tests de l'API (443 tests) et
 de parcours de bout en bout dans un navigateur réel (Chrome et Edge, ordinateur et mobile) : patient, médecin,
 médecin remplaçant, clinique, secrétariat, pharmacien, administrateur, activation obligatoire de la double
 authentification, mode hors ligne sur le build de production.
@@ -168,3 +168,4 @@ Ces points sont signalés **« À vérifier »**.
 | 7.5 | 08/10/2026 | **Mises à jour des bibliothèques proposées automatiquement** (Dependabot : serveur, application, actions d'intégration continue ; corrections de sécurité sans attendre). Nouveau chapitre 10 **« Que faire en cas d'incident »**, écrit pour être lu le jour même par quelqu'un qui n'est pas ingénieur : compte de médecin compromis, attaque de mots de passe, site à terre, restauration, fuite d'une clé, et le rythme à tenir. Correction au passage : la réinitialisation par l'administration retire désormais **aussi** les clés d'accès — ne retirer que le code à six chiffres laissait la personne bloquée par une clé restée sur l'appareil perdu |
 | 7.6 | 09/10/2026 | **Dossier remanié pour la lecture** : couverture refaite (titre, repères chiffrés vérifiables, destinataires, mention de confidentialité) et **sommaire avec les numéros de page**, calculés en mesurant réellement chaque chapitre plutôt qu'en les estimant ; chaque ligne renvoie au chapitre. Toute référence aux plateformes du prototype initial a été retirée du dossier : le texte dit désormais ce qui compte pour un acquéreur — aucune dépendance à une plateforme propriétaire, installation sur n'importe quel serveur Linux |
 | 7.7 | 14/10/2026 | **Aucun nom de concurrent dans le dossier ni dans le code** : la synthèse ne se compare plus à une plateforme étrangère, elle dit ce que Fajma est — rendez-vous par USSD sans internet, wolof et français, Wave et Orange Money, IPM et mutuelles CMU, entraide familiale depuis la diaspora, ticket virtuel d'hôpital, liste nationale des médicaments essentiels. Commentaire et fichier de tests renommés en conséquence |
+| 7.8 | 14/10/2026 | **Journal d'audit scellé en chaîne** (§ 2.5, § 2.6) : chaque évènement est signé avec le sceau du précédent, toute retouche faite directement en base — la seule que le code ne pouvait pas empêcher — casse la chaîne et `manage.py verifier_journal` nomme l'évènement en cause ; « ancre » à conserver hors du système pour se prémunir aussi de quelqu'un qui contrôlerait le serveur. **Champ non reconnu refusé sur les écrans de consentement** (droits d'un proche aidant, fiche d'urgence) : une faute de frappe ne peut plus faire croire qu'un droit a été retiré |

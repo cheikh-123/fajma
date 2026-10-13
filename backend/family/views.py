@@ -19,7 +19,7 @@ from accounts.models import User
 from appointments.models import ACTIVE_STATUSES, Appointment
 from audit import log as audit
 from notifications.sms import normalize_phone
-from sunusante.api import ApiError, ScopedThrottle, body, get_choice, get_int, get_str, get_uuid, iso, not_found, require_user
+from sunusante.api import ApiError, ScopedThrottle, body, get_choice, get_int, get_str, get_uuid, iso, not_found, only, require_user
 
 from . import logic
 from .models import CareLink, CreditEntry, CreditTopUp
@@ -204,7 +204,9 @@ def settings_view(request, link_id):
     """
     user = require_user(request)
     link = _my_link(user, link_id)
-    data = body(request)
+    # Écran de consentement : on refuse un champ inconnu plutôt que de l'ignorer. Une faute de frappe dans un
+    # nom de champ ferait croire au bénéficiaire qu'il a retiré un droit alors que rien n'aurait changé.
+    data = only(body(request), "can_book", "can_see_records", "label", "monthly_reminder_amount", "low_balance_alert")
     is_sponsor = user.id == link.sponsor_id
     for right in ("can_book", "can_see_records"):
         if right in data:

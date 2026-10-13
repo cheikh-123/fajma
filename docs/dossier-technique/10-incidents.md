@@ -130,7 +130,7 @@ Pour éviter les réveils inutiles :
 | Quand | Quoi |
 |---|---|
 | Chaque semaine | Valider les propositions de mise à jour des bibliothèques (ouvertes automatiquement, déjà testées par l'intégration continue) |
-| Chaque mois | Vérifier que le test de restauration est passé ; parcourir le journal des actions d'administration |
+| Chaque mois | Vérifier que le test de restauration est passé ; parcourir le journal des actions d'administration ; lancer `python manage.py verifier_journal --depuis 30` (le journal a-t-il été retouché ?) et noter l'ancre donnée par `--ancre` |
 | Chaque année | Test d'intrusion externe par un prestataire indépendant, et correction de ce qu'il trouve |
 
 Ce rythme est ce qui remplace un ingénieur sécurité à plein temps. Il ne le remplace pas entièrement : voir

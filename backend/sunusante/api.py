@@ -85,6 +85,20 @@ def body(request) -> dict[str, Any]:
     return data
 
 
+def only(data: dict, *allowed: str) -> dict:
+    """Refuse un champ que la vue ne connaît pas, au lieu de l'ignorer en silence.
+
+    À réserver aux écrans où un champ perdu a une conséquence : consentements, droits accordés à un proche,
+    informations partagées. Ailleurs, ignorer l'inconnu permet à une ancienne version de l'application de
+    continuer à fonctionner après une mise à jour du serveur ; ici, au contraire, une faute de frappe dans un
+    nom de champ ferait croire à l'utilisateur qu'il a retiré un droit alors qu'il ne s'est rien passé.
+    """
+    unknown = sorted(set(data) - set(allowed))
+    if unknown:
+        raise ApiError(f"Champ(s) non reconnu(s) : {", ".join(unknown)}")
+    return data
+
+
 def get_str(data: dict, key: str, *, required: bool = False, min_len: int = 0, max_len: int = 1000) -> str | None:
     value = data.get(key)
     if value is None or (isinstance(value, str) and value.strip() == ""):

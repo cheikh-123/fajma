@@ -25,7 +25,7 @@ from accounts.models import Relative
 from audit import log as audit
 from notifications.models import Notification
 from notifications.service import notify
-from sunusante.api import ApiError, ScopedThrottle, body, get_str, get_uuid, not_found, require_user
+from sunusante.api import ApiError, ScopedThrottle, body, get_str, get_uuid, not_found, only, require_user
 
 from .models import HealthProfile, RelativeEmergencyCard
 
@@ -235,7 +235,17 @@ def my_emergency_settings(request):
     {blood_group?, allergies?, conditions?, treatments?} (il n'a pas de profil de santé propre).
     """
     user = require_user(request)
-    data = body(request) if request.method == "POST" else {}
+    # Fiche d'urgence : ce qui est publié derrière le QR code. Un champ non reconnu est refusé plutôt
+    # qu'ignoré, pour qu'une faute de frappe ne laisse jamais croire qu'une information a été retirée.
+    data = (
+        only(
+            body(request),
+            "relative_id", "fields", "critical_flags", "contacts", "medical_devices", "rescuer_notes",
+            "blood_group", "allergies", "conditions", "treatments", "alert_doctors", "enabled", "regenerate",
+        )
+        if request.method == "POST"
+        else {}
+    )
     rel_id = data.get("relative_id") or request.query_params.get("relative")
     if rel_id:
         relative = Relative.objects.filter(id=get_uuid({"r": rel_id}, "r"), owner=user).first()
