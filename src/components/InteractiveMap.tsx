@@ -6,11 +6,11 @@
  */
 import { useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { Crosshair, Loader2, Pill, Stethoscope } from "lucide-react";
+import { Crosshair, Loader2, Maximize2, Pill, Stethoscope } from "lucide-react";
 import type { DoctorListItem, Pharmacy } from "@/api/types";
 import { SenegalMap } from "@/components/SenegalMap";
 import { distanceKm, formatKm, googleDirectionsUrl, wazeUrl } from "@/lib/directions";
-import { addBuildings, MAP_STYLE_URL, tiltWhenClose } from "@/lib/basemap";
+import { addBuildings, DAKAR, MAP_STYLE_URL, tiltWhenClose } from "@/lib/basemap";
 import "maplibre-gl/dist/maplibre-gl.css";
 
 type Layer = "doctors" | "pharmacies" | "duty";
@@ -106,12 +106,10 @@ export function InteractiveMap({
         const map = new Map({
           container: box.current,
           style: MAP_STYLE_URL,
-          bounds: [
-            SENEGAL_BOUNDS[0][1],
-            SENEGAL_BOUNDS[0][0],
-            SENEGAL_BOUNDS[1][1],
-            SENEGAL_BOUNDS[1][0],
-          ],
+          // On ouvre sur Dakar plutôt que sur le pays entier : à l'échelle du Sénégal, aucune carte au
+          // monde ne montre les rues ni les bâtiments. Le bouton « Tout le Sénégal » élargit la vue.
+          center: DAKAR,
+          zoom: 11,
           maxBounds: [-20, 10.5, -9.5, 18.5],
           minZoom: 5,
           maxZoom: 18,
@@ -304,9 +302,26 @@ export function InteractiveMap({
         {chip("duty", `De garde (${pharmacies.filter((p) => p.is_on_duty).length})`, Pill)}
         <button
           type="button"
+          onClick={() =>
+            mapRef.current?.fitBounds(
+              [
+                SENEGAL_BOUNDS[0][1],
+                SENEGAL_BOUNDS[0][0],
+                SENEGAL_BOUNDS[1][1],
+                SENEGAL_BOUNDS[1][0],
+              ],
+              { padding: 30 },
+            )
+          }
+          className="inline-flex items-center gap-1.5 rounded-full border border-sunu-line bg-sunu-card px-3 py-1.5 text-xs font-semibold text-sunu-ink/70 hover:border-sunu-green"
+        >
+          <Maximize2 className="size-3.5" /> Tout le Sénégal
+        </button>
+        <button
+          type="button"
           onClick={locate}
           disabled={locating}
-          className="ml-auto inline-flex items-center gap-1.5 rounded-full border border-sunu-line bg-sunu-card px-3 py-1.5 text-xs font-semibold text-sunu-green hover:border-sunu-green"
+          className="inline-flex items-center gap-1.5 rounded-full border border-sunu-line bg-sunu-card px-3 py-1.5 text-xs font-semibold text-sunu-green hover:border-sunu-green sm:ml-auto"
         >
           {locating ? (
             <Loader2 className="size-3.5 animate-spin" />
