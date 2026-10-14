@@ -47,3 +47,6 @@ __pycache__/
 # Sauvegardes du serveur (données de santé : jamais dans le dépôt)
 deploy/backups/
 comptes-demo.txt
+
+# Scripts de vérification temporaires (captures d'écran, diagnostics)
+.verif/

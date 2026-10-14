@@ -73,9 +73,9 @@ Application web (livrée);dijkstrajs;1.0.3;MIT;permissive;https://www.npmjs.com/
 Application web (livrée);eventemitter3;4.0.7;MIT;permissive;https://www.npmjs.com/package/eventemitter3
 Application web (livrée);fast-equals;5.4.1;MIT;permissive;https://www.npmjs.com/package/fast-equals
 Application web (livrée);internmap;2.0.3;ISC;permissive;https://www.npmjs.com/package/internmap
-Application web (livrée);leaflet;1.9.4;BSD-2-Clause;permissive;https://www.npmjs.com/package/leaflet
 Application web (livrée);lodash;4.18.1;MIT;permissive;https://www.npmjs.com/package/lodash
 Application web (livrée);lucide-react;0.575.0;ISC;permissive;https://www.npmjs.com/package/lucide-react
+Application web (livrée);maplibre-gl;6.14.0;BSD-3-Clause;permissive;https://www.npmjs.com/package/maplibre-gl
 Application web (livrée);pako;1.0.11;(MIT AND Zlib);permissive;https://www.npmjs.com/package/pako
 Application web (livrée);pdf-lib;1.17.1;MIT;permissive;https://www.npmjs.com/package/pdf-lib
 Application web (livrée);prop-types;15.8.1;MIT;permissive;https://www.npmjs.com/package/prop-types
@@ -149,6 +149,15 @@ Outil de construction;@jridgewell/remapping;2.3.5;MIT;permissive;https://www.npm
 Outil de construction;@jridgewell/resolve-uri;3.1.2;MIT;permissive;https://www.npmjs.com/package/@jridgewell/resolve-uri
 Outil de construction;@jridgewell/sourcemap-codec;1.5.5;MIT;permissive;https://www.npmjs.com/package/@jridgewell/sourcemap-codec
 Outil de construction;@jridgewell/trace-mapping;0.3.31;MIT;permissive;https://www.npmjs.com/package/@jridgewell/trace-mapping
+Outil de construction;@mapbox/jsonlint-lines-primitives;2.0.3;MIT;permissive;https://www.npmjs.com/package/@mapbox/jsonlint-lines-primitives
+Outil de construction;@mapbox/point-geometry;1.1.0;ISC;permissive;https://www.npmjs.com/package/@mapbox/point-geometry
+Outil de construction;@mapbox/tiny-sdf;2.3.0;BSD-2-Clause;permissive;https://www.npmjs.com/package/@mapbox/tiny-sdf
+Outil de construction;@mapbox/unitbezier;1.0.0;BSD-2-Clause;permissive;https://www.npmjs.com/package/@mapbox/unitbezier
+Outil de construction;@mapbox/vector-tile;3.0.0;BSD-3-Clause;permissive;https://www.npmjs.com/package/@mapbox/vector-tile
+Outil de construction;@maplibre/geojson-vt;6.1.2;ISC;permissive;https://www.npmjs.com/package/@maplibre/geojson-vt
+Outil de construction;@maplibre/maplibre-gl-style-spec;26.4.4;ISC;permissive;https://www.npmjs.com/package/@maplibre/maplibre-gl-style-spec
+Outil de construction;@maplibre/mlt;1.3.0;(MIT OR Apache-2.0);permissive;https://www.npmjs.com/package/@maplibre/mlt
+Outil de construction;@maplibre/vt-pbf;4.3.2;MIT;permissive;https://www.npmjs.com/package/@maplibre/vt-pbf
 Outil de construction;@napi-rs/wasm-runtime;1.1.4;MIT;permissive;https://www.npmjs.com/package/@napi-rs/wasm-runtime
 Outil de construction;@napi-rs/wasm-runtime;1.2.0;MIT;permissive;https://www.npmjs.com/package/@napi-rs/wasm-runtime
 Outil de construction;@oozcitak/dom;2.0.2;MIT;permissive;https://www.npmjs.com/package/@oozcitak/dom
@@ -288,7 +297,6 @@ Outil de construction;@types/d3-timer;3.0.2;MIT;permissive;https://www.npmjs.com
 Outil de construction;@types/estree;1.0.9;MIT;permissive;https://www.npmjs.com/package/@types/estree
 Outil de construction;@types/geojson;7946.0.16;MIT;permissive;https://www.npmjs.com/package/@types/geojson
 Outil de construction;@types/json-schema;7.0.15;MIT;permissive;https://www.npmjs.com/package/@types/json-schema
-Outil de construction;@types/leaflet;1.9.22;MIT;permissive;https://www.npmjs.com/package/@types/leaflet
 Outil de construction;@types/node;22.20.1;MIT;permissive;https://www.npmjs.com/package/@types/node
 Outil de construction;@types/qrcode;1.5.6;MIT;permissive;https://www.npmjs.com/package/@types/qrcode
 Outil de construction;@types/react;19.2.17;MIT;permissive;https://www.npmjs.com/package/@types/react
@@ -317,6 +325,7 @@ Outil de construction;babel-dead-code-elimination;1.0.12;MIT;permissive;https://
 Outil de construction;balanced-match;1.0.2;MIT;permissive;https://www.npmjs.com/package/balanced-match
 Outil de construction;balanced-match;4.0.4;MIT;permissive;https://www.npmjs.com/package/balanced-match
 Outil de construction;baseline-browser-mapping;2.11.5;Apache-2.0;permissive;https://www.npmjs.com/package/baseline-browser-mapping
+Outil de construction;bidi-js;1.1.0;MIT;permissive;https://www.npmjs.com/package/bidi-js
 Outil de construction;brace-expansion;1.1.21;MIT;permissive;https://www.npmjs.com/package/brace-expansion
 Outil de construction;brace-expansion;5.0.12;MIT;permissive;https://www.npmjs.com/package/brace-expansion
 Outil de construction;browserslist;4.28.7;MIT;permissive;https://www.npmjs.com/package/browserslist
@@ -347,6 +356,7 @@ Outil de construction;detect-libc;2.1.2;Apache-2.0;permissive;https://www.npmjs.
 Outil de construction;detect-node-es;1.1.0;MIT;permissive;https://www.npmjs.com/package/detect-node-es
 Outil de construction;diff;8.0.4;BSD-3-Clause;permissive;https://www.npmjs.com/package/diff
 Outil de construction;dom-helpers;5.2.1;MIT;permissive;https://www.npmjs.com/package/dom-helpers
+Outil de construction;earcut;3.2.4;ISC;permissive;https://www.npmjs.com/package/earcut
 Outil de construction;electron-to-chromium;1.5.397;ISC;permissive;https://www.npmjs.com/package/electron-to-chromium
 Outil de construction;embla-carousel;8.6.0;MIT;permissive;https://www.npmjs.com/package/embla-carousel
 Outil de construction;embla-carousel-react;8.6.0;MIT;permissive;https://www.npmjs.com/package/embla-carousel-react
@@ -386,6 +396,7 @@ Outil de construction;fsevents;2.3.3;MIT;permissive;https://www.npmjs.com/packag
 Outil de construction;gensync;1.0.0-beta.2;MIT;permissive;https://www.npmjs.com/package/gensync
 Outil de construction;get-caller-file;2.0.5;ISC;permissive;https://www.npmjs.com/package/get-caller-file
 Outil de construction;get-nonce;1.0.1;MIT;permissive;https://www.npmjs.com/package/get-nonce
+Outil de construction;gl-matrix;3.4.4;MIT;permissive;https://www.npmjs.com/package/gl-matrix
 Outil de construction;glob-parent;6.0.2;ISC;permissive;https://www.npmjs.com/package/glob-parent
 Outil de construction;globals;14.0.0;MIT;permissive;https://www.npmjs.com/package/globals
 Outil de construction;globals;15.15.0;MIT;permissive;https://www.npmjs.com/package/globals
@@ -411,7 +422,9 @@ Outil de construction;json-buffer;3.0.1;MIT;permissive;https://www.npmjs.com/pac
 Outil de construction;json-schema-traverse;0.4.1;MIT;permissive;https://www.npmjs.com/package/json-schema-traverse
 Outil de construction;json-schema-traverse;1.0.0;MIT;permissive;https://www.npmjs.com/package/json-schema-traverse
 Outil de construction;json-stable-stringify-without-jsonify;1.0.1;MIT;permissive;https://www.npmjs.com/package/json-stable-stringify-without-jsonify
+Outil de construction;json-stringify-pretty-compact;4.0.0;MIT;permissive;https://www.npmjs.com/package/json-stringify-pretty-compact
 Outil de construction;json5;2.2.3;MIT;permissive;https://www.npmjs.com/package/json5
+Outil de construction;kdbush;4.1.0;ISC;permissive;https://www.npmjs.com/package/kdbush
 Outil de construction;keyv;4.5.4;MIT;permissive;https://www.npmjs.com/package/keyv
 Outil de construction;levn;0.4.1;MIT;permissive;https://www.npmjs.com/package/levn
 Outil de construction;lightningcss;1.32.0;MPL-2.0;faible;https://www.npmjs.com/package/lightningcss
@@ -446,7 +459,9 @@ Outil de construction;lru-cache;5.1.1;ISC;permissive;https://www.npmjs.com/packa
 Outil de construction;magic-string;0.30.21;MIT;permissive;https://www.npmjs.com/package/magic-string
 Outil de construction;minimatch;10.2.6;BlueOak-1.0.0;permissive;https://www.npmjs.com/package/minimatch
 Outil de construction;minimatch;3.1.5;ISC;permissive;https://www.npmjs.com/package/minimatch
+Outil de construction;minimist;1.2.8;MIT;permissive;https://www.npmjs.com/package/minimist
 Outil de construction;ms;2.1.3;MIT;permissive;https://www.npmjs.com/package/ms
+Outil de construction;murmurhash-js;1.0.0;MIT;permissive;https://www.npmjs.com/package/murmurhash-js
 Outil de construction;nanoid;3.3.19;MIT;permissive;https://www.npmjs.com/package/nanoid
 Outil de construction;natural-compare;1.4.0;MIT;permissive;https://www.npmjs.com/package/natural-compare
 Outil de construction;node-releases;2.0.51;MIT;permissive;https://www.npmjs.com/package/node-releases
@@ -461,14 +476,18 @@ Outil de construction;parent-module;1.0.1;MIT;permissive;https://www.npmjs.com/p
 Outil de construction;path-exists;4.0.0;MIT;permissive;https://www.npmjs.com/package/path-exists
 Outil de construction;path-key;3.1.1;MIT;permissive;https://www.npmjs.com/package/path-key
 Outil de construction;pathe;2.0.3;MIT;permissive;https://www.npmjs.com/package/pathe
+Outil de construction;pbf;5.1.2;BSD-3-Clause;permissive;https://www.npmjs.com/package/pbf
 Outil de construction;picocolors;1.1.1;ISC;permissive;https://www.npmjs.com/package/picocolors
 Outil de construction;picomatch;4.0.5;MIT;permissive;https://www.npmjs.com/package/picomatch
 Outil de construction;pngjs;5.0.0;MIT;permissive;https://www.npmjs.com/package/pngjs
 Outil de construction;postcss;8.5.24;MIT;permissive;https://www.npmjs.com/package/postcss
+Outil de construction;potpack;2.1.0;ISC;permissive;https://www.npmjs.com/package/potpack
 Outil de construction;prelude-ls;1.2.1;MIT;permissive;https://www.npmjs.com/package/prelude-ls
 Outil de construction;prettier;3.9.6;MIT;permissive;https://www.npmjs.com/package/prettier
 Outil de construction;prettier-linter-helpers;1.0.1;MIT;permissive;https://www.npmjs.com/package/prettier-linter-helpers
+Outil de construction;protocol-buffers-schema;3.6.1;MIT;permissive;https://www.npmjs.com/package/protocol-buffers-schema
 Outil de construction;punycode;2.3.1;MIT;permissive;https://www.npmjs.com/package/punycode
+Outil de construction;quickselect;3.0.0;ISC;permissive;https://www.npmjs.com/package/quickselect
 Outil de construction;react-day-picker;9.14.0;MIT;permissive;https://www.npmjs.com/package/react-day-picker
 Outil de construction;react-hook-form;7.83.0;MIT;permissive;https://www.npmjs.com/package/react-hook-form
 Outil de construction;react-is;16.13.1;MIT;permissive;https://www.npmjs.com/package/react-is
@@ -483,6 +502,7 @@ Outil de construction;require-directory;2.1.1;MIT;permissive;https://www.npmjs.c
 Outil de construction;require-from-string;2.0.2;MIT;permissive;https://www.npmjs.com/package/require-from-string
 Outil de construction;require-main-filename;2.0.0;ISC;permissive;https://www.npmjs.com/package/require-main-filename
 Outil de construction;resolve-from;4.0.0;MIT;permissive;https://www.npmjs.com/package/resolve-from
+Outil de construction;resolve-protobuf-schema;2.1.0;MIT;permissive;https://www.npmjs.com/package/resolve-protobuf-schema
 Outil de construction;rolldown;1.1.5;MIT;permissive;https://www.npmjs.com/package/rolldown
 Outil de construction;rolldown;1.2.0;MIT;permissive;https://www.npmjs.com/package/rolldown
 Outil de construction;rou3;0.8.1;MIT;permissive;https://www.npmjs.com/package/rou3
@@ -503,6 +523,7 @@ Outil de construction;tailwind-merge;3.6.0;MIT;permissive;https://www.npmjs.com/
 Outil de construction;tailwindcss;4.3.3;MIT;permissive;https://www.npmjs.com/package/tailwindcss
 Outil de construction;tapable;2.3.3;MIT;permissive;https://www.npmjs.com/package/tapable
 Outil de construction;tinyglobby;0.2.17;MIT;permissive;https://www.npmjs.com/package/tinyglobby
+Outil de construction;tinyqueue;3.0.0;ISC;permissive;https://www.npmjs.com/package/tinyqueue
 Outil de construction;ts-api-utils;2.5.0;MIT;permissive;https://www.npmjs.com/package/ts-api-utils
 Outil de construction;tsconfck;3.1.6;MIT;permissive;https://www.npmjs.com/package/tsconfck
 Outil de construction;tslib;1.14.1;0BSD;permissive;https://www.npmjs.com/package/tslib

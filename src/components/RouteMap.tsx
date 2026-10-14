@@ -8,16 +8,13 @@
  */
 import { useEffect, useRef, useState } from "react";
 import { Crosshair, Loader2, MapPin, Navigation } from "lucide-react";
-import { distanceKm, formatKm, googleDirectionsUrl, MAP_TILES, wazeUrl } from "@/lib/directions";
+import { distanceKm, formatKm, googleDirectionsUrl, wazeUrl } from "@/lib/directions";
 import { fetchRoute, formatDuration, type LatLng, type Route } from "@/lib/routing";
-import "leaflet/dist/leaflet.css";
+import { addBuildings, MAP_STYLE_URL, markerElement, tiltWhenClose } from "@/lib/basemap";
+import "maplibre-gl/dist/maplibre-gl.css";
 
 const GREEN = "#00853f";
 const RED = "#e31b23";
-
-function dot(color: string, label: string) {
-  return `<span aria-label="${label}" style="display:block;width:18px;height:18px;border-radius:9999px;background:${color};border:3px solid #fff;box-shadow:0 1px 5px rgba(0,0,0,.45)"></span>`;
-}
 
 export function RouteMap({
   destination,
@@ -31,9 +28,9 @@ export function RouteMap({
   height?: number;
 }) {
   const box = useRef<HTMLDivElement>(null);
-  const mapRef = useRef<import("leaflet").Map | null>(null);
-  const lineRef = useRef<import("leaflet").Polyline | null>(null);
-  const meMarkerRef = useRef<import("leaflet").Marker | null>(null);
+  const mapRef = useRef<import("maplibre-gl").Map | null>(null);
+  const meMarkerRef = useRef<import("maplibre-gl").Marker | null>(null);
+  const readyRef = useRef(false);
   const [me, setMe] = useState<LatLng | null>(null);
   const [route, setRoute] = useState<Route | null>(null);
   const [locating, setLocating] = useState(false);
@@ -43,31 +40,36 @@ export function RouteMap({
   // La carte et le point d'arrivée : affichés tout de suite, sans attendre la localisation.
   useEffect(() => {
     let cancelled = false;
-    import("leaflet")
-      .then((L) => {
+    import("maplibre-gl")
+      .then(({ Map, Marker, Popup, NavigationControl }) => {
         if (cancelled || !box.current || mapRef.current) return;
-        const map = L.map(box.current, { scrollWheelZoom: false }).setView(
-          [destination.lat, destination.lng],
-          14,
-        );
+        const map = new Map({
+          container: box.current,
+          style: MAP_STYLE_URL,
+          center: [destination.lng, destination.lat],
+          zoom: 15,
+          // Le style porte déjà ses mentions de source : repliées, pour ne pas manger la carte.
+          attributionControl: { compact: true },
+          scrollZoom: false,
+        });
         mapRef.current = map;
-        L.tileLayer(MAP_TILES.url, { maxZoom: 18, attribution: MAP_TILES.attribution }).addTo(map);
-        L.marker([destination.lat, destination.lng], {
-          icon: L.divIcon({
-            className: "",
-            html: dot(GREEN, title),
-            iconSize: [18, 18],
-            iconAnchor: [9, 9],
-          }),
-          title,
-        })
-          .addTo(map)
-          .bindPopup(`${title}`);
-        requestAnimationFrame(() => map.invalidateSize());
+        map.addControl(new NavigationControl({ visualizePitch: true }), "top-left");
+        new Marker({ element: markerElement(GREEN) })
+          .setLngLat([destination.lng, destination.lat])
+          .setPopup(new Popup({ offset: 14, closeButton: false }).setText(title))
+          .addTo(map);
+        map.on("load", () => {
+          readyRef.current = true;
+          addBuildings(map);
+          map.resize();
+          // Vue inclinée sur le lieu de consultation : on reconnaît le quartier d'un coup d'œil.
+          tiltWhenClose(map, 14);
+        });
       })
       .catch(() => !cancelled && setFailed(true));
     return () => {
       cancelled = true;
+      readyRef.current = false;
       mapRef.current?.remove();
       mapRef.current = null;
     };
@@ -83,34 +85,55 @@ export function RouteMap({
       if (cancelled) return;
       setRoute(found);
       setNoRoute(!found);
-      const L = await import("leaflet");
+      const { Marker, Popup, LngLatBounds } = await import("maplibre-gl");
       const map = mapRef.current;
       if (!map || cancelled) return;
       meMarkerRef.current?.remove();
-      meMarkerRef.current = L.marker([me.lat, me.lng], {
-        icon: L.divIcon({
-          className: "",
-          html: dot(RED, "Ma position"),
-          iconSize: [18, 18],
-          iconAnchor: [9, 9],
-        }),
-        title: "Ma position",
-      })
-        .addTo(map)
-        .bindPopup("Ma position");
-      lineRef.current?.remove();
-      const points: [number, number][] = found?.points ?? [
-        [me.lat, me.lng],
-        [destination.lat, destination.lng],
-      ];
-      lineRef.current = L.polyline(points, {
-        color: GREEN,
-        weight: 5,
-        opacity: 0.85,
-        // Trajet direct (service indisponible) : pointillés, pour ne pas le faire passer pour une route.
-        dashArray: found ? undefined : "8 8",
-      }).addTo(map);
-      map.fitBounds(lineRef.current.getBounds(), { padding: [30, 30] });
+      meMarkerRef.current = new Marker({ element: markerElement(RED) })
+        .setLngLat([me.lng, me.lat])
+        .setPopup(new Popup({ offset: 14, closeButton: false }).setText("Ma position"))
+        .addTo(map);
+
+      // Le tracé : [latitude, longitude] côté calcul d'itinéraire, [longitude, latitude] pour la carte.
+      const line: [number, number][] = (
+        found?.points ?? [
+          [me.lat, me.lng],
+          [destination.lat, destination.lng],
+        ]
+      ).map(([lat, lng]) => [lng, lat] as [number, number]);
+
+      const draw = () => {
+        const data = {
+          type: "Feature" as const,
+          properties: {},
+          geometry: { type: "LineString" as const, coordinates: line },
+        };
+        const existing = map.getSource("fajma-trajet");
+        if (existing) {
+          (existing as import("maplibre-gl").GeoJSONSource).setData(data);
+        } else {
+          map.addSource("fajma-trajet", { type: "geojson", data });
+          map.addLayer({
+            id: "fajma-trajet",
+            type: "line",
+            source: "fajma-trajet",
+            layout: { "line-cap": "round", "line-join": "round" },
+            paint: {
+              "line-color": GREEN,
+              "line-width": 5,
+              "line-opacity": 0.85,
+              // Trajet direct (service indisponible) : pointillés, pour ne pas le faire passer pour une route.
+              ...(found ? {} : { "line-dasharray": [1.5, 1.5] }),
+            },
+          });
+        }
+        const bounds = new LngLatBounds();
+        for (const point of line) bounds.extend(point);
+        map.fitBounds(bounds, { padding: 50, duration: 0 });
+      };
+      // Le style peut ne pas être encore chargé : on attend, sinon la couche est refusée.
+      if (readyRef.current) draw();
+      else map.once("load", draw);
     })();
     return () => {
       cancelled = true;

@@ -9,6 +9,9 @@ import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 const DJANGO_URL = process.env.DJANGO_URL ?? "http://127.0.0.1:8000";
 
 export default defineConfig({
+  // La carte crée un fil d'exécution séparé pour dessiner les tuiles. Si Vite la pré-assemble, l'adresse de
+  // ce fichier est réécrite et le fil ne se charge plus (« Worker failed to load ») : on l'exclut.
+  optimizeDeps: { exclude: ["maplibre-gl"] },
   plugins: [
     tailwindcss(),
     tsConfigPaths({ projects: ["./tsconfig.json"] }),

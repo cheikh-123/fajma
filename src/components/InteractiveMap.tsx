@@ -1,5 +1,5 @@
 /**
- * Carte interactive de l'accueil (Leaflet, OpenStreetMap) : médecins et pharmacies à leur adresse, zoom et
+ * Carte interactive de l'accueil : rues, quartiers et bâtiments en relief (fond vectoriel OpenStreetMap),
  * déplacement, « Autour de moi » (position du téléphone, distances), et pour chaque lieu : prendre rendez-vous,
  * itinéraire Google Maps ou Waze, appeler. Sans réseau ou si la carte ne peut pas se charger, la carte dessinée
  * du Sénégal (SenegalMap) s'affiche à la place.
@@ -9,25 +9,28 @@ import { useEffect, useRef, useState } from "react";
 import { Crosshair, Loader2, Pill, Stethoscope } from "lucide-react";
 import type { DoctorListItem, Pharmacy } from "@/api/types";
 import { SenegalMap } from "@/components/SenegalMap";
-import { distanceKm, formatKm, googleDirectionsUrl, MAP_TILES, wazeUrl } from "@/lib/directions";
-import "leaflet/dist/leaflet.css";
+import { distanceKm, formatKm, googleDirectionsUrl, wazeUrl } from "@/lib/directions";
+import { addBuildings, MAP_STYLE_URL, tiltWhenClose } from "@/lib/basemap";
+import "maplibre-gl/dist/maplibre-gl.css";
 
 type Layer = "doctors" | "pharmacies" | "duty";
 type Me = { lat: number; lng: number };
 
-/** La fiche s'ouvre toujours entièrement visible, sous les boutons de zoom. */
-const POPUP = {
-  autoPanPaddingTopLeft: [60, 50] as [number, number],
-  autoPanPaddingBottomRight: [20, 20] as [number, number],
-};
+/** La fiche s'ouvre au-dessus du repère, sans croix de fermeture (on referme en cliquant ailleurs). */
+const POPUP = { offset: 18, closeButton: false, maxWidth: "260px" };
 
 const SENEGAL_BOUNDS: [[number, number], [number, number]] = [
   [12.3, -17.6],
   [16.7, -11.3],
 ];
 
-function pin(color: string, glyph: string) {
-  return `<span style="display:grid;place-items:center;width:28px;height:28px;border-radius:9999px;background:${color};border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.35);color:#fff;font:700 13px/1 system-ui">${glyph}</span>`;
+/** Repère rond avec sa lettre, construit en DOM : le nom du lieu n'est jamais interprété comme du HTML. */
+function pinElement(color: string, glyph: string, label: string) {
+  const el = document.createElement("span");
+  el.title = label;
+  el.textContent = glyph;
+  el.style.cssText = `display:grid;place-items:center;width:28px;height:28px;border-radius:9999px;background:${color};border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.35);color:#fff;font:700 13px/1 system-ui;cursor:pointer`;
+  return el;
 }
 
 /** Contenu d'une fiche (construit en DOM : aucune donnée n'est interprétée comme du HTML). */
@@ -78,9 +81,14 @@ export function InteractiveMap({
   pharmacies: Pharmacy[];
 }) {
   const box = useRef<HTMLDivElement>(null);
-  const mapRef = useRef<import("leaflet").Map | null>(null);
-  const layersRef = useRef<Record<Layer, import("leaflet").LayerGroup> | null>(null);
-  const meRef = useRef<import("leaflet").Layer | null>(null);
+  const mapRef = useRef<import("maplibre-gl").Map | null>(null);
+  // MapLibre n'a pas de groupes de calques : on garde les marqueurs par rubrique et on les affiche ou non.
+  const markersRef = useRef<Record<Layer, import("maplibre-gl").Marker[]>>({
+    doctors: [],
+    pharmacies: [],
+    duty: [],
+  });
+  const meRef = useRef<import("maplibre-gl").Marker | null>(null);
   const navigate = useNavigate();
   const [failed, setFailed] = useState(false);
   const [ready, setReady] = useState(false);
@@ -92,32 +100,36 @@ export function InteractiveMap({
   // Création de la carte (une fois).
   useEffect(() => {
     let cancelled = false;
-    import("leaflet")
-      .then((L) => {
+    import("maplibre-gl")
+      .then(({ Map, NavigationControl }) => {
         if (cancelled || !box.current) return;
-        const map = L.map(box.current, {
-          scrollWheelZoom: false,
-          zoomControl: true,
-          minZoom: 6,
+        const map = new Map({
+          container: box.current,
+          style: MAP_STYLE_URL,
+          bounds: [
+            SENEGAL_BOUNDS[0][1],
+            SENEGAL_BOUNDS[0][0],
+            SENEGAL_BOUNDS[1][1],
+            SENEGAL_BOUNDS[1][0],
+          ],
+          maxBounds: [-20, 10.5, -9.5, 18.5],
+          minZoom: 5,
           maxZoom: 18,
+          // Le style porte déjà ses mentions de source : repliées, pour ne pas manger la carte.
+          attributionControl: { compact: true },
+          scrollZoom: false,
         });
-        map.fitBounds(SENEGAL_BOUNDS);
-        map.setMaxBounds([
-          [10.5, -20],
-          [18.5, -9.5],
-        ]);
-        L.tileLayer(MAP_TILES.url, { maxZoom: 18, attribution: MAP_TILES.attribution }).addTo(map);
-        // Molette : seulement après un clic sur la carte (la page défile normalement).
-        map.on("click focus", () => map.scrollWheelZoom.enable());
-        map.on("mouseout", () => map.scrollWheelZoom.disable());
+        map.addControl(new NavigationControl({ visualizePitch: true }), "top-left");
+        // Molette : seulement après un clic sur la carte, sinon la page ne défile plus.
+        map.on("click", () => map.scrollZoom.enable());
+        map.getCanvas().addEventListener("mouseleave", () => map.scrollZoom.disable());
         mapRef.current = map;
-        layersRef.current = {
-          doctors: L.layerGroup(),
-          pharmacies: L.layerGroup(),
-          duty: L.layerGroup(),
-        };
-        requestAnimationFrame(() => map.invalidateSize());
-        setReady(true); // affiche les marqueurs
+        map.on("load", () => {
+          addBuildings(map);
+          map.resize();
+          tiltWhenClose(map);
+          setReady(true); // affiche les marqueurs
+        });
       })
       .catch(() => setFailed(true));
     return () => {
@@ -130,27 +142,25 @@ export function InteractiveMap({
   // Marqueurs (médecins, pharmacies), refaits quand les données ou la position changent.
   useEffect(() => {
     const map = mapRef.current;
-    const groups = layersRef.current;
-    if (!ready || !map || !groups) return;
+    if (!ready || !map) return;
     let cancelled = false;
-    import("leaflet").then((L) => {
+    import("maplibre-gl").then(({ Marker, Popup }) => {
       if (cancelled) return;
-      for (const g of Object.values(groups)) g.clearLayers();
+      const groups = markersRef.current;
+      for (const list of Object.values(groups)) for (const m of list) m.remove();
+      groups.doctors = [];
+      groups.pharmacies = [];
+      groups.duty = [];
       const away = (lat: number, lng: number) =>
         me ? [`À ${formatKm(distanceKm(me, { lat, lng }))} de vous`] : [];
       for (const d of doctors) {
         if (d.latitude == null || d.longitude == null) continue;
-        const marker = L.marker([d.latitude, d.longitude], {
-          icon: L.divIcon({
-            className: "",
-            html: pin("#00853f", "+"),
-            iconSize: [28, 28],
-            iconAnchor: [14, 14],
-          }),
-          title: d.full_name,
-        });
-        marker.bindPopup(
-          () =>
+        const marker = new Marker({ element: pinElement("#00853f", "+", d.full_name) }).setLngLat([
+          d.longitude,
+          d.latitude,
+        ]);
+        marker.setPopup(
+          new Popup(POPUP).setDOMContent(
             card({
               title: d.full_name,
               lines: [
@@ -171,22 +181,16 @@ export function InteractiveMap({
                 { label: "Waze", href: wazeUrl(d.latitude!, d.longitude!) },
               ],
             }),
-          POPUP,
+          ),
         );
-        groups.doctors.addLayer(marker);
+        groups.doctors.push(marker);
       }
       for (const p of pharmacies) {
-        const marker = L.marker([p.latitude, p.longitude], {
-          icon: L.divIcon({
-            className: "",
-            html: pin(p.is_on_duty ? "#b45309" : "#0f7f5f", "Rx"),
-            iconSize: [28, 28],
-            iconAnchor: [14, 14],
-          }),
-          title: p.name,
-        });
-        marker.bindPopup(
-          () =>
+        const marker = new Marker({
+          element: pinElement(p.is_on_duty ? "#b45309" : "#0f7f5f", "Rx", p.name),
+        }).setLngLat([p.longitude, p.latitude]);
+        marker.setPopup(
+          new Popup(POPUP).setDOMContent(
             card({
               title: p.name,
               lines: [
@@ -206,14 +210,17 @@ export function InteractiveMap({
                   : []),
               ],
             }),
-          POPUP,
+          ),
         );
-        groups.pharmacies.addLayer(marker);
-        if (p.is_on_duty) groups.duty.addLayer(marker);
+        groups.pharmacies.push(marker);
+        if (p.is_on_duty) groups.duty.push(marker);
       }
-      for (const [name, g] of Object.entries(groups) as [Layer, import("leaflet").LayerGroup][]) {
-        if (name === layer) g.addTo(map);
-        else g.remove();
+      // Une pharmacie de garde figure dans deux rubriques : on n'affiche que celle qui est demandée.
+      for (const [name, list] of Object.entries(groups) as [
+        Layer,
+        import("maplibre-gl").Marker[],
+      ][]) {
+        for (const m of list) if (name === layer) m.addTo(map);
       }
     });
     return () => {
@@ -225,18 +232,17 @@ export function InteractiveMap({
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !me) return;
-    import("leaflet").then((L) => {
+    import("maplibre-gl").then(({ Marker, Popup }) => {
       meRef.current?.remove();
-      meRef.current = L.circleMarker([me.lat, me.lng], {
-        radius: 8,
-        color: "#fff",
-        weight: 3,
-        fillColor: "#2563eb",
-        fillOpacity: 1,
-      })
-        .bindTooltip("Vous êtes ici")
+      const dot = document.createElement("span");
+      dot.setAttribute("aria-label", "Vous êtes ici");
+      dot.style.cssText =
+        "display:block;width:16px;height:16px;border-radius:9999px;background:#2563eb;border:3px solid #fff;box-shadow:0 1px 5px rgba(0,0,0,.45)";
+      meRef.current = new Marker({ element: dot })
+        .setLngLat([me.lng, me.lat])
+        .setPopup(new Popup({ offset: 14, closeButton: false }).setText("Vous êtes ici"))
         .addTo(map);
-      map.setView([me.lat, me.lng], 13);
+      map.easeTo({ center: [me.lng, me.lat], zoom: 13 });
     });
   }, [me]);
 

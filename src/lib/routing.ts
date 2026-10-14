@@ -46,7 +46,7 @@ export async function fetchRoute(
     const route = data.code === "Ok" ? data.routes?.[0] : undefined;
     if (!route) return null;
     return {
-      // OSRM renvoie [longitude, latitude] ; Leaflet attend l'inverse.
+      // OSRM renvoie [longitude, latitude] ; le reste du code manipule [latitude, longitude].
       points: route.geometry.coordinates.map(([lng, lat]) => [lat, lng] as [number, number]),
       meters: route.distance,
       seconds: route.duration,

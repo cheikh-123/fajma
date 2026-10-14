@@ -1,6 +1,6 @@
 # Dossier technique et sécurité — Fajma
 
-**Version du dossier :** 7.8 — 14 octobre 2026
+**Version du dossier :** 7.9 — 14 octobre 2026
 **Périmètre :** code source du dépôt `sante-connect-main` (backend Django, frontend React, déploiement), services tiers.
 **Public visé :** acquéreurs, investisseurs, auditeurs techniques et juridiques, équipe technique reprenant le projet.
 
@@ -169,3 +169,4 @@ Ces points sont signalés **« À vérifier »**.
 | 7.6 | 09/10/2026 | **Dossier remanié pour la lecture** : couverture refaite (titre, repères chiffrés vérifiables, destinataires, mention de confidentialité) et **sommaire avec les numéros de page**, calculés en mesurant réellement chaque chapitre plutôt qu'en les estimant ; chaque ligne renvoie au chapitre. Toute référence aux plateformes du prototype initial a été retirée du dossier : le texte dit désormais ce qui compte pour un acquéreur — aucune dépendance à une plateforme propriétaire, installation sur n'importe quel serveur Linux |
 | 7.7 | 14/10/2026 | **Aucun nom de concurrent dans le dossier ni dans le code** : la synthèse ne se compare plus à une plateforme étrangère, elle dit ce que Fajma est — rendez-vous par USSD sans internet, wolof et français, Wave et Orange Money, IPM et mutuelles CMU, entraide familiale depuis la diaspora, ticket virtuel d'hôpital, liste nationale des médicaments essentiels. Commentaire et fichier de tests renommés en conséquence |
 | 7.8 | 14/10/2026 | **Journal d'audit scellé en chaîne** (§ 2.5, § 2.6) : chaque évènement est signé avec le sceau du précédent, toute retouche faite directement en base — la seule que le code ne pouvait pas empêcher — casse la chaîne et `manage.py verifier_journal` nomme l'évènement en cause ; « ancre » à conserver hors du système pour se prémunir aussi de quelqu'un qui contrôlerait le serveur. **Champ non reconnu refusé sur les écrans de consentement** (droits d'un proche aidant, fiche d'urgence) : une faute de frappe ne peut plus faire croire qu'un droit a été retiré |
+| 7.9 | 14/10/2026 | **Cartes refaites en vue 3D** (accueil, recherche de médecins, itinéraire vers un rendez-vous) : rues, quartiers et **bâtiments en relief**, la vue basculant d'elle-même en perspective dès qu'on s'approche. Fond vectoriel libre, sans clé ni compte, **hébergeable sur votre serveur** le jour voulu — aucune dépendance. Les tuiles de Google ne sont pas utilisables hors de son propre outil payant, et le rendu de Snapchat vient d'un prestataire payant : les deux auraient créé la dépendance que le projet évite |

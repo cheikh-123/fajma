@@ -1,6 +1,6 @@
 # 7. Inventaire des licences
 
-Inventaire généré le 08/10/2026 par `tools/inventaire_licences.py` à partir des fichiers de
+Inventaire généré le 14/10/2026 par `tools/inventaire_licences.py` à partir des fichiers de
 dépendances du dépôt (`backend/requirements.txt` et environnement installé, `package-lock.json`). Il couvre
 les dépendances directes **et indirectes**. Liste complète, avec la source de chaque composant :
 `annexes/licences.csv` (ouvrable dans un tableur). À régénérer avant toute cession pour refléter la version
@@ -12,7 +12,7 @@ livrée.
 |---|---|---|---|---|---|
 | Serveur (Python) | 47 | 40 | 7 | 0 | 0 |
 | Application web — envoyée aux navigateurs | 49 | 49 | 0 | 0 | 0 |
-| Outils de construction et de développement — non livrés | 439 | 415 | 24 | 0 | 0 |
+| Outils de construction et de développement — non livrés | 460 | 436 | 24 | 0 | 0 |
 
 - **Permissive** (MIT, BSD, ISC, Apache 2.0, PSF…) : usage commercial libre, y compris dans un logiciel
   vendu ; seule obligation, conserver les mentions de copyright et de licence.
@@ -140,9 +140,9 @@ livrée.
 | eventemitter3 | 4.0.7 | MIT | permissive |
 | fast-equals | 5.4.1 | MIT | permissive |
 | internmap | 2.0.3 | ISC | permissive |
-| leaflet | 1.9.4 | BSD-2-Clause | permissive |
 | lodash | 4.18.1 | MIT | permissive |
 | lucide-react | 0.575.0 | ISC | permissive |
+| maplibre-gl | 6.14.0 | BSD-3-Clause | permissive |
 | pako | 1.0.11 | (MIT AND Zlib) | permissive |
 | pdf-lib | 1.17.1 | MIT | permissive |
 | prop-types | 15.8.1 | MIT | permissive |
@@ -163,5 +163,5 @@ livrée.
 | victory-vendor | 36.9.2 | MIT AND ISC | permissive |
 | zod | 3.25.76 | MIT | permissive |
 
-Les 439 outils de construction et de développement (Vite, TypeScript, Tailwind, ESLint, Prettier et
+Les 460 outils de construction et de développement (Vite, TypeScript, Tailwind, ESLint, Prettier et
 leurs dépendances) ne sont pas envoyés aux navigateurs ; ils figurent dans `annexes/licences.csv`.

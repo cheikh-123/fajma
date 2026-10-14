@@ -168,6 +168,6 @@ Heures : stockées en UTC, affichées à l'heure de Dakar (UTC+0 toute l'année)
 
 Backend (`backend/requirements.txt`) : Django 6.1, djangorestframework, django-tasks-db, psycopg 3,
 gunicorn, whitenoise, cryptography (chiffrement des fichiers), sentry-sdk, python-dotenv, pywebpush,
-icalendar. Frontend livré aux navigateurs : React 19, TanStack Router/Start/Query, Leaflet, Recharts, pdf-lib,
+icalendar. Frontend livré aux navigateurs : React 19, TanStack Router/Start/Query, MapLibre GL (cartes en relief), Recharts, pdf-lib,
 qrcode, lucide-react, sonner, zod (49 composants au total) ; construction : Vite, TypeScript, Tailwind CSS 4.
 Inventaire complet et licences : [chapitre 7](07-licences.md).

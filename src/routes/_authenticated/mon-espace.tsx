@@ -15,7 +15,7 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { lazy, Suspense, useState } from "react";
-// Carte d'itinéraire : chargée seulement quand le patient l'ouvre (Leaflet est volumineux).
+// Carte d'itinéraire : chargée seulement quand le patient l'ouvre (la bibliothèque de carte est volumineuse).
 const RouteMap = lazy(() => import("@/components/RouteMap").then((m) => ({ default: m.RouteMap })));
 import {
   BellRing,

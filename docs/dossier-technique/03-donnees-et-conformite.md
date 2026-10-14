@@ -50,7 +50,7 @@
 | Jitsi `meet.jit.si` (tant qu'il n'est pas auto-hébergé) | Vidéo | **Flux audio/vidéo de la consultation** | Hors Sénégal, sans contrat |
 | Fournisseur IA (Google Gemini par défaut) | Assistant d'orientation | Symptômes saisis | Hors Sénégal |
 | Fournisseur IA (Google Gemini par défaut) | Assistant de prise de notes des médecins (si activé : `AI_NOTES_ENABLED`) | **Texte des notes de consultation** (sans nom, téléphone ni identifiant du patient), à la demande du médecin | Hors Sénégal ⚖️ — à désactiver tant que ce transfert n'est pas autorisé ; une mise en forme locale sans IA reste disponible |
-| OpenStreetMap | Fonds de carte | Adresse IP du visiteur | Hors Sénégal |
+| OpenFreeMap (données OpenStreetMap) | Fonds de carte | Adresse IP du visiteur | Hors Sénégal — supprimable en hébergeant le fond de carte soi-même (§ 4.1) |
 | Google Fonts | Polices | Adresse IP du visiteur | Hors Sénégal |
 | Sentry (facultatif) | Suivi des erreurs | Traces techniques (sans données personnelles : option désactivée) | Selon compte |
 

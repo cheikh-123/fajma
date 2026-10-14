@@ -1,7 +1,8 @@
 import { useEffect, useRef } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { googleDirectionsUrl, MAP_TILES, wazeUrl } from "@/lib/directions";
-import "leaflet/dist/leaflet.css";
+import { googleDirectionsUrl, wazeUrl } from "@/lib/directions";
+import { addBuildings, DAKAR, MAP_STYLE_URL, markerElement, tiltWhenClose } from "@/lib/basemap";
+import "maplibre-gl/dist/maplibre-gl.css";
 
 export type MapPoint = {
   id: string;
@@ -13,29 +14,32 @@ export type MapPoint = {
 };
 
 /**
- * Carte OpenStreetMap (Leaflet) des médecins. Chargée uniquement dans le navigateur.
- * Les marqueurs sont des pastilles CSS : pas d'image externe à charger.
+ * Carte des médecins : rues, quartiers et bâtiments en relief (fond vectoriel OpenStreetMap).
+ * Chargée uniquement dans le navigateur, et seulement quand la carte est réellement affichée.
  */
 export function DoctorMap({ points, height = 420 }: { points: MapPoint[]; height?: number }) {
   const box = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    let map: import("leaflet").Map | undefined;
+    let map: import("maplibre-gl").Map | undefined;
     let cancelled = false;
-    import("leaflet").then((L) => {
+    import("maplibre-gl").then(({ Map, Marker, Popup, NavigationControl, LngLatBounds }) => {
       if (cancelled || !box.current) return;
-      map = L.map(box.current, { scrollWheelZoom: false }).setView([14.7167, -17.4677], 11);
-      L.tileLayer(MAP_TILES.url, { maxZoom: 18, attribution: MAP_TILES.attribution }).addTo(map);
-      const icon = L.divIcon({
-        className: "",
-        html: '<span style="display:block;width:18px;height:18px;border-radius:9999px;background:#00853f;border:3px solid white;box-shadow:0 1px 4px rgba(0,0,0,.4)"></span>',
-        iconSize: [18, 18],
-        iconAnchor: [9, 9],
+      map = new Map({
+        container: box.current,
+        style: MAP_STYLE_URL,
+        center: DAKAR,
+        zoom: 10,
+        // Le style porte déjà ses mentions de source : repliées, pour ne pas manger la carte.
+        attributionControl: { compact: true },
+        // La molette ne doit pas capturer le défilement de la page : on zoome aux boutons ou à deux doigts.
+        scrollZoom: false,
       });
-      const bounds: [number, number][] = [];
+      map.addControl(new NavigationControl({ visualizePitch: true }), "top-left");
+
+      const bounds = new LngLatBounds();
       for (const p of points) {
-        const marker = L.marker([p.lat, p.lng], { icon, title: p.title }).addTo(map);
         const popup = document.createElement("div");
         const name = document.createElement("b");
         name.textContent = p.title;
@@ -48,7 +52,8 @@ export function DoctorMap({ points, height = 420 }: { points: MapPoint[]; height
         }
         const link = document.createElement("button");
         link.textContent = "Voir les disponibilités →";
-        link.style.cssText = "margin-top:6px;color:#00853f;font-weight:600;font-size:12px";
+        link.style.cssText =
+          "display:block;margin-top:6px;color:#00853f;font-weight:600;font-size:12px";
         link.onclick = () => navigate({ to: "/medecins/$id", params: { id: p.doctorId } });
         popup.append(link);
         // Itinéraire : ouvre l'application GPS du téléphone (Google Maps ou Waze).
@@ -65,17 +70,24 @@ export function DoctorMap({ points, height = 420 }: { points: MapPoint[]; height
             "display:inline-block;margin:6px 10px 0 0;color:#00753a;font-weight:600;font-size:12px";
           popup.append(a);
         }
-        marker.bindPopup(popup);
-        bounds.push([p.lat, p.lng]);
+        new Marker({ element: markerElement() })
+          .setLngLat([p.lng, p.lat])
+          .setPopup(new Popup({ offset: 14, closeButton: false }).setDOMContent(popup))
+          .addTo(map!);
+        bounds.extend([p.lng, p.lat]);
       }
-      // Cadrage après la mise en page : la carte doit connaître sa taille réelle pour englober tous les points.
-      const fit = () => {
+
+      map.on("load", () => {
         if (!map) return;
-        map.invalidateSize();
-        if (bounds.length > 1) map.fitBounds(bounds, { padding: [30, 30], maxZoom: 13 });
-        else if (bounds.length === 1) map.setView(bounds[0]!, 14);
-      };
-      requestAnimationFrame(fit);
+        addBuildings(map);
+        map.resize();
+        // La vue bascule en relief dès que l'on s'approche d'un cabinet, et revient à plat en s'éloignant.
+        tiltWhenClose(map);
+        if (points.length > 1) map.fitBounds(bounds, { padding: 40, maxZoom: 13, duration: 0 });
+        else if (points.length === 1) {
+          map.jumpTo({ center: [points[0]!.lng, points[0]!.lat], zoom: 16 });
+        }
+      });
     });
     return () => {
       cancelled = true;
